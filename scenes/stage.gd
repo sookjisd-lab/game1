@@ -3,9 +3,14 @@ extends Node2D
 
 
 const HUD_SCENE: PackedScene = preload("res://ui/hud.tscn")
+const LEVEL_UP_UI_SCENE: PackedScene = preload("res://ui/level_up_ui.tscn")
+const GAME_OVER_UI_SCENE: PackedScene = preload("res://ui/game_over_ui.tscn")
+const PAUSE_UI_SCENE: PackedScene = preload("res://ui/pause_ui.tscn")
 
 @onready var _player: CharacterBody2D = $Player
 var _hud: CanvasLayer = null
+var _level_up_ui: CanvasLayer = null
+var _game_over_ui: CanvasLayer = null
 
 
 func _ready() -> void:
@@ -15,8 +20,14 @@ func _ready() -> void:
 	)
 	SpawnManager.register_stage(self, _player)
 	DropManager.register(self, _player)
+	UpgradeManager.register_player(_player)
+	DamageNumberManager.register_stage(self)
 	_player.player_died.connect(_on_player_died)
+	_player.leveled_up.connect(_on_player_leveled_up)
 	_setup_hud()
+	_setup_level_up_ui()
+	_setup_game_over_ui()
+	_setup_pause_ui()
 	_draw_debug_grid()
 
 
@@ -26,8 +37,35 @@ func _setup_hud() -> void:
 	_hud.connect_player(_player)
 
 
+func _setup_level_up_ui() -> void:
+	_level_up_ui = LEVEL_UP_UI_SCENE.instantiate()
+	add_child(_level_up_ui)
+
+
+func _setup_pause_ui() -> void:
+	var pause_ui := PAUSE_UI_SCENE.instantiate()
+	add_child(pause_ui)
+
+
+func _setup_game_over_ui() -> void:
+	_game_over_ui = GAME_OVER_UI_SCENE.instantiate()
+	add_child(_game_over_ui)
+
+
 func _on_player_died() -> void:
 	GameManager.end_run(false)
+	_game_over_ui.show_results(
+		GameManager.run_elapsed_time,
+		SpawnManager.total_kills,
+		_player.current_level,
+		DropManager.total_xp,
+	)
+
+
+func _on_player_leveled_up(_new_level: int) -> void:
+	GameManager.change_state(Enums.GameState.LEVEL_UP)
+	var choices := UpgradeManager.generate_choices(Constants.LEVEL_UP_CHOICES)
+	_level_up_ui.show_choices(choices)
 
 
 ## 이동 확인용 디버그 격자를 생성한다. 에셋 완성 후 제거 예정.

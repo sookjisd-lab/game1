@@ -9,11 +9,12 @@ const ENEMY_SCENE: PackedScene = preload("res://entities/enemies/enemy.tscn")
 const SPAWN_MARGIN: float = 32.0
 const DESPAWN_DISTANCE: float = 400.0
 
+var total_kills: int = 0
 var _spawn_timer: float = 0.0
 var _spawn_interval: float = 1.5
 var _player: Node2D = null
 var _stage: Node2D = null
-var _enemy_data_pool: Array[EnemyData] = []
+var _all_enemy_data: Array[EnemyData] = []
 var _active_enemies: Array[Area2D] = []
 
 
@@ -43,17 +44,34 @@ func register_stage(stage: Node2D, player: Node2D) -> void:
 
 
 func _load_enemy_data() -> void:
-	var tooth_flower := preload("res://data/enemies/tooth_flower.tres")
-	_enemy_data_pool.append(tooth_flower)
+	_all_enemy_data.append(preload("res://data/enemies/tooth_flower.tres"))
+	_all_enemy_data.append(preload("res://data/enemies/shadow_cat.tres"))
+	_all_enemy_data.append(preload("res://data/enemies/spider_doll.tres"))
+	_all_enemy_data.append(preload("res://data/enemies/candle_ghost.tres"))
+	_all_enemy_data.append(preload("res://data/enemies/twisted_bread.tres"))
+	_all_enemy_data.append(preload("res://data/enemies/bookworm.tres"))
+
+
+func _get_available_enemies() -> Array[EnemyData]:
+	var elapsed: float = GameManager.run_elapsed_time
+	var available: Array[EnemyData] = []
+	for data in _all_enemy_data:
+		if elapsed >= data.spawn_after_seconds:
+			available.append(data)
+	return available
 
 
 func _spawn_enemy() -> void:
 	if _player == null or _stage == null:
 		return
 
+	var pool := _get_available_enemies()
+	if pool.is_empty():
+		return
+
 	var enemy: Area2D = PoolManager.acquire(ENEMY_SCENE)
 	var spawn_pos := _get_spawn_position()
-	var enemy_data: EnemyData = _enemy_data_pool.pick_random()
+	var enemy_data: EnemyData = pool.pick_random()
 
 	if enemy.get_parent() == null:
 		_stage.add_child(enemy)
@@ -91,8 +109,10 @@ func _adjust_difficulty() -> void:
 		_spawn_interval = 1.5
 	elif elapsed < 300.0:
 		_spawn_interval = 1.0
-	else:
+	elif elapsed < 600.0:
 		_spawn_interval = 0.6
+	else:
+		_spawn_interval = 0.4
 
 
 func _release_enemy(enemy: Area2D) -> void:
@@ -104,11 +124,13 @@ func _release_enemy(enemy: Area2D) -> void:
 func _on_enemy_died(enemy: Area2D) -> void:
 	_active_enemies.erase(enemy)
 	PoolManager.release(ENEMY_SCENE, enemy)
+	total_kills += 1
 	enemy_killed.emit()
 
 
 func _on_run_started() -> void:
 	_spawn_timer = 2.0
+	total_kills = 0
 
 
 func _on_state_changed(
@@ -117,6 +139,9 @@ func _on_state_changed(
 ) -> void:
 	if new_state == Enums.GameState.MENU:
 		_clear_all_enemies()
+		_player = null
+		_stage = null
+		_spawn_timer = 0.0
 
 
 func _clear_all_enemies() -> void:

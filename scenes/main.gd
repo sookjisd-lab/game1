@@ -8,6 +8,7 @@ var _current_scene: Node = null
 
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	GameManager.state_changed.connect(_on_game_state_changed)
 	_start_game()
 
@@ -48,3 +49,4 @@ func _on_game_state_changed(
 	match new_state:
 		Enums.GameState.MENU:
 			_clear_current_scene()
+			call_deferred("_start_game")

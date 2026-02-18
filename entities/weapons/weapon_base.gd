@@ -21,7 +21,8 @@ func _process(delta: float) -> void:
 	_cooldown_timer -= delta
 	if _cooldown_timer <= 0.0:
 		_attack()
-		_cooldown_timer = data.cooldown
+		var cd_mult: float = _owner_node.cooldown_multiplier if _owner_node else 1.0
+		_cooldown_timer = data.cooldown * cd_mult
 
 
 ## 서브클래스에서 오버라이드한다.

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/weapon_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+weapon_name = "저주받은 성경"
+damage = 8.0
+cooldown = 0.5
+attack_range = 50.0
+knockback = 10.0
+max_level = 8
+projectile_color = Color(0.6, 0.4, 0.9, 1)

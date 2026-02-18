@@ -1,0 +1,39 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/pause_ui.gd" id="1_pu"]
+
+[node name="PauseUI" type="CanvasLayer"]
+layer = 20
+script = ExtResource("1_pu")
+
+[node name="Overlay" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 320
+offset_bottom = 180
+color = Color(0, 0, 0, 0.5)
+
+[node name="CenterContainer" type="CenterContainer" parent="Overlay"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 320
+offset_bottom = 180
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="Overlay/CenterContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PausedLabel" type="Label" parent="Overlay/CenterContainer/VBox"]
+layout_mode = 2
+text = "PAUSED"
+horizontal_alignment = 1
+
+[node name="HintLabel" type="Label" parent="Overlay/CenterContainer/VBox"]
+layout_mode = 2
+text = "ESC로 재개"
+horizontal_alignment = 1
+modulate = Color(0.7, 0.7, 0.7, 1)

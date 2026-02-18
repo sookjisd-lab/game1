@@ -27,7 +27,6 @@ func _create_slash(direction: Vector2) -> void:
 	shape.rotation = direction.angle()
 	slash.add_child(shape)
 
-	# 시각 피드백
 	var visual := ColorRect.new()
 	visual.color = Color(data.projectile_color, 0.7)
 	visual.size = Vector2(data.attack_range, data.attack_range * 0.6)
@@ -37,10 +36,11 @@ func _create_slash(direction: Vector2) -> void:
 
 	get_tree().current_scene.add_child(slash)
 
+	var effective_damage: float = data.damage * _owner_node.damage_multiplier
 	slash.area_entered.connect(
 		func(area: Area2D) -> void:
 			if area.has_method("take_damage"):
-				area.take_damage(data.damage)
+				area.take_damage(effective_damage)
 	)
 
 	# 짧은 시간 후 제거

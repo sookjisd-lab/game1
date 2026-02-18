@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="UpgradeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/upgrade_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+upgrade_name = "공격력 증가"
+description = "공격력 +20%"
+card_color = Color(0.9, 0.3, 0.3, 1)
+stat_key = "damage_mult"
+value = 0.2

@@ -80,7 +80,9 @@ func _handle_state_transition(
 	match new_state:
 		Enums.GameState.PAUSED, \
 		Enums.GameState.LEVEL_UP, \
-		Enums.GameState.TREASURE:
+		Enums.GameState.TREASURE, \
+		Enums.GameState.GAME_OVER, \
+		Enums.GameState.VICTORY:
 			get_tree().paused = true
 		Enums.GameState.PLAYING:
 			get_tree().paused = false

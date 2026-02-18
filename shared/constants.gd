@@ -24,5 +24,7 @@ const MAX_PASSIVES: int = 6
 ## -- 데미지 숫자 --
 const MAX_DAMAGE_NUMBERS: int = 20
 
-## -- 경험치 흡수 --
+## -- 경험치 --
 const BASE_MAGNET_RADIUS: float = 32.0  # px
+const XP_BASE: int = 5       # 레벨 2 도달에 필요한 XP
+const XP_GROWTH: int = 5     # 레벨당 추가 XP 증가량

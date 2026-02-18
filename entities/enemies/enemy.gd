@@ -52,6 +52,7 @@ func _physics_process(delta: float) -> void:
 func take_damage(amount: float) -> void:
 	current_hp -= amount
 	_flash_white()
+	DamageNumberManager.spawn_damage(amount, global_position)
 	if current_hp <= 0.0:
 		call_deferred("_die")
 

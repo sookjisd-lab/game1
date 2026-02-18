@@ -36,12 +36,21 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -14
+offset_top = -10
 offset_right = 320
 offset_bottom = 180
 grow_horizontal = 2
 grow_vertical = 0
+theme_override_constants/separation = 4
 
-[node name="XPLabel" type="Label" parent="BottomBar"]
+[node name="LevelLabel" type="Label" parent="BottomBar"]
 layout_mode = 2
-text = "XP: 0"
+text = "Lv.1"
+
+[node name="XPBar" type="ProgressBar" parent="BottomBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 6)
+max_value = 5.0
+value = 0.0
+show_percentage = false

@@ -32,6 +32,10 @@ func spawn_xp_gem(position: Vector2, value: int) -> void:
 	_active_gems.append(gem)
 
 
+func _ready() -> void:
+	GameManager.state_changed.connect(_on_state_changed)
+
+
 func _process(_delta: float) -> void:
 	if _player == null:
 		return
@@ -39,7 +43,7 @@ func _process(_delta: float) -> void:
 
 
 func _check_magnet_range() -> void:
-	var magnet_radius := Constants.BASE_MAGNET_RADIUS
+	var magnet_radius: float = _player.magnet_radius
 	for gem: Area2D in _active_gems:
 		if not gem.visible:
 			continue
@@ -66,3 +70,13 @@ func clear_all() -> void:
 		PoolManager.release(XP_GEM_SCENE, gem)
 	_active_gems.clear()
 	total_xp = 0
+
+
+func _on_state_changed(
+		_old_state: Enums.GameState,
+		new_state: Enums.GameState
+) -> void:
+	if new_state == Enums.GameState.MENU:
+		clear_all()
+		_player = null
+		_stage = null
