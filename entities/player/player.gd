@@ -65,6 +65,7 @@ func take_damage(amount: float) -> void:
 	_damage_cooldown = 0.5
 	hp_changed.emit(current_hp, max_hp)
 	_flash_hit()
+	_shake_camera()
 	if current_hp <= 0.0:
 		player_died.emit()
 
@@ -80,6 +81,15 @@ func _get_input_direction() -> Vector2:
 	if Input.is_physical_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP):
 		direction.y -= 1
 	return direction.normalized()
+
+
+func _shake_camera() -> void:
+	var camera := get_node_or_null("Camera2D") as Camera2D
+	if camera == null:
+		return
+	var tween := create_tween()
+	tween.tween_property(camera, "offset", Vector2(randf_range(-2, 2), randf_range(-2, 2)), 0.05)
+	tween.tween_property(camera, "offset", Vector2.ZERO, 0.05)
 
 
 func _flash_hit() -> void:

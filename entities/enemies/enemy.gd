@@ -61,9 +61,30 @@ func take_damage(amount: float, knockback_force: float = 0.0, knockback_origin: 
 
 
 func _die() -> void:
+	_spawn_death_particles()
 	DropManager.spawn_xp_gem(global_position, data.xp_reward)
 	died.emit(self)
 	deactivate()
+
+
+func _spawn_death_particles() -> void:
+	var color: Color = data.sprite_color if data != null else Color.WHITE
+	for i in range(4):
+		var particle := ColorRect.new()
+		particle.color = color
+		particle.size = Vector2(3, 3)
+		particle.position = -Vector2(1.5, 1.5)
+		particle.z_index = 5
+		var container := Node2D.new()
+		container.global_position = global_position
+		get_tree().current_scene.add_child(container)
+		container.add_child(particle)
+		var dir := Vector2.from_angle(TAU / 4.0 * i + randf_range(-0.3, 0.3))
+		var tween := container.create_tween()
+		tween.set_parallel(true)
+		tween.tween_property(container, "position", container.position + dir * randf_range(8, 16), 0.3)
+		tween.tween_property(particle, "modulate:a", 0.0, 0.3)
+		tween.chain().tween_callback(container.queue_free)
 
 
 func _cache_nodes() -> void:
