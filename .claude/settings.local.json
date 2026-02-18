@@ -12,7 +12,12 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git config:*)",
-      "Bash(gh auth:*)"
+      "Bash(gh auth:*)",
+      "Bash(ln:*)",
+      "Bash(pkill:*)",
+      "Bash(wslpath:*)",
+      "Bash(git -C /home/hgkim/porjects/game1 add entities/player/player.gd scenes/stage.gd)",
+      "Bash(git -C:*)"
     ]
   }
 }

@@ -2,7 +2,10 @@ extends Node2D
 ## 기본 스테이지 씬. 플레이어 배치와 카메라 추적을 담당한다.
 
 
+const HUD_SCENE: PackedScene = preload("res://ui/hud.tscn")
+
 @onready var _player: CharacterBody2D = $Player
+var _hud: CanvasLayer = null
 
 
 func _ready() -> void:
@@ -10,7 +13,21 @@ func _ready() -> void:
 		Constants.VIEWPORT_WIDTH / 2.0,
 		Constants.VIEWPORT_HEIGHT / 2.0
 	)
+	SpawnManager.register_stage(self, _player)
+	DropManager.register(self, _player)
+	_player.player_died.connect(_on_player_died)
+	_setup_hud()
 	_draw_debug_grid()
+
+
+func _setup_hud() -> void:
+	_hud = HUD_SCENE.instantiate()
+	add_child(_hud)
+	_hud.connect_player(_player)
+
+
+func _on_player_died() -> void:
+	GameManager.end_run(false)
 
 
 ## 이동 확인용 디버그 격자를 생성한다. 에셋 완성 후 제거 예정.
