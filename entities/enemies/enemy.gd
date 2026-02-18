@@ -49,10 +49,13 @@ func _physics_process(delta: float) -> void:
 	global_position += direction * data.move_speed * delta
 
 
-func take_damage(amount: float) -> void:
+func take_damage(amount: float, knockback_force: float = 0.0, knockback_origin: Vector2 = Vector2.ZERO) -> void:
 	current_hp -= amount
 	_flash_white()
 	DamageNumberManager.spawn_damage(amount, global_position)
+	if knockback_force > 0.0 and knockback_origin != Vector2.ZERO:
+		var direction: Vector2 = knockback_origin.direction_to(global_position)
+		global_position += direction * knockback_force
 	if current_hp <= 0.0:
 		call_deferred("_die")
 

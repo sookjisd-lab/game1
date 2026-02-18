@@ -9,10 +9,36 @@ var _cooldown_timer: float = 0.0
 var _owner_node: Node2D = null
 
 
+const DAMAGE_PER_LEVEL: float = 0.15
+const COOLDOWN_PER_LEVEL: float = 0.05
+const RANGE_PER_LEVEL: float = 0.10
+
+
 func initialize(weapon_data: WeaponData, owner: Node2D) -> void:
 	data = weapon_data
 	_owner_node = owner
 	_cooldown_timer = 0.0
+
+
+func level_up() -> void:
+	if level >= data.max_level:
+		return
+	level += 1
+
+
+func get_effective_damage() -> float:
+	var mult: float = 1.0 + DAMAGE_PER_LEVEL * (level - 1)
+	return data.damage * mult
+
+
+func get_effective_cooldown() -> float:
+	var mult: float = 1.0 - COOLDOWN_PER_LEVEL * (level - 1)
+	return data.cooldown * maxf(mult, 0.3)
+
+
+func get_effective_range() -> float:
+	var mult: float = 1.0 + RANGE_PER_LEVEL * (level - 1)
+	return data.attack_range * mult
 
 
 func _process(delta: float) -> void:
@@ -22,7 +48,7 @@ func _process(delta: float) -> void:
 	if _cooldown_timer <= 0.0:
 		_attack()
 		var cd_mult: float = _owner_node.cooldown_multiplier if _owner_node else 1.0
-		_cooldown_timer = data.cooldown * cd_mult
+		_cooldown_timer = get_effective_cooldown() * cd_mult
 
 
 ## 서브클래스에서 오버라이드한다.

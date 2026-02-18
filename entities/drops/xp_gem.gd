@@ -20,7 +20,7 @@ func _ready() -> void:
 	_cache_nodes()
 
 
-func activate(value: int, spawn_position: Vector2, color: Color) -> void:
+func activate(value: int, spawn_position: Vector2, color: Color, gem_size: Vector2 = Vector2(6, 6)) -> void:
 	xp_value = value
 	global_position = spawn_position
 	_is_active = true
@@ -32,6 +32,8 @@ func activate(value: int, spawn_position: Vector2, color: Color) -> void:
 		_collision.set_deferred("disabled", false)
 	if _visual != null:
 		_visual.color = color
+		_visual.size = gem_size
+		_visual.position = -gem_size / 2.0
 
 
 func deactivate() -> void:

@@ -15,32 +15,35 @@ func _attack() -> void:
 
 
 func _create_slash(direction: Vector2) -> void:
+	var atk_range: float = get_effective_range()
 	var slash := Area2D.new()
 	slash.collision_layer = 4
 	slash.collision_mask = 2
-	slash.global_position = global_position + direction * (data.attack_range * 0.5)
+	slash.global_position = global_position + direction * (atk_range * 0.5)
 
 	var shape := CollisionShape2D.new()
 	var rect := RectangleShape2D.new()
-	rect.size = Vector2(data.attack_range, data.attack_range * 0.6)
+	rect.size = Vector2(atk_range, atk_range * 0.6)
 	shape.shape = rect
 	shape.rotation = direction.angle()
 	slash.add_child(shape)
 
 	var visual := ColorRect.new()
 	visual.color = Color(data.projectile_color, 0.7)
-	visual.size = Vector2(data.attack_range, data.attack_range * 0.6)
+	visual.size = Vector2(atk_range, atk_range * 0.6)
 	visual.position = -visual.size / 2.0
 	visual.rotation = direction.angle()
 	slash.add_child(visual)
 
 	get_tree().current_scene.add_child(slash)
 
-	var effective_damage: float = data.damage * _owner_node.damage_multiplier
+	var effective_damage: float = get_effective_damage() * _owner_node.damage_multiplier
+	var kb: float = data.knockback
+	var origin: Vector2 = global_position
 	slash.area_entered.connect(
 		func(area: Area2D) -> void:
 			if area.has_method("take_damage"):
-				area.take_damage(effective_damage)
+				area.take_damage(effective_damage, kb, origin)
 	)
 
 	# 짧은 시간 후 제거

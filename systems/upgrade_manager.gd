@@ -23,6 +23,20 @@ func register_player(player: CharacterBody2D) -> void:
 
 func generate_choices(count: int) -> Array[UpgradeData]:
 	var available: Array[UpgradeData] = []
+
+	# 기존 무기 레벨업 선택지
+	if _player != null:
+		for weapon: WeaponBase in _player._weapons:
+			if weapon.level < weapon.data.max_level:
+				var upgrade := UpgradeData.new()
+				upgrade.upgrade_name = weapon.data.weapon_name
+				upgrade.description = "Lv.%d → Lv.%d" % [weapon.level, weapon.level + 1]
+				upgrade.card_color = weapon.data.projectile_color
+				upgrade.stat_key = "weapon_levelup"
+				upgrade.weapon_script_path = weapon.get_script().resource_path
+				available.append(upgrade)
+
+	# 일반 업그레이드 + 새 무기 선택지
 	for upgrade in _upgrade_pool:
 		if upgrade.stat_key == "new_weapon":
 			if upgrade.weapon_script_path in _acquired_weapons:
@@ -63,6 +77,8 @@ func apply_upgrade(data: UpgradeData) -> void:
 			_player.hp_changed.emit(_player.current_hp, _player.max_hp)
 		"new_weapon":
 			_equip_weapon(data)
+		"weapon_levelup":
+			_levelup_weapon(data)
 
 	upgrade_applied.emit(data)
 
@@ -79,6 +95,15 @@ func _equip_weapon(data: UpgradeData) -> void:
 	weapon.initialize(weapon_data, _player)
 	_player._weapons.append(weapon)
 	_acquired_weapons.append(data.weapon_script_path)
+
+
+func _levelup_weapon(data: UpgradeData) -> void:
+	if _player == null:
+		return
+	for weapon: WeaponBase in _player._weapons:
+		if weapon.get_script().resource_path == data.weapon_script_path:
+			weapon.level_up()
+			return
 
 
 func _load_upgrades() -> void:

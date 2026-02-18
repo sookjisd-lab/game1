@@ -53,7 +53,7 @@ func _attack() -> void:
 
 
 func _update_orb_positions() -> void:
-	var radius: float = data.attack_range
+	var radius: float = get_effective_range()
 	for i in range(_orbs.size()):
 		var offset_angle: float = _angle + (TAU / _orbs.size()) * i
 		_orbs[i].position = Vector2(
@@ -68,8 +68,8 @@ func _on_orb_hit(area: Area2D) -> void:
 	var id: int = area.get_instance_id()
 	if _hit_timers.has(id):
 		return
-	var effective_damage: float = data.damage * _owner_node.damage_multiplier
-	area.take_damage(effective_damage)
+	var effective_damage: float = get_effective_damage() * _owner_node.damage_multiplier
+	area.take_damage(effective_damage, data.knockback, _owner_node.global_position)
 	_hit_timers[id] = HIT_COOLDOWN
 
 

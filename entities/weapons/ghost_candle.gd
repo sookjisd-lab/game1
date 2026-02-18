@@ -25,7 +25,7 @@ func _process(delta: float) -> void:
 	if _cooldown_timer <= 0.0:
 		_attack()
 		var cd_mult: float = _owner_node.cooldown_multiplier if _owner_node else 1.0
-		_cooldown_timer = data.cooldown * cd_mult
+		_cooldown_timer = get_effective_cooldown() * cd_mult
 
 	_update_flames(delta)
 
@@ -50,12 +50,13 @@ func _spawn_flame(target: Area2D) -> void:
 	flame.global_position = global_position
 	get_tree().current_scene.add_child(flame)
 
-	var effective_damage: float = data.damage * _owner_node.damage_multiplier
+	var effective_damage: float = get_effective_damage() * _owner_node.damage_multiplier
+	var kb: float = data.knockback
 
 	flame.area_entered.connect(
 		func(area: Area2D) -> void:
 			if area.has_method("take_damage"):
-				area.take_damage(effective_damage)
+				area.take_damage(effective_damage, kb, flame.global_position)
 				flame.queue_free()
 	)
 

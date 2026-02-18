@@ -6,7 +6,9 @@ extends Node
 signal xp_collected(amount: int)
 
 const XP_GEM_SCENE: PackedScene = preload("res://entities/drops/xp_gem.tscn")
-const GEM_COLOR_SMALL := Color(0.45, 0.55, 0.95, 1)
+const GEM_SMALL := { "color": Color(0.45, 0.55, 0.95, 1), "size": Vector2(6, 6) }
+const GEM_MEDIUM := { "color": Color(0.3, 0.85, 0.45, 1), "size": Vector2(8, 8) }
+const GEM_LARGE := { "color": Color(0.9, 0.25, 0.25, 1), "size": Vector2(10, 10) }
 
 var _player: Node2D = null
 var _stage: Node2D = null
@@ -28,8 +30,17 @@ func spawn_xp_gem(position: Vector2, value: int) -> void:
 	if gem.get_parent() == null:
 		_stage.add_child(gem)
 
-	gem.activate(value, position, GEM_COLOR_SMALL)
+	var tier: Dictionary = _get_gem_tier(value)
+	gem.activate(value, position, tier["color"], tier["size"])
 	_active_gems.append(gem)
+
+
+func _get_gem_tier(xp_value: int) -> Dictionary:
+	if xp_value >= 20:
+		return GEM_LARGE
+	elif xp_value >= 5:
+		return GEM_MEDIUM
+	return GEM_SMALL
 
 
 func _ready() -> void:
