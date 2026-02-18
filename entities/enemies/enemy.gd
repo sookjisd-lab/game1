@@ -9,9 +9,12 @@ var data: EnemyData
 var current_hp: float
 var _target: Node2D = null
 var _is_active: bool = false
+var _placeholder: ColorRect
+var _collision: CollisionShape2D
 
-@onready var _placeholder: ColorRect = $Placeholder
-@onready var _collision: CollisionShape2D = $CollisionShape2D
+
+func _ready() -> void:
+	_cache_nodes()
 
 
 ## 풀에서 꺼낼 때 호출한다. 데이터와 위치를 설정한다.
@@ -22,6 +25,7 @@ func activate(enemy_data: EnemyData, spawn_position: Vector2, target: Node2D) ->
 	global_position = spawn_position
 	_is_active = true
 	visible = true
+	_cache_nodes()
 	_collision.set_deferred("disabled", false)
 	add_to_group("enemies")
 	_apply_visuals()
@@ -31,7 +35,8 @@ func activate(enemy_data: EnemyData, spawn_position: Vector2, target: Node2D) ->
 func deactivate() -> void:
 	_is_active = false
 	visible = false
-	_collision.set_deferred("disabled", true)
+	if _collision != null:
+		_collision.set_deferred("disabled", true)
 	_target = null
 	if is_in_group("enemies"):
 		remove_from_group("enemies")
@@ -48,7 +53,7 @@ func take_damage(amount: float) -> void:
 	current_hp -= amount
 	_flash_white()
 	if current_hp <= 0.0:
-		_die()
+		call_deferred("_die")
 
 
 func _die() -> void:
@@ -57,7 +62,16 @@ func _die() -> void:
 	deactivate()
 
 
+func _cache_nodes() -> void:
+	if _placeholder == null:
+		_placeholder = get_node_or_null("Placeholder")
+	if _collision == null:
+		_collision = get_node_or_null("CollisionShape2D")
+
+
 func _apply_visuals() -> void:
+	if _placeholder == null or _collision == null:
+		return
 	_placeholder.color = data.sprite_color
 	_placeholder.size = data.sprite_size
 	_placeholder.position = -data.sprite_size / 2.0
@@ -66,9 +80,11 @@ func _apply_visuals() -> void:
 
 
 func _flash_white() -> void:
+	if _placeholder == null:
+		return
 	_placeholder.color = Color.WHITE
 	get_tree().create_timer(0.08).timeout.connect(
 		func() -> void:
-			if _is_active and data != null:
+			if _is_active and data != null and _placeholder != null:
 				_placeholder.color = data.sprite_color
 	)

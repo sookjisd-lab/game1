@@ -55,12 +55,12 @@ func _spawn_enemy() -> void:
 	var spawn_pos := _get_spawn_position()
 	var enemy_data: EnemyData = _enemy_data_pool.pick_random()
 
-	enemy.activate(enemy_data, spawn_pos, _player)
-	enemy.died.connect(_on_enemy_died.bind(enemy), CONNECT_ONE_SHOT)
-	_active_enemies.append(enemy)
-
 	if enemy.get_parent() == null:
 		_stage.add_child(enemy)
+
+	enemy.activate(enemy_data, spawn_pos, _player)
+	enemy.died.connect(_on_enemy_died, CONNECT_ONE_SHOT)
+	_active_enemies.append(enemy)
 
 
 func _get_spawn_position() -> Vector2:

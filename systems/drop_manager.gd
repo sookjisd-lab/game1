@@ -24,11 +24,12 @@ func spawn_xp_gem(position: Vector2, value: int) -> void:
 		return
 
 	var gem: Area2D = PoolManager.acquire(XP_GEM_SCENE)
-	gem.activate(value, position, GEM_COLOR_SMALL)
-	_active_gems.append(gem)
 
 	if gem.get_parent() == null:
 		_stage.add_child(gem)
+
+	gem.activate(value, position, GEM_COLOR_SMALL)
+	_active_gems.append(gem)
 
 
 func _process(_delta: float) -> void:

@@ -17,7 +17,10 @@
       "Bash(pkill:*)",
       "Bash(wslpath:*)",
       "Bash(git -C /home/hgkim/porjects/game1 add entities/player/player.gd scenes/stage.gd)",
-      "Bash(git -C:*)"
+      "Bash(git -C:*)",
+      "Bash(LIBGL_ALWAYS_SOFTWARE=1 /home/hgkim/.local/bin/godot:*)",
+      "Bash(LIBGL_ALWAYS_SOFTWARE=1 timeout 10 /home/hgkim/.local/bin/godot:*)",
+      "Bash(echo:*)"
     ]
   }
 }

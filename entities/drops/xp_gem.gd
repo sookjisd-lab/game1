@@ -9,12 +9,15 @@ var _is_active: bool = false
 var _being_attracted: bool = false
 var _attract_target: Node2D = null
 var _attract_speed: float = 0.0
-
-@onready var _visual: ColorRect = $Visual
-@onready var _collision: CollisionShape2D = $CollisionShape2D
+var _visual: ColorRect
+var _collision: CollisionShape2D
 
 const ATTRACT_ACCELERATION: float = 400.0
 const MAX_ATTRACT_SPEED: float = 250.0
+
+
+func _ready() -> void:
+	_cache_nodes()
 
 
 func activate(value: int, spawn_position: Vector2, color: Color) -> void:
@@ -24,8 +27,11 @@ func activate(value: int, spawn_position: Vector2, color: Color) -> void:
 	_being_attracted = false
 	_attract_speed = 0.0
 	visible = true
-	_collision.set_deferred("disabled", false)
-	_visual.color = color
+	_cache_nodes()
+	if _collision != null:
+		_collision.set_deferred("disabled", false)
+	if _visual != null:
+		_visual.color = color
 
 
 func deactivate() -> void:
@@ -33,7 +39,8 @@ func deactivate() -> void:
 	_being_attracted = false
 	_attract_target = null
 	visible = false
-	_collision.set_deferred("disabled", true)
+	if _collision != null:
+		_collision.set_deferred("disabled", true)
 
 
 func start_attract(target: Node2D) -> void:
@@ -59,3 +66,10 @@ func _physics_process(delta: float) -> void:
 func _collected() -> void:
 	collected.emit(self)
 	deactivate()
+
+
+func _cache_nodes() -> void:
+	if _visual == null:
+		_visual = get_node_or_null("Visual")
+	if _collision == null:
+		_collision = get_node_or_null("CollisionShape2D")

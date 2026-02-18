@@ -32,11 +32,12 @@ func add_weapon(weapon: WeaponBase) -> void:
 
 func _equip_starting_weapon() -> void:
 	var scissors_data: WeaponData = preload("res://data/weapons/cursed_scissors.tres")
-	var scissors_scene := preload("res://entities/weapons/cursed_scissors.gd")
-	var weapon: WeaponBase = WeaponBase.new()
-	weapon.set_script(scissors_scene)
-	weapon.data = scissors_data
-	add_weapon(weapon)
+	var weapon := Node2D.new()
+	weapon.set_script(preload("res://entities/weapons/cursed_scissors.gd"))
+	weapon.name = "CursedScissors"
+	add_child(weapon)
+	weapon.initialize(scissors_data, self)
+	_weapons.append(weapon)
 
 
 func _physics_process(delta: float) -> void:
