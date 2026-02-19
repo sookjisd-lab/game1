@@ -36,6 +36,8 @@ func show_phase(phase: int) -> void:
 
 
 func hide_boss() -> void:
+	_phase_label.text = ""
+	_phase_label.modulate.a = 0.0
 	visible = false
 
 
