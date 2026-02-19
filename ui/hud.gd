@@ -64,9 +64,7 @@ func _on_leveled_up(new_level: int) -> void:
 
 
 func _update_timer(elapsed: float) -> void:
-	var minutes: int = int(elapsed) / 60
-	var seconds: int = int(elapsed) % 60
-	_timer_label.text = "%02d:%02d" % [minutes, seconds]
+	_timer_label.text = GameManager.format_time(elapsed)
 
 
 func _update_kills(count: int) -> void:

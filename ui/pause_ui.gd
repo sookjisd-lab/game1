@@ -48,9 +48,7 @@ func _refresh_summary() -> void:
 	if _player == null or _summary_label == null:
 		return
 
-	var minutes: int = int(GameManager.run_elapsed_time) / 60
-	var seconds: int = int(GameManager.run_elapsed_time) % 60
-	var time_text := "%02d:%02d" % [minutes, seconds]
+	var time_text := GameManager.format_time(GameManager.run_elapsed_time)
 
 	var weapon_names: Array[String] = []
 	for weapon: WeaponBase in _player._weapons:

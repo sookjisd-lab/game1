@@ -32,16 +32,12 @@ func show_results(
 	_title_label.text = "클리어!" if is_victory else "밤이 끝났다..."
 	_title_label.modulate = Color(1, 0.84, 0, 1) if is_victory else Color(0.9, 0.3, 0.3, 1)
 
-	var minutes: int = int(elapsed_time) / 60
-	var seconds: int = int(elapsed_time) % 60
-	_time_value.text = "%02d:%02d" % [minutes, seconds]
+	_time_value.text = GameManager.format_time(elapsed_time)
 	_kills_value.text = str(kills)
 	_level_value.text = str(level)
 	_xp_value.text = str(total_xp)
 
-	var shards: int = kills + int(elapsed_time / 60.0) * 5
-	if is_victory:
-		shards += 50
+	var shards: int = GameManager.calculate_shards(kills, elapsed_time, is_victory)
 	_shards_value.text = "+%d" % shards
 
 	if not weapon_names.is_empty():

@@ -130,13 +130,16 @@ func _revive() -> void:
 	_flash_revive()
 
 
+func _get_sprite_color() -> Color:
+	return _character_data.sprite_color if _character_data != null else Color(0.96, 0.87, 0.7, 1)
+
+
 func _flash_revive() -> void:
 	var placeholder := $Placeholder as ColorRect
 	placeholder.color = Color(1, 1, 0.5, 1)
+	var original := _get_sprite_color()
 	get_tree().create_timer(0.3).timeout.connect(
-		func() -> void:
-			var original: Color = _character_data.sprite_color if _character_data != null else Color(0.96, 0.87, 0.7, 1)
-			placeholder.color = original
+		func() -> void: placeholder.color = original
 	)
 
 
@@ -166,7 +169,7 @@ func _shake_camera() -> void:
 
 func _flash_hit() -> void:
 	var placeholder := $Placeholder as ColorRect
-	var original_color := _character_data.sprite_color if _character_data != null else Color(0.96, 0.87, 0.7, 1)
+	var original_color := _get_sprite_color()
 	placeholder.color = Color(1, 0.3, 0.3, 1)
 	get_tree().create_timer(0.1).timeout.connect(
 		func() -> void: placeholder.color = original_color

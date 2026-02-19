@@ -78,13 +78,24 @@ func end_run(is_victory: bool) -> void:
 	run_ended.emit(is_victory)
 
 
-## 런 종료 시 기억 조각을 정산하고 기록을 갱신한다.
-func _settle_run(is_victory: bool) -> void:
-	var shards: int = 0
-	shards += SpawnManager.total_kills
-	shards += int(run_elapsed_time / 60.0) * 5
+## 기억 조각 획득량을 계산한다.
+static func calculate_shards(kills: int, elapsed_time: float, is_victory: bool) -> int:
+	var shards: int = kills + int(elapsed_time / 60.0) * 5
 	if is_victory:
 		shards += 50
+	return shards
+
+
+## 경과 시간을 "MM:SS" 형식으로 변환한다.
+static func format_time(elapsed_seconds: float) -> String:
+	var minutes: int = int(elapsed_seconds) / 60
+	var seconds: int = int(elapsed_seconds) % 60
+	return "%02d:%02d" % [minutes, seconds]
+
+
+## 런 종료 시 기억 조각을 정산하고 기록을 갱신한다.
+func _settle_run(is_victory: bool) -> void:
+	var shards: int = calculate_shards(SpawnManager.total_kills, run_elapsed_time, is_victory)
 
 	meta.memory_shards += shards
 	meta.total_kills_all_time += SpawnManager.total_kills

@@ -22,6 +22,7 @@ var _boss_hp_bar: CanvasLayer = null
 var _treasure_ui: CanvasLayer = null
 var _boss_warning: CanvasLayer = null
 var _pending_boss_name: String = ""
+var _countdown_active: bool = false
 
 
 func _ready() -> void:
@@ -193,7 +194,12 @@ func _get_weapon_names() -> Array[String]:
 	return names
 
 
+func is_countdown_active() -> bool:
+	return _countdown_active
+
+
 func _start_countdown() -> void:
+	_countdown_active = true
 	var overlay := CanvasLayer.new()
 	overlay.layer = 25
 	overlay.name = "CountdownOverlay"
@@ -219,6 +225,7 @@ func _start_countdown() -> void:
 	label.text = "1"
 	await get_tree().create_timer(1.0, true, false, true).timeout
 	overlay.queue_free()
+	_countdown_active = false
 	GameManager.start_run()
 
 

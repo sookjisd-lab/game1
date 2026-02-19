@@ -146,6 +146,9 @@ func _clear_current_scene() -> void:
 
 
 func _toggle_pause() -> void:
+	if _current_scene != null and _current_scene.has_method("is_countdown_active"):
+		if _current_scene.is_countdown_active():
+			return
 	if GameManager.current_state == Enums.GameState.PLAYING:
 		GameManager.change_state(Enums.GameState.PAUSED)
 	elif GameManager.current_state == Enums.GameState.PAUSED:
