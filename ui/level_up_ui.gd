@@ -49,9 +49,10 @@ func _create_card(data: UpgradeData, index: int) -> void:
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 2)
 
-	# 색상 헤더
+	# 색상 헤더 (신규 무기/패시브는 금색 테두리)
+	var is_new: bool = data.stat_key == "new_weapon" or data.stat_key == "new_passive"
 	var header := ColorRect.new()
-	header.color = data.card_color
+	header.color = Color(1, 0.84, 0, 1) if is_new else data.card_color
 	header.custom_minimum_size = Vector2(0, 14)
 	vbox.add_child(header)
 

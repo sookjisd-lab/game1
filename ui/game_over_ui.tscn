@@ -87,6 +87,6 @@ modulate = Color(1, 0.84, 0, 1)
 
 [node name="HintLabel" type="Label" parent="Overlay/CenterContainer/VBox"]
 layout_mode = 2
-text = "SPACE로 재시작"
+text = "SPACE로 돌아가기"
 horizontal_alignment = 1
 modulate = Color(0.7, 0.7, 0.7, 1)

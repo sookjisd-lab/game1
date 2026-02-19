@@ -55,6 +55,7 @@ func _ready() -> void:
 	_setup_boss_warning()
 	_setup_offscreen_indicator()
 	_draw_debug_grid()
+	_start_countdown()
 
 
 func _setup_hud() -> void:
@@ -71,6 +72,7 @@ func _setup_level_up_ui() -> void:
 func _setup_pause_ui() -> void:
 	var pause_ui := PAUSE_UI_SCENE.instantiate()
 	add_child(pause_ui)
+	pause_ui.register_player(_player)
 
 
 func _setup_game_over_ui() -> void:
@@ -90,11 +92,20 @@ func _setup_treasure_ui() -> void:
 
 func _on_player_died() -> void:
 	GameManager.end_run(false)
+	Engine.time_scale = 0.3
+	get_tree().create_timer(0.5 * 0.3).timeout.connect(_show_death_results)
+
+
+func _show_death_results() -> void:
+	Engine.time_scale = 1.0
 	_game_over_ui.show_results(
 		GameManager.run_elapsed_time,
 		SpawnManager.total_kills,
 		_player.current_level,
 		DropManager.total_xp,
+		false,
+		_get_weapon_names(),
+		StoryManager.get_run_discoveries(),
 	)
 
 
@@ -169,7 +180,46 @@ func _on_boss_defeated(is_victory: bool) -> void:
 			SpawnManager.total_kills,
 			_player.current_level,
 			DropManager.total_xp,
+			true,
+			_get_weapon_names(),
+			StoryManager.get_run_discoveries(),
 		)
+
+
+func _get_weapon_names() -> Array[String]:
+	var names: Array[String] = []
+	for weapon: WeaponBase in _player._weapons:
+		names.append("%s Lv.%d" % [weapon.data.weapon_name, weapon.level])
+	return names
+
+
+func _start_countdown() -> void:
+	var overlay := CanvasLayer.new()
+	overlay.layer = 25
+	overlay.name = "CountdownOverlay"
+	add_child(overlay)
+
+	var bg := ColorRect.new()
+	bg.color = Color(0.05, 0.02, 0.1, 0.6)
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(bg)
+
+	var label := Label.new()
+	label.set_anchors_preset(Control.PRESET_CENTER)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 24)
+	label.add_theme_color_override("font_color", Color(0.9, 0.75, 0.5, 1))
+	overlay.add_child(label)
+
+	get_tree().paused = true
+	label.text = "3"
+	await get_tree().create_timer(1.0, true, false, true).timeout
+	label.text = "2"
+	await get_tree().create_timer(1.0, true, false, true).timeout
+	label.text = "1"
+	await get_tree().create_timer(1.0, true, false, true).timeout
+	overlay.queue_free()
+	GameManager.start_run()
 
 
 func _apply_stage_visuals() -> void:

@@ -247,7 +247,7 @@ func _on_enemy_died(enemy: Area2D) -> void:
 
 
 func _on_run_started() -> void:
-	_spawn_timer = 2.0
+	_spawn_timer = 3.0
 	_elite_timer = ELITE_INTERVAL
 	_boss1_spawned = false
 	_boss1_warning_sent = false

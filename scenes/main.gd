@@ -129,7 +129,6 @@ func _on_stage_select_back() -> void:
 
 func _start_game(char_data: CharacterData, stg_data: StageData) -> void:
 	_load_stage(char_data, stg_data)
-	GameManager.start_run()
 
 
 func _load_stage(char_data: CharacterData, stg_data: StageData) -> void:
