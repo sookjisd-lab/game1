@@ -1,9 +1,12 @@
 extends CanvasLayer
-## 일시정지 시 표시되는 메뉴. ESC=계속, Q=포기. 런 요약을 함께 표시한다.
+## 일시정지 시 표시되는 메뉴. ESC=계속, S=설정, Q=포기. 런 요약을 함께 표시한다.
 
+
+const SETTINGS_UI_SCENE: PackedScene = preload("res://ui/settings_ui.tscn")
 
 var _player: CharacterBody2D = null
 var _summary_label: Label = null
+var _settings_ui: CanvasLayer = null
 @onready var _vbox: VBoxContainer = $Overlay/CenterContainer/VBox
 
 
@@ -24,6 +27,21 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
 		if event.physical_keycode == KEY_Q:
 			GameManager.change_state(Enums.GameState.MENU)
+		elif event.physical_keycode == KEY_S:
+			_open_settings()
+
+
+func _open_settings() -> void:
+	if _settings_ui == null:
+		_settings_ui = SETTINGS_UI_SCENE.instantiate()
+		get_parent().add_child(_settings_ui)
+		_settings_ui.closed.connect(_on_settings_closed)
+	visible = false
+	_settings_ui.show_settings()
+
+
+func _on_settings_closed() -> void:
+	visible = true
 
 
 func _on_state_changed(

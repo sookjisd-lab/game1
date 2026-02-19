@@ -53,7 +53,7 @@
 #### Resource 클래스
 | 클래스 | 파일 | 필드 |
 |--------|------|------|
-| EnemyData | `data/enemy_data.gd` | enemy_name, max_hp, move_speed, contact_damage, xp_reward, sprite_color, sprite_size, spawn_after_seconds |
+| EnemyData | `data/enemy_data.gd` | enemy_name, max_hp, move_speed, contact_damage, xp_reward, sprite_color, sprite_size, spawn_after_seconds, is_elite, is_stationary, attack_interval, attack_range, ability_type |
 | WeaponData | `data/weapon_data.gd` | weapon_name, damage, cooldown, attack_range, knockback, max_level, projectile_color |
 | UpgradeData | `data/upgrade_data.gd` | upgrade_name, description, card_color, stat_key, value, weapon_script_path, weapon_data_path |
 | PassiveData | `data/passive_data.gd` | passive_name, description, icon_color, stat_key, value_per_level, max_level |
@@ -222,6 +222,7 @@
 ### 적/보스
 - [x] ~~뿌리 손~~ (10분+, 고정 위치, 범위 공격) ✅
 - [x] ~~엘리트 몬스터 3종~~ (맹독 이빨꽃, 폭주 인형, 화염 양초) ✅
+- [x] ~~엘리트 특수 능력~~ (독웅덩이/분열/강화오라) ✅
 - [x] ~~보스: 영주 그림홀트~~ (10분, 64x64, 3페이즈) ✅
 - [x] ~~보스: 마녀의 사자~~ (20분, 96x96, 3페이즈) ✅
 
@@ -282,6 +283,9 @@
 - [x] ~~레벨업 카드 신규무기 금색 헤더~~ ✅
 - [x] ~~런 시작 3초 카운트다운~~ ✅
 - [x] ~~보스2 등장 시 스폰 70% 감소~~ ✅
+- [x] ~~기억 조각 공식 수정~~ ✅ (GDD 9.2: 일반1/엘리트10/보스50/분당5)
+- [x] ~~일시정지 설정 접근~~ ✅ ([S] 설정, ESC 돌아가기)
+- [x] ~~타이틀 종료 버튼~~ ✅ ([Q] 종료)
 
 ### 기타
 - [x] ~~AudioManager 구현~~ ✅ (볼륨 관리 + ConfigFile 저장)

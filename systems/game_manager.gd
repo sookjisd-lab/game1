@@ -78,12 +78,10 @@ func end_run(is_victory: bool) -> void:
 	run_ended.emit(is_victory)
 
 
-## 기억 조각 획득량을 계산한다.
-static func calculate_shards(kills: int, elapsed_time: float, is_victory: bool) -> int:
-	var shards: int = kills + int(elapsed_time / 60.0) * 5
-	if is_victory:
-		shards += 50
-	return shards
+## 기억 조각 획득량을 계산한다 (GDD 9.2: 일반=1, 엘리트=10, 보스=50, 분당=5).
+static func calculate_shards(total_kills: int, elite_kills_count: int, boss_kills_count: int, elapsed_time: float) -> int:
+	var normal_kills: int = total_kills - elite_kills_count - boss_kills_count
+	return maxi(normal_kills, 0) + elite_kills_count * 10 + boss_kills_count * 50 + int(elapsed_time / 60.0) * 5
 
 
 ## 경과 시간을 "MM:SS" 형식으로 변환한다.
@@ -95,7 +93,7 @@ static func format_time(elapsed_seconds: float) -> String:
 
 ## 런 종료 시 기억 조각을 정산하고 기록을 갱신한다.
 func _settle_run(is_victory: bool) -> void:
-	var shards: int = calculate_shards(SpawnManager.total_kills, run_elapsed_time, is_victory)
+	var shards: int = calculate_shards(SpawnManager.total_kills, SpawnManager.elite_kills, SpawnManager.boss_kills, run_elapsed_time)
 
 	meta.memory_shards += shards
 	meta.total_kills_all_time += SpawnManager.total_kills

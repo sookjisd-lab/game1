@@ -28,6 +28,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if not (event is InputEventKey and event.pressed):
 		return
+	get_viewport().set_input_as_handled()
 
 	match event.keycode:
 		KEY_W, KEY_UP:

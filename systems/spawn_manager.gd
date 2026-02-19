@@ -20,6 +20,8 @@ const BOSS2_SPAWN_TIME: float = 1200.0
 const BOSS2_SPAWN_REDUCTION: float = 0.7
 
 var total_kills: int = 0
+var elite_kills: int = 0
+var boss_kills: int = 0
 var _spawn_timer: float = 0.0
 var _spawn_interval: float = 1.5
 var _elite_timer: float = 0.0
@@ -187,6 +189,7 @@ func _on_boss_died() -> void:
 	var boss_pos: Vector2 = _current_boss.global_position if _current_boss != null else Vector2.ZERO
 	_current_boss = null
 	total_kills += 1
+	boss_kills += 1
 	enemy_killed.emit()
 	DropManager.spawn_treasure_chest(boss_pos)
 	boss_defeated.emit(_boss2_spawned)
@@ -235,12 +238,25 @@ func _release_enemy(enemy: Area2D) -> void:
 	PoolManager.release(ENEMY_SCENE, enemy)
 
 
+func spawn_mini_enemy(enemy_data: EnemyData, position: Vector2) -> void:
+	if _stage == null or _player == null:
+		return
+	var enemy: Area2D = PoolManager.acquire(ENEMY_SCENE)
+	if enemy.get_parent() == null:
+		_stage.add_child(enemy)
+	enemy.activate(enemy_data, position, _player)
+	enemy.died.connect(_on_enemy_died, CONNECT_ONE_SHOT)
+	_active_enemies.append(enemy)
+
+
 func _on_enemy_died(enemy: Area2D) -> void:
 	var pos: Vector2 = enemy.global_position
 	var is_elite: bool = enemy.data != null and enemy.data.is_elite
 	_active_enemies.erase(enemy)
 	PoolManager.release(ENEMY_SCENE, enemy)
 	total_kills += 1
+	if is_elite:
+		elite_kills += 1
 	enemy_killed.emit()
 	if is_elite and randf() < DropManager.ELITE_CHEST_CHANCE:
 		DropManager.spawn_treasure_chest(pos)
@@ -256,6 +272,8 @@ func _on_run_started() -> void:
 	_pending_boss_scene = null
 	_current_boss = null
 	total_kills = 0
+	elite_kills = 0
+	boss_kills = 0
 
 
 func _on_state_changed(

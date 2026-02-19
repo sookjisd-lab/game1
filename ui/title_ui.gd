@@ -35,6 +35,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_L:
 				visible = false
 				library_pressed.emit()
+			KEY_Q:
+				get_tree().quit()
 
 
 func _build_ui() -> void:
@@ -89,6 +91,12 @@ func _build_ui() -> void:
 	settings_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	settings_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.8, 1))
 	vbox.add_child(settings_label)
+
+	var quit_label := Label.new()
+	quit_label.text = "[Q] 종료"
+	quit_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	quit_label.add_theme_color_override("font_color", Color(0.6, 0.5, 0.5, 1))
+	vbox.add_child(quit_label)
 
 	var shards_label := Label.new()
 	shards_label.text = ""

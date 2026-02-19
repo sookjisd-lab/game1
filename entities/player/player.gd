@@ -178,7 +178,10 @@ func _flash_hit() -> void:
 
 func _on_hitbox_area_entered(area: Area2D) -> void:
 	if area.has_method("take_damage"):
-		take_damage(area.data.contact_damage)
+		var damage: float = area.data.contact_damage
+		if "contact_damage_multiplier" in area:
+			damage *= area.contact_damage_multiplier
+		take_damage(damage)
 
 
 func xp_to_next_level() -> int:

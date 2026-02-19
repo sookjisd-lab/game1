@@ -16,3 +16,4 @@ extends Resource
 @export var is_stationary: bool = false
 @export var attack_interval: float = 0.0
 @export var attack_range: float = 0.0
+@export var ability_type: String = ""

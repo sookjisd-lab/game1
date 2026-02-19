@@ -13,3 +13,4 @@ sprite_color = Color(1, 0.4, 0.8, 1)
 sprite_size = Vector2(24, 24)
 spawn_after_seconds = 300.0
 is_elite = true
+ability_type = "split_on_death"

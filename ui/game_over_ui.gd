@@ -37,7 +37,7 @@ func show_results(
 	_level_value.text = str(level)
 	_xp_value.text = str(total_xp)
 
-	var shards: int = GameManager.calculate_shards(kills, elapsed_time, is_victory)
+	var shards: int = GameManager.calculate_shards(kills, SpawnManager.elite_kills, SpawnManager.boss_kills, elapsed_time)
 	_shards_value.text = "+%d" % shards
 
 	if not weapon_names.is_empty():

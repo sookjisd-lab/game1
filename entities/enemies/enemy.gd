@@ -5,11 +5,23 @@ extends Area2D
 
 signal died(enemy: Area2D)
 
+const POISON_INTERVAL: float = 1.5
+const POISON_PUDDLE_LIFETIME: float = 3.2
+const POISON_TICK_INTERVAL: float = 0.8
+const POISON_DAMAGE: float = 3.0
+const POISON_RADIUS: float = 10.0
+const AURA_INTERVAL: float = 1.0
+const AURA_RADIUS: float = 48.0
+const AURA_BUFF: float = 1.5
+const SPLIT_COUNT: int = 3
+
 var data: EnemyData
 var current_hp: float
+var contact_damage_multiplier: float = 1.0
 var _target: Node2D = null
 var _is_active: bool = false
 var _attack_timer: float = 0.0
+var _ability_timer: float = 0.0
 var _placeholder: ColorRect
 var _collision: CollisionShape2D
 
@@ -26,11 +38,14 @@ func activate(enemy_data: EnemyData, spawn_position: Vector2, target: Node2D) ->
 	global_position = spawn_position
 	_is_active = true
 	_attack_timer = data.attack_interval
+	_ability_timer = 0.0
+	contact_damage_multiplier = 1.0
 	visible = true
 	_cache_nodes()
 	_collision.set_deferred("disabled", false)
 	add_to_group("enemies")
 	_apply_visuals()
+	_update_aura_visual()
 
 
 ## 풀에 반환할 때 호출한다.
@@ -42,6 +57,9 @@ func deactivate() -> void:
 	_target = null
 	if is_in_group("enemies"):
 		remove_from_group("enemies")
+	var aura := get_node_or_null("AuraVisual")
+	if aura != null:
+		aura.visible = false
 
 
 func _physics_process(delta: float) -> void:
@@ -57,6 +75,22 @@ func _physics_process(delta: float) -> void:
 		if _attack_timer <= 0.0:
 			_attack_timer = data.attack_interval
 			_ground_attack()
+
+	if data.ability_type != "":
+		_process_ability(delta)
+
+
+func _process_ability(delta: float) -> void:
+	_ability_timer -= delta
+	if _ability_timer > 0.0:
+		return
+	match data.ability_type:
+		"poison_trail":
+			_spawn_poison_puddle()
+			_ability_timer = POISON_INTERVAL
+		"damage_aura":
+			_apply_damage_aura()
+			_ability_timer = AURA_INTERVAL
 
 
 func take_damage(amount: float, knockback_force: float = 0.0, knockback_origin: Vector2 = Vector2.ZERO) -> void:
@@ -100,8 +134,87 @@ func _ground_attack() -> void:
 func _die() -> void:
 	_spawn_death_particles()
 	DropManager.spawn_xp_gem(global_position, data.xp_reward)
+	if data.ability_type == "split_on_death":
+		_split_on_death()
 	died.emit(self)
 	deactivate()
+
+
+## 독 웅덩이를 현재 위치에 생성한다. 일정 시간 동안 접촉한 플레이어에게 데미지를 준다.
+func _spawn_poison_puddle() -> void:
+	var puddle := Node2D.new()
+	puddle.global_position = global_position
+
+	var visual := ColorRect.new()
+	visual.color = Color(0.3, 0.75, 0.1, 0.3)
+	var puddle_size := Vector2(20, 20)
+	visual.size = puddle_size
+	visual.position = -puddle_size / 2.0
+	puddle.add_child(visual)
+
+	get_tree().current_scene.add_child(puddle)
+
+	var target_ref: Node2D = _target
+	var tween := puddle.create_tween()
+	var ticks: int = int(POISON_PUDDLE_LIFETIME / POISON_TICK_INTERVAL)
+	for i in range(ticks):
+		tween.tween_interval(POISON_TICK_INTERVAL)
+		tween.tween_callback(func() -> void:
+			if is_instance_valid(target_ref) and is_instance_valid(puddle):
+				if puddle.global_position.distance_to(target_ref.global_position) <= POISON_RADIUS:
+					target_ref.take_damage(POISON_DAMAGE)
+		)
+	tween.tween_property(visual, "modulate:a", 0.0, 0.5)
+	tween.tween_callback(puddle.queue_free)
+
+
+## 사망 시 소형 적 3마리로 분열한다.
+func _split_on_death() -> void:
+	var mini_data := _create_mini_data()
+	for i in range(SPLIT_COUNT):
+		var offset := Vector2.from_angle(TAU / float(SPLIT_COUNT) * i) * 10.0
+		SpawnManager.spawn_mini_enemy(mini_data, global_position + offset)
+
+
+func _create_mini_data() -> EnemyData:
+	var mini := EnemyData.new()
+	mini.enemy_name = data.enemy_name + " 조각"
+	mini.max_hp = maxf(data.max_hp * 0.25, 3.0)
+	mini.move_speed = data.move_speed * 1.3
+	mini.contact_damage = maxf(data.contact_damage * 0.4, 2.0)
+	mini.xp_reward = 2
+	mini.sprite_color = data.sprite_color.lightened(0.2)
+	mini.sprite_size = (data.sprite_size * 0.5).round()
+	return mini
+
+
+## 주변 적의 접촉 데미지를 강화한다.
+func _apply_damage_aura() -> void:
+	var enemies := get_tree().get_nodes_in_group("enemies")
+	for enemy: Node in enemies:
+		if enemy == self or not (enemy is Area2D):
+			continue
+		if enemy.global_position.distance_to(global_position) <= AURA_RADIUS:
+			enemy.contact_damage_multiplier = AURA_BUFF
+
+
+## 데미지 오라 시각 효과를 관리한다.
+func _update_aura_visual() -> void:
+	var aura := get_node_or_null("AuraVisual")
+	if data.ability_type == "damage_aura":
+		if aura == null:
+			aura = ColorRect.new()
+			aura.name = "AuraVisual"
+			aura.color = Color(1, 0.4, 0.15, 0.15)
+			var aura_size := Vector2(96, 96)
+			aura.size = aura_size
+			aura.position = -aura_size / 2.0
+			aura.z_index = -1
+			add_child(aura)
+		else:
+			aura.visible = true
+	elif aura != null:
+		aura.visible = false
 
 
 func _spawn_death_particles() -> void:
