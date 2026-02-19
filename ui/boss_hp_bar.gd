@@ -4,6 +4,7 @@ extends CanvasLayer
 
 var _name_label: Label
 var _hp_bar: ProgressBar
+var _phase_label: Label
 
 
 func _ready() -> void:
@@ -16,12 +17,22 @@ func show_boss(boss_name: String, current_hp: float, max_hp: float) -> void:
 	_name_label.text = boss_name
 	_hp_bar.max_value = max_hp
 	_hp_bar.value = current_hp
+	_phase_label.text = ""
+	_phase_label.modulate.a = 0.0
 	visible = true
 
 
 func update_hp(current_hp: float, max_hp: float) -> void:
 	_hp_bar.max_value = max_hp
 	_hp_bar.value = current_hp
+
+
+func show_phase(phase: int) -> void:
+	_phase_label.text = "Phase %d!" % phase
+	_phase_label.modulate = Color(1, 1, 1, 1)
+	var tween := create_tween()
+	tween.tween_interval(1.5)
+	tween.tween_property(_phase_label, "modulate:a", 0.0, 0.5)
 
 
 func hide_boss() -> void:
@@ -40,6 +51,12 @@ func _build_ui() -> void:
 
 	var vbox := VBoxContainer.new()
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+
+	_phase_label = Label.new()
+	_phase_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_phase_label.add_theme_color_override("font_color", Color(1, 0.3, 0.3, 1))
+	_phase_label.text = ""
+	vbox.add_child(_phase_label)
 
 	_name_label = Label.new()
 	_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

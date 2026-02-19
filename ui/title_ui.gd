@@ -7,6 +7,8 @@ signal altar_pressed
 signal settings_pressed
 signal library_pressed
 
+var _shards_label: Label = null
+
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -15,6 +17,8 @@ func _ready() -> void:
 
 
 func show_title() -> void:
+	if _shards_label != null:
+		_shards_label.text = "기억 조각: %d" % GameManager.meta.memory_shards
 	visible = true
 
 
@@ -98,19 +102,12 @@ func _build_ui() -> void:
 	quit_label.add_theme_color_override("font_color", Color(0.6, 0.5, 0.5, 1))
 	vbox.add_child(quit_label)
 
-	var shards_label := Label.new()
-	shards_label.text = ""
-	shards_label.name = "ShardsInfo"
-	shards_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	shards_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6, 1))
-	vbox.add_child(shards_label)
+	_shards_label = Label.new()
+	_shards_label.text = ""
+	_shards_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_shards_label.add_theme_color_override("font_color", Color(0.85, 0.75, 0.4, 1))
+	vbox.add_child(_shards_label)
 
 	center.add_child(vbox)
 	bg.add_child(center)
 	add_child(bg)
-
-
-func _update_shards_display() -> void:
-	var label := get_node_or_null("*/*/ShardsInfo") as Label
-	# 동적으로 빌드하므로 경로가 다를 수 있음 — 안전하게 처리
-	pass

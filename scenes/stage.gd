@@ -166,6 +166,8 @@ func _on_treasure_chest_collected() -> void:
 func _on_boss_spawned(boss: Area2D) -> void:
 	_boss_hp_bar.show_boss(_pending_boss_name, boss.current_hp, boss.max_hp)
 	boss.boss_hp_changed.connect(_boss_hp_bar.update_hp)
+	if boss.has_signal("boss_phase_changed"):
+		boss.boss_phase_changed.connect(_boss_hp_bar.show_phase)
 
 
 func _on_boss_defeated(is_victory: bool) -> void:

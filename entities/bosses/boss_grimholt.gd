@@ -4,6 +4,7 @@ extends Area2D
 
 signal boss_died
 signal boss_hp_changed(current_hp: float, max_hp: float)
+signal boss_phase_changed(phase: int)
 
 const SIZE: Vector2 = Vector2(64, 64)
 const MOVE_SPEED: float = 20.0
@@ -20,11 +21,16 @@ var current_hp: float = 300.0
 var _target: Node2D = null
 var _is_active: bool = false
 var _pattern_timer: float = 0.0
+var _current_phase: int = 1
 var _is_charging: bool = false
 var _charge_direction: Vector2 = Vector2.ZERO
 var _charge_timer: float = 0.0
 var _placeholder: ColorRect
 var _collision: CollisionShape2D
+
+
+func is_boss_entity() -> bool:
+	return true
 
 
 func _ready() -> void:
@@ -39,6 +45,7 @@ func activate(spawn_position: Vector2, target: Node2D) -> void:
 	current_hp = max_hp
 	_is_active = true
 	_is_charging = false
+	_current_phase = 1
 	_pattern_timer = PATTERN_INTERVAL
 	visible = true
 	_cache_nodes()
@@ -88,14 +95,24 @@ func take_damage(amount: float, knockback_force: float = 0.0, knockback_origin: 
 
 func _execute_pattern() -> void:
 	var hp_ratio: float = current_hp / max_hp
-	if hp_ratio > 0.6:
-		_pattern_summon()
-	elif hp_ratio > 0.3:
-		_pattern_shockwave()
-	else:
-		_pattern_charge()
-		if randf() < 0.5:
+	var new_phase: int = 1
+	if hp_ratio <= 0.3:
+		new_phase = 3
+	elif hp_ratio <= 0.6:
+		new_phase = 2
+	if new_phase != _current_phase:
+		_current_phase = new_phase
+		boss_phase_changed.emit(new_phase)
+
+	match _current_phase:
+		1:
+			_pattern_summon()
+		2:
 			_pattern_shockwave()
+		3:
+			_pattern_charge()
+			if randf() < 0.5:
+				_pattern_shockwave()
 
 
 func _pattern_summon() -> void:

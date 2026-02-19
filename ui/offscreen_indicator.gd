@@ -4,9 +4,9 @@ extends CanvasLayer
 
 const INDICATOR_SIZE: float = 6.0
 const MARGIN: float = 8.0
-const NORMAL_COLOR: Color = Color(0.5, 0.5, 0.5, 0.4)
-const ELITE_COLOR: Color = Color(1.0, 0.85, 0.0, 0.8)
-const BOSS_COLOR: Color = Color(1.0, 0.15, 0.15, 0.9)
+const NORMAL_COLOR: Color = Color(0.7, 0.2, 0.2, 0.5)
+const ELITE_COLOR: Color = Color(1.0, 0.42, 0.84, 0.8)
+const BOSS_COLOR: Color = Color(1.0, 0.84, 0.0, 0.9)
 const MAX_INDICATORS: int = 12
 
 var _indicators: Array[ColorRect] = []
