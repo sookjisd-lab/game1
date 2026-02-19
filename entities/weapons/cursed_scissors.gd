@@ -37,7 +37,7 @@ func _create_slash(direction: Vector2) -> void:
 
 	get_tree().current_scene.add_child(slash)
 
-	var effective_damage: float = get_effective_damage() * _owner_node.damage_multiplier
+	var effective_damage: float = calc_final_damage()
 	var kb: float = data.knockback
 	var origin: Vector2 = global_position
 	slash.area_entered.connect(

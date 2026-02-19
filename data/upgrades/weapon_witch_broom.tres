@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="UpgradeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/upgrade_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+upgrade_name = "마녀의 빗자루"
+description = "이동 방향으로 넓게 휘두름"
+card_color = Color(0.55, 0.35, 0.2, 1)
+stat_key = "new_weapon"
+weapon_script_path = "res://entities/weapons/witch_broom.gd"
+weapon_data_path = "res://data/weapons/witch_broom.tres"

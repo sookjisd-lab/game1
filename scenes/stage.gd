@@ -6,11 +6,13 @@ const HUD_SCENE: PackedScene = preload("res://ui/hud.tscn")
 const LEVEL_UP_UI_SCENE: PackedScene = preload("res://ui/level_up_ui.tscn")
 const GAME_OVER_UI_SCENE: PackedScene = preload("res://ui/game_over_ui.tscn")
 const PAUSE_UI_SCENE: PackedScene = preload("res://ui/pause_ui.tscn")
+const BOSS_HP_BAR_SCENE: PackedScene = preload("res://ui/boss_hp_bar.tscn")
 
 @onready var _player: CharacterBody2D = $Player
 var _hud: CanvasLayer = null
 var _level_up_ui: CanvasLayer = null
 var _game_over_ui: CanvasLayer = null
+var _boss_hp_bar: CanvasLayer = null
 
 
 func _ready() -> void:
@@ -22,12 +24,15 @@ func _ready() -> void:
 	DropManager.register(self, _player)
 	UpgradeManager.register_player(_player)
 	DamageNumberManager.register_stage(self)
+	SpawnManager.boss_spawned.connect(_on_boss_spawned)
+	SpawnManager.boss_defeated.connect(_on_boss_defeated)
 	_player.player_died.connect(_on_player_died)
 	_player.leveled_up.connect(_on_player_leveled_up)
 	_setup_hud()
 	_setup_level_up_ui()
 	_setup_game_over_ui()
 	_setup_pause_ui()
+	_setup_boss_hp_bar()
 	_draw_debug_grid()
 
 
@@ -52,6 +57,11 @@ func _setup_game_over_ui() -> void:
 	add_child(_game_over_ui)
 
 
+func _setup_boss_hp_bar() -> void:
+	_boss_hp_bar = BOSS_HP_BAR_SCENE.instantiate()
+	add_child(_boss_hp_bar)
+
+
 func _on_player_died() -> void:
 	GameManager.end_run(false)
 	_game_over_ui.show_results(
@@ -66,6 +76,22 @@ func _on_player_leveled_up(_new_level: int) -> void:
 	GameManager.change_state(Enums.GameState.LEVEL_UP)
 	var choices := UpgradeManager.generate_choices(Constants.LEVEL_UP_CHOICES)
 	_level_up_ui.show_choices(choices)
+
+
+func _on_boss_spawned(boss: Area2D) -> void:
+	_boss_hp_bar.show_boss("영주 그림홀트", boss.current_hp, boss.max_hp)
+	boss.boss_hp_changed.connect(_boss_hp_bar.update_hp)
+
+
+func _on_boss_defeated() -> void:
+	_boss_hp_bar.hide_boss()
+	GameManager.end_run(true)
+	_game_over_ui.show_results(
+		GameManager.run_elapsed_time,
+		SpawnManager.total_kills,
+		_player.current_level,
+		DropManager.total_xp,
+	)
 
 
 ## 이동 확인용 디버그 격자를 생성한다. 에셋 완성 후 제거 예정.

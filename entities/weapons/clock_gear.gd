@@ -1,50 +1,50 @@
 extends WeaponBase
-## 저주받은 성경: 플레이어 주위를 회전하는 오브젝트가 적에게 데미지를 준다.
+## 시계 톱니바퀴: 플레이어 주변을 회전하는 톱니바퀴 3개.
 
 
-const ORB_COUNT: int = 2
-const ROTATION_SPEED: float = 2.5
-const ORB_SIZE: Vector2 = Vector2(10, 10)
-const HIT_COOLDOWN: float = 0.5
+const GEAR_COUNT: int = 3
+const ROTATION_SPEED: float = 3.0
+const GEAR_SIZE: Vector2 = Vector2(8, 8)
+const HIT_COOLDOWN: float = 0.4
 
 var _angle: float = 0.0
-var _orbs: Array[Area2D] = []
+var _gears: Array[Area2D] = []
 var _hit_timers: Dictionary = {}
 
 
 func initialize(weapon_data: WeaponData, owner: Node2D) -> void:
 	super.initialize(weapon_data, owner)
-	_create_orbs()
+	_create_gears()
 
 
-func _create_orbs() -> void:
-	for i in range(ORB_COUNT):
-		var orb := Area2D.new()
-		orb.collision_layer = 4
-		orb.collision_mask = 2
+func _create_gears() -> void:
+	for i in range(GEAR_COUNT):
+		var gear := Area2D.new()
+		gear.collision_layer = 4
+		gear.collision_mask = 2
 
 		var shape := CollisionShape2D.new()
 		var rect := RectangleShape2D.new()
-		rect.size = ORB_SIZE
+		rect.size = GEAR_SIZE
 		shape.shape = rect
-		orb.add_child(shape)
+		gear.add_child(shape)
 
 		var visual := ColorRect.new()
 		visual.color = data.projectile_color
-		visual.size = ORB_SIZE
-		visual.position = -ORB_SIZE / 2.0
-		orb.add_child(visual)
+		visual.size = GEAR_SIZE
+		visual.position = -GEAR_SIZE / 2.0
+		gear.add_child(visual)
 
-		orb.area_entered.connect(_on_orb_hit)
-		add_child(orb)
-		_orbs.append(orb)
+		gear.area_entered.connect(_on_gear_hit)
+		add_child(gear)
+		_gears.append(gear)
 
 
 func _process(delta: float) -> void:
 	if data == null or _owner_node == null:
 		return
 	_angle += ROTATION_SPEED * delta
-	_update_orb_positions()
+	_update_gear_positions()
 	_update_hit_timers(delta)
 
 
@@ -52,17 +52,17 @@ func _attack() -> void:
 	pass
 
 
-func _update_orb_positions() -> void:
+func _update_gear_positions() -> void:
 	var radius: float = get_effective_range()
-	for i in range(_orbs.size()):
-		var offset_angle: float = _angle + (TAU / _orbs.size()) * i
-		_orbs[i].position = Vector2(
+	for i in range(_gears.size()):
+		var offset_angle: float = _angle + (TAU / _gears.size()) * i
+		_gears[i].position = Vector2(
 			cos(offset_angle) * radius,
 			sin(offset_angle) * radius,
 		)
 
 
-func _on_orb_hit(area: Area2D) -> void:
+func _on_gear_hit(area: Area2D) -> void:
 	if not area.has_method("take_damage"):
 		return
 	var id: int = area.get_instance_id()

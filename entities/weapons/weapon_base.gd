@@ -31,14 +31,22 @@ func get_effective_damage() -> float:
 	return data.damage * mult
 
 
+func calc_final_damage() -> float:
+	var base: float = get_effective_damage() * _owner_node.damage_multiplier
+	if _owner_node.crit_chance > 0.0 and randf() < _owner_node.crit_chance:
+		return base * 1.5
+	return base
+
+
 func get_effective_cooldown() -> float:
 	var mult: float = 1.0 - COOLDOWN_PER_LEVEL * (level - 1)
 	return data.cooldown * maxf(mult, 0.3)
 
 
 func get_effective_range() -> float:
-	var mult: float = 1.0 + RANGE_PER_LEVEL * (level - 1)
-	return data.attack_range * mult
+	var level_mult: float = 1.0 + RANGE_PER_LEVEL * (level - 1)
+	var owner_mult: float = _owner_node.range_multiplier if _owner_node else 1.0
+	return data.attack_range * level_mult * owner_mult
 
 
 func _process(delta: float) -> void:

@@ -6,12 +6,14 @@ extends Node
 signal upgrade_applied(data: UpgradeData)
 
 var _upgrade_pool: Array[UpgradeData] = []
+var _passive_pool: Array[PassiveData] = []
 var _acquired_weapons: Array[String] = []
 var _player: CharacterBody2D = null
 
 
 func _ready() -> void:
 	_load_upgrades()
+	_load_passives()
 	GameManager.state_changed.connect(_on_state_changed)
 
 
@@ -36,6 +38,36 @@ func generate_choices(count: int) -> Array[UpgradeData]:
 				upgrade.weapon_script_path = weapon.get_script().resource_path
 				available.append(upgrade)
 
+	# 패시브 레벨업 선택지
+	if _player != null:
+		for p_name: String in _player._passives:
+			var info: Dictionary = _player._passives[p_name]
+			var p_data: PassiveData = info["data"]
+			var p_level: int = info["level"]
+			if p_level < p_data.max_level:
+				var upgrade := UpgradeData.new()
+				upgrade.upgrade_name = p_data.passive_name
+				upgrade.description = "Lv.%d → Lv.%d" % [p_level, p_level + 1]
+				upgrade.card_color = p_data.icon_color
+				upgrade.stat_key = "passive_levelup"
+				upgrade.weapon_data_path = p_data.resource_path
+				available.append(upgrade)
+
+	# 새 패시브 선택지
+	if _player != null:
+		for p_data in _passive_pool:
+			if _player._passives.has(p_data.passive_name):
+				continue
+			if _player._passives.size() >= Constants.MAX_PASSIVES:
+				continue
+			var upgrade := UpgradeData.new()
+			upgrade.upgrade_name = p_data.passive_name
+			upgrade.description = p_data.description
+			upgrade.card_color = p_data.icon_color
+			upgrade.stat_key = "new_passive"
+			upgrade.weapon_data_path = p_data.resource_path
+			available.append(upgrade)
+
 	# 일반 업그레이드 + 새 무기 선택지
 	for upgrade in _upgrade_pool:
 		if upgrade.stat_key == "new_weapon":
@@ -57,20 +89,6 @@ func apply_upgrade(data: UpgradeData) -> void:
 		return
 
 	match data.stat_key:
-		"max_hp":
-			_player.max_hp += data.value
-			_player.current_hp += data.value
-			_player.hp_changed.emit(_player.current_hp, _player.max_hp)
-		"move_speed":
-			_player.move_speed += data.value
-		"damage_mult":
-			_player.damage_multiplier += data.value
-		"cooldown_mult":
-			_player.cooldown_multiplier = maxf(
-				_player.cooldown_multiplier - data.value, 0.2
-			)
-		"magnet_radius":
-			_player.magnet_radius += data.value
 		"heal_percent":
 			var heal: float = _player.max_hp * data.value
 			_player.current_hp = minf(_player.current_hp + heal, _player.max_hp)
@@ -79,6 +97,10 @@ func apply_upgrade(data: UpgradeData) -> void:
 			_equip_weapon(data)
 		"weapon_levelup":
 			_levelup_weapon(data)
+		"new_passive":
+			_acquire_passive(data)
+		"passive_levelup":
+			_levelup_passive(data)
 
 	upgrade_applied.emit(data)
 
@@ -106,21 +128,50 @@ func _levelup_weapon(data: UpgradeData) -> void:
 			return
 
 
+func _acquire_passive(data: UpgradeData) -> void:
+	var passive_data: PassiveData = load(data.weapon_data_path)
+	_player.add_passive(passive_data)
+
+
+func _levelup_passive(data: UpgradeData) -> void:
+	var passive_data: PassiveData = load(data.weapon_data_path)
+	_player.levelup_passive(passive_data.passive_name)
+
+
 func _load_upgrades() -> void:
 	var paths := [
-		"res://data/upgrades/max_hp_up.tres",
-		"res://data/upgrades/move_speed_up.tres",
-		"res://data/upgrades/damage_up.tres",
-		"res://data/upgrades/cooldown_down.tres",
 		"res://data/upgrades/heal.tres",
-		"res://data/upgrades/magnet_up.tres",
 		"res://data/upgrades/weapon_cursed_bible.tres",
 		"res://data/upgrades/weapon_ghost_candle.tres",
+		"res://data/upgrades/weapon_cursed_bouquet.tres",
+		"res://data/upgrades/weapon_doll_needle.tres",
+		"res://data/upgrades/weapon_clock_gear.tres",
+		"res://data/upgrades/weapon_mirror_shard.tres",
+		"res://data/upgrades/weapon_witch_broom.tres",
 	]
 	for path in paths:
 		var res := load(path)
 		if res is UpgradeData:
 			_upgrade_pool.append(res)
+
+
+func _load_passives() -> void:
+	var paths := [
+		"res://data/passives/thick_apron.tres",
+		"res://data/passives/running_shoes.tres",
+		"res://data/passives/broken_clock.tres",
+		"res://data/passives/cursed_necklace.tres",
+		"res://data/passives/magnifying_glass.tres",
+		"res://data/passives/magnet_brooch.tres",
+		"res://data/passives/old_diary.tres",
+		"res://data/passives/lucky_coin.tres",
+		"res://data/passives/regen_herb.tres",
+		"res://data/passives/ghost_cloak.tres",
+	]
+	for path in paths:
+		var res := load(path)
+		if res is PassiveData:
+			_passive_pool.append(res)
 
 
 func _on_state_changed(

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="PassiveData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/passive_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+passive_name = "오래된 일기장"
+description = "경험치 획득 +10%/Lv"
+icon_color = Color(0.7, 0.6, 0.4, 1)
+stat_key = "xp_percent"
+value_per_level = 0.1
+max_level = 5

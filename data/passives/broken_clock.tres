@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="PassiveData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/passive_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+passive_name = "깨진 시계"
+description = "무기 쿨다운 -8%/Lv"
+icon_color = Color(0.6, 0.7, 0.9, 1)
+stat_key = "cooldown_percent"
+value_per_level = 0.08
+max_level = 5

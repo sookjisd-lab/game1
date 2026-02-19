@@ -16,13 +16,24 @@ var current_xp: int = 0
 var damage_multiplier: float = 1.0
 var cooldown_multiplier: float = 1.0
 var magnet_radius: float = Constants.BASE_MAGNET_RADIUS
+var range_multiplier: float = 1.0
+var xp_multiplier: float = 1.0
+var crit_chance: float = 0.0
+var hp_regen: float = 0.0
+var dodge_chance: float = 0.0
+var _regen_accumulator: float = 0.0
+var _base_max_hp: float = 120.0
+var _base_move_speed: float = Constants.PLAYER_BASE_SPEED
 var _damage_cooldown: float = 0.0
 var _weapons: Array[WeaponBase] = []
+var _passives: Dictionary = {}  # passive_name → { "data": PassiveData, "level": int }
 
 @onready var _hitbox: Area2D = $Hitbox
 
 
 func _ready() -> void:
+	_base_max_hp = max_hp
+	_base_move_speed = move_speed
 	current_hp = max_hp
 	hp_changed.emit(current_hp, max_hp)
 	_hitbox.area_entered.connect(_on_hitbox_area_entered)
@@ -57,9 +68,19 @@ func _physics_process(delta: float) -> void:
 	if _damage_cooldown > 0.0:
 		_damage_cooldown -= delta
 
+	if hp_regen > 0.0 and current_hp < max_hp:
+		_regen_accumulator += hp_regen * delta
+		if _regen_accumulator >= 1.0:
+			var heal_amount: float = floorf(_regen_accumulator)
+			_regen_accumulator -= heal_amount
+			current_hp = minf(current_hp + heal_amount, max_hp)
+			hp_changed.emit(current_hp, max_hp)
+
 
 func take_damage(amount: float) -> void:
 	if _damage_cooldown > 0.0:
+		return
+	if dodge_chance > 0.0 and randf() < dodge_chance:
 		return
 	current_hp = maxf(current_hp - amount, 0.0)
 	_damage_cooldown = 0.5
@@ -125,8 +146,87 @@ func _check_levelup() -> void:
 		xp_changed.emit(current_xp, needed)
 
 
+func add_passive(passive_data: PassiveData) -> bool:
+	if _passives.size() >= Constants.MAX_PASSIVES:
+		return false
+	if _passives.has(passive_data.passive_name):
+		return false
+	_passives[passive_data.passive_name] = { "data": passive_data, "level": 1 }
+	_recalculate_stats()
+	return true
+
+
+func levelup_passive(passive_name: String) -> bool:
+	if not _passives.has(passive_name):
+		return false
+	var info: Dictionary = _passives[passive_name]
+	var data: PassiveData = info["data"]
+	if info["level"] >= data.max_level:
+		return false
+	info["level"] += 1
+	_recalculate_stats()
+	return true
+
+
+func _recalculate_stats() -> void:
+	var hp_mult := 1.0
+	var speed_mult := 1.0
+	var damage_add := 0.0
+	var cooldown_sub := 0.0
+	var magnet_add := 0.0
+	var range_add := 0.0
+	var xp_add := 0.0
+	var crit_add := 0.0
+	var regen_add := 0.0
+	var dodge_add := 0.0
+
+	for p_name: String in _passives:
+		var info: Dictionary = _passives[p_name]
+		var data: PassiveData = info["data"]
+		var lvl: int = info["level"]
+		match data.stat_key:
+			"max_hp_percent":
+				hp_mult += data.value_per_level * lvl
+			"move_speed_percent":
+				speed_mult += data.value_per_level * lvl
+			"damage_percent":
+				damage_add += data.value_per_level * lvl
+			"cooldown_percent":
+				cooldown_sub += data.value_per_level * lvl
+			"magnet_percent":
+				magnet_add += data.value_per_level * lvl
+			"range_percent":
+				range_add += data.value_per_level * lvl
+			"xp_percent":
+				xp_add += data.value_per_level * lvl
+			"crit_chance":
+				crit_add += data.value_per_level * lvl
+			"hp_regen":
+				regen_add += data.value_per_level * lvl
+			"dodge_chance":
+				dodge_add += data.value_per_level * lvl
+
+	var old_max_hp := max_hp
+	max_hp = _base_max_hp * hp_mult
+	move_speed = _base_move_speed * speed_mult
+	damage_multiplier = 1.0 + damage_add
+	cooldown_multiplier = maxf(1.0 - cooldown_sub, 0.2)
+	magnet_radius = Constants.BASE_MAGNET_RADIUS * (1.0 + magnet_add)
+	range_multiplier = 1.0 + range_add
+	xp_multiplier = 1.0 + xp_add
+	crit_chance = crit_add
+	dodge_chance = dodge_add
+	hp_regen = regen_add
+
+	if max_hp > old_max_hp:
+		current_hp += max_hp - old_max_hp
+	current_hp = minf(current_hp, max_hp)
+	hp_changed.emit(current_hp, max_hp)
+
+
 func _on_xp_collected(amount: int) -> void:
-	add_xp(amount)
+	var modified: int = int(amount * xp_multiplier)
+	add_xp(maxi(modified, 1))
 
 
 func _on_game_state_changed(

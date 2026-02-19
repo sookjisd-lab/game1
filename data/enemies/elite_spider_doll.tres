@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/enemy_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+enemy_name = "폭주 인형"
+max_hp = 24.0
+move_speed = 30.0
+contact_damage = 12.0
+xp_reward = 10
+sprite_color = Color(1, 0.4, 0.8, 1)
+sprite_size = Vector2(24, 24)
+spawn_after_seconds = 300.0
+is_elite = true

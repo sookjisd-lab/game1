@@ -1,18 +1,27 @@
 extends Node
-## 적 사망 시 드롭 생성, 마그넷 흡수 로직을 담당한다.
+## 적 사망 시 드롭 생성, 마그넷 흡수 로직, 맵 아이템을 담당한다.
 ## Autoload 싱글톤: DropManager
 
 
 signal xp_collected(amount: int)
 
 const XP_GEM_SCENE: PackedScene = preload("res://entities/drops/xp_gem.tscn")
+const MAP_ITEM_SCENE: PackedScene = preload("res://entities/drops/map_item.tscn")
+
 const GEM_SMALL := { "color": Color(0.45, 0.55, 0.95, 1), "size": Vector2(6, 6) }
 const GEM_MEDIUM := { "color": Color(0.3, 0.85, 0.45, 1), "size": Vector2(8, 8) }
 const GEM_LARGE := { "color": Color(0.9, 0.25, 0.25, 1), "size": Vector2(10, 10) }
 
+const MAP_ITEM_DROP_CHANCE: float = 0.03
+const MAP_ITEM_TYPES: Array[String] = ["heal_bread", "magnet_charm", "purify_bell"]
+const MAP_ITEM_PICKUP_DIST: float = 12.0
+const HEAL_AMOUNT: float = 30.0
+const PURIFY_DAMAGE: float = 30.0
+
 var _player: Node2D = null
 var _stage: Node2D = null
 var _active_gems: Array[Area2D] = []
+var _active_items: Array[Area2D] = []
 var total_xp: int = 0
 
 
@@ -26,13 +35,32 @@ func spawn_xp_gem(position: Vector2, value: int) -> void:
 		return
 
 	var gem: Area2D = PoolManager.acquire(XP_GEM_SCENE)
-
 	if gem.get_parent() == null:
 		_stage.add_child(gem)
 
 	var tier: Dictionary = _get_gem_tier(value)
 	gem.activate(value, position, tier["color"], tier["size"])
 	_active_gems.append(gem)
+
+	_try_spawn_map_item(position)
+
+
+func _try_spawn_map_item(position: Vector2) -> void:
+	if randf() > MAP_ITEM_DROP_CHANCE:
+		return
+	var item_type: String = MAP_ITEM_TYPES.pick_random()
+	var offset := Vector2(randf_range(-8, 8), randf_range(-8, 8))
+	_spawn_map_item(item_type, position + offset)
+
+
+func _spawn_map_item(item_type: String, position: Vector2) -> void:
+	if _stage == null:
+		return
+	var item: Area2D = PoolManager.acquire(MAP_ITEM_SCENE)
+	if item.get_parent() == null:
+		_stage.add_child(item)
+	item.activate(item_type, position)
+	_active_items.append(item)
 
 
 func _get_gem_tier(xp_value: int) -> Dictionary:
@@ -51,6 +79,7 @@ func _process(_delta: float) -> void:
 	if _player == null:
 		return
 	_check_magnet_range()
+	_check_item_pickup()
 
 
 func _check_magnet_range() -> void:
@@ -68,6 +97,45 @@ func _check_magnet_range() -> void:
 			)
 
 
+func _check_item_pickup() -> void:
+	for i in range(_active_items.size() - 1, -1, -1):
+		var item: Area2D = _active_items[i]
+		if not item.visible:
+			continue
+		var dist := item.global_position.distance_to(_player.global_position)
+		if dist <= MAP_ITEM_PICKUP_DIST:
+			_apply_item_effect(item.item_type)
+			item.deactivate()
+			_active_items.remove_at(i)
+			PoolManager.release(MAP_ITEM_SCENE, item)
+
+
+func _apply_item_effect(item_type: String) -> void:
+	match item_type:
+		"heal_bread":
+			_player.current_hp = minf(_player.current_hp + HEAL_AMOUNT, _player.max_hp)
+			_player.hp_changed.emit(_player.current_hp, _player.max_hp)
+			DamageNumberManager.spawn_heal(HEAL_AMOUNT, _player.global_position)
+		"magnet_charm":
+			_attract_all_gems()
+		"purify_bell":
+			_damage_all_visible_enemies()
+
+
+func _attract_all_gems() -> void:
+	for gem: Area2D in _active_gems:
+		if gem.visible and not gem._being_attracted:
+			gem.start_attract(_player)
+			gem.collected.connect(_on_gem_collected, CONNECT_ONE_SHOT)
+
+
+func _damage_all_visible_enemies() -> void:
+	var enemies := get_tree().get_nodes_in_group("enemies")
+	for enemy: Node in enemies:
+		if enemy is Area2D and enemy.has_method("take_damage"):
+			enemy.take_damage(PURIFY_DAMAGE)
+
+
 func _on_gem_collected(gem: Area2D) -> void:
 	total_xp += gem.xp_value
 	xp_collected.emit(gem.xp_value)
@@ -80,6 +148,10 @@ func clear_all() -> void:
 		gem.deactivate()
 		PoolManager.release(XP_GEM_SCENE, gem)
 	_active_gems.clear()
+	for item: Area2D in _active_items.duplicate():
+		item.deactivate()
+		PoolManager.release(MAP_ITEM_SCENE, item)
+	_active_items.clear()
 	total_xp = 0
 
 

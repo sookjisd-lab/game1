@@ -10,30 +10,36 @@ script = ExtResource("1_pu")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 320
-offset_bottom = 180
 color = Color(0, 0, 0, 0.5)
 
 [node name="CenterContainer" type="CenterContainer" parent="Overlay"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 320
-offset_bottom = 180
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="VBox" type="VBoxContainer" parent="Overlay/CenterContainer"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 12
 
 [node name="PausedLabel" type="Label" parent="Overlay/CenterContainer/VBox"]
 layout_mode = 2
 text = "PAUSED"
 horizontal_alignment = 1
 
-[node name="HintLabel" type="Label" parent="Overlay/CenterContainer/VBox"]
+[node name="Spacer" type="Control" parent="Overlay/CenterContainer/VBox"]
 layout_mode = 2
-text = "ESC로 재개"
+custom_minimum_size = Vector2(0, 4)
+
+[node name="ResumeLabel" type="Label" parent="Overlay/CenterContainer/VBox"]
+layout_mode = 2
+text = "[ESC]  계속"
 horizontal_alignment = 1
-modulate = Color(0.7, 0.7, 0.7, 1)
+modulate = Color(0.8, 0.9, 0.8, 1)
+
+[node name="QuitLabel" type="Label" parent="Overlay/CenterContainer/VBox"]
+layout_mode = 2
+text = "[Q]  포기"
+horizontal_alignment = 1
+modulate = Color(0.9, 0.6, 0.6, 1)

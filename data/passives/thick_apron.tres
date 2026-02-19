@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="PassiveData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/passive_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+passive_name = "두꺼운 앞치마"
+description = "최대 HP +10%/Lv"
+icon_color = Color(0.9, 0.3, 0.3, 1)
+stat_key = "max_hp_percent"
+value_per_level = 0.1
+max_level = 5

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="PassiveData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/passive_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+passive_name = "재생 허브"
+description = "초당 HP 회복 +0.2/Lv"
+icon_color = Color(0.3, 0.8, 0.3, 1)
+stat_key = "hp_regen"
+value_per_level = 0.2
+max_level = 5

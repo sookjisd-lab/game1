@@ -50,7 +50,7 @@ func _spawn_flame(target: Area2D) -> void:
 	flame.global_position = global_position
 	get_tree().current_scene.add_child(flame)
 
-	var effective_damage: float = get_effective_damage() * _owner_node.damage_multiplier
+	var effective_damage: float = calc_final_damage()
 	var kb: float = data.knockback
 
 	flame.area_entered.connect(
