@@ -178,15 +178,40 @@ func _on_boss_defeated(is_victory: bool) -> void:
 		StoryManager.discover_clue("witch_seal")
 	if is_victory:
 		GameManager.end_run(true)
-		_game_over_ui.show_results(
-			GameManager.run_elapsed_time,
-			SpawnManager.total_kills,
-			_player.current_level,
-			DropManager.total_xp,
-			true,
-			_get_weapon_names(),
-			StoryManager.get_run_discoveries(),
-		)
+		Engine.time_scale = 0.3
+		_show_victory_message()
+		get_tree().create_timer(2.0, true, false, true).timeout.connect(_show_victory_results)
+
+
+func _show_victory_message() -> void:
+	var overlay := CanvasLayer.new()
+	overlay.layer = 25
+	overlay.name = "VictoryMessage"
+	add_child(overlay)
+
+	var label := Label.new()
+	label.set_anchors_preset(Control.PRESET_CENTER)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 16)
+	label.add_theme_color_override("font_color", Color(0.9, 0.75, 0.5, 1))
+	label.text = "저주가 약해지고 있다..."
+	overlay.add_child(label)
+
+
+func _show_victory_results() -> void:
+	Engine.time_scale = 1.0
+	var msg := get_node_or_null("VictoryMessage")
+	if msg != null:
+		msg.queue_free()
+	_game_over_ui.show_results(
+		GameManager.run_elapsed_time,
+		SpawnManager.total_kills,
+		_player.current_level,
+		DropManager.total_xp,
+		true,
+		_get_weapon_names(),
+		StoryManager.get_run_discoveries(),
+	)
 
 
 func _get_weapon_names() -> Array[String]:
