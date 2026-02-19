@@ -154,6 +154,8 @@ func _get_input_direction() -> Vector2:
 
 
 func _shake_camera() -> void:
+	if not AudioManager.screen_shake_enabled:
+		return
 	var camera := get_node_or_null("Camera2D") as Camera2D
 	if camera == null:
 		return

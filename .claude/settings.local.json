@@ -20,7 +20,23 @@
       "Bash(git -C:*)",
       "Bash(LIBGL_ALWAYS_SOFTWARE=1 /home/hgkim/.local/bin/godot:*)",
       "Bash(LIBGL_ALWAYS_SOFTWARE=1 timeout 10 /home/hgkim/.local/bin/godot:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(LIBGL_ALWAYS_SOFTWARE=1 timeout 8 godot:*)",
+      "Bash(LIBGL_ALWAYS_SOFTWARE=1 timeout 10 godot:*)",
+      "Bash(LIBGL_ALWAYS_SOFTWARE=1 timeout 15 godot:*)",
+      "Bash(LIBGL_ALWAYS_SOFTWARE=1 timeout 20 godot:*)",
+      "Bash(LIBGL_ALWAYS_SOFTWARE=1 timeout 30 godot:*)",
+      "Bash(LIBGL_ALWAYS_SOFTWARE=1 timeout 30 ~/.local/bin/godot:*)",
+      "Bash(LIBGL_ALWAYS_SOFTWARE=1 timeout 8 ~/.local/bin/godot:*)",
+      "Bash(LIBGL_ALWAYS_SOFTWARE=1 timeout 10 ~/.local/bin/godot:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(ls:*)",
+      "Bash(ssh-keygen:*)",
+      "Bash(ssh:*)",
+      "Bash(timeout 30 godot:*)",
+      "Bash(timeout 10 godot:*)"
     ]
   }
 }

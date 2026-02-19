@@ -17,6 +17,7 @@ const ELITE_INTERVAL: float = 300.0
 const ELITE_BATCH: int = 2
 const BOSS1_SPAWN_TIME: float = 600.0
 const BOSS2_SPAWN_TIME: float = 1200.0
+const BOSS2_SPAWN_REDUCTION: float = 0.7
 
 var total_kills: int = 0
 var _spawn_timer: float = 0.0
@@ -223,6 +224,9 @@ func _adjust_difficulty() -> void:
 		_spawn_interval = 0.6
 	else:
 		_spawn_interval = 0.4
+
+	if _boss2_spawned and _current_boss != null:
+		_spawn_interval /= (1.0 - BOSS2_SPAWN_REDUCTION)
 
 
 func _release_enemy(enemy: Area2D) -> void:

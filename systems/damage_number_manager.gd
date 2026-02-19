@@ -22,7 +22,7 @@ func register_stage(stage: Node2D) -> void:
 
 
 func spawn_damage(value: float, pos: Vector2) -> void:
-	if _stage == null:
+	if _stage == null or not AudioManager.damage_numbers_enabled:
 		return
 	var num: Node2D = _pool[_index]
 	_index = (_index + 1) % _pool.size()
@@ -30,7 +30,7 @@ func spawn_damage(value: float, pos: Vector2) -> void:
 
 
 func spawn_heal(value: float, pos: Vector2) -> void:
-	if _stage == null:
+	if _stage == null or not AudioManager.damage_numbers_enabled:
 		return
 	var num: Node2D = _pool[_index]
 	_index = (_index + 1) % _pool.size()
