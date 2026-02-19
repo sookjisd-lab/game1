@@ -25,6 +25,12 @@ var dodge_chance: float = 0.0
 var _regen_accumulator: float = 0.0
 var _base_max_hp: float = 120.0
 var _base_move_speed: float = Constants.PLAYER_BASE_SPEED
+var _base_damage_mult: float = 1.0
+var _base_xp_mult: float = 1.0
+var _base_magnet: float = Constants.BASE_MAGNET_RADIUS
+var _innate_stat_key: String = ""
+var _innate_stat_value: float = 0.0
+var _character_data: CharacterData = null
 var _damage_cooldown: float = 0.0
 var _weapons: Array[WeaponBase] = []
 var _passives: Dictionary = {}  # passive_name → { "data": PassiveData, "level": int }
@@ -33,14 +39,30 @@ var _passives: Dictionary = {}  # passive_name → { "data": PassiveData, "level
 
 
 func _ready() -> void:
-	_base_max_hp = max_hp
-	_base_move_speed = move_speed
-	current_hp = max_hp
-	hp_changed.emit(current_hp, max_hp)
 	_hitbox.area_entered.connect(_on_hitbox_area_entered)
-	_equip_starting_weapon()
 	DropManager.xp_collected.connect(_on_xp_collected)
 	GameManager.state_changed.connect(_on_game_state_changed)
+
+
+func init_character(data: CharacterData) -> void:
+	_character_data = data
+	_base_max_hp = data.base_hp + GameManager.get_meta_bonus_hp()
+	_base_move_speed = data.base_speed * (1.0 + GameManager.get_meta_bonus_speed())
+	_base_damage_mult = data.base_damage_mult + GameManager.get_meta_bonus_attack()
+	_base_xp_mult = 1.0 + GameManager.get_meta_bonus_xp()
+	_base_magnet = Constants.BASE_MAGNET_RADIUS * (1.0 + GameManager.get_meta_bonus_magnet())
+	_innate_stat_key = data.passive_stat_key
+	_innate_stat_value = data.passive_value
+	max_hp = _base_max_hp
+	move_speed = _base_move_speed
+	damage_multiplier = _base_damage_mult
+	xp_multiplier = _base_xp_mult
+	magnet_radius = _base_magnet
+	current_hp = max_hp
+	var placeholder := $Placeholder as ColorRect
+	placeholder.color = data.sprite_color
+	_equip_starting_weapon()
+	hp_changed.emit(current_hp, max_hp)
 
 
 func add_weapon(weapon: WeaponBase) -> void:
@@ -52,12 +74,15 @@ func add_weapon(weapon: WeaponBase) -> void:
 
 
 func _equip_starting_weapon() -> void:
-	var scissors_data: WeaponData = preload("res://data/weapons/cursed_scissors.tres")
+	if _character_data == null:
+		return
+	var weapon_data: WeaponData = load(_character_data.starting_weapon_data)
+	var weapon_script: GDScript = load(_character_data.starting_weapon_script)
 	var weapon := Node2D.new()
-	weapon.set_script(preload("res://entities/weapons/cursed_scissors.gd"))
-	weapon.name = "CursedScissors"
+	weapon.set_script(weapon_script)
+	weapon.name = weapon_data.weapon_name
 	add_child(weapon)
-	weapon.initialize(scissors_data, self)
+	weapon.initialize(weapon_data, self)
 	_weapons.append(weapon)
 
 
@@ -116,9 +141,10 @@ func _shake_camera() -> void:
 
 func _flash_hit() -> void:
 	var placeholder := $Placeholder as ColorRect
+	var original_color := _character_data.sprite_color if _character_data != null else Color(0.96, 0.87, 0.7, 1)
 	placeholder.color = Color(1, 0.3, 0.3, 1)
 	get_tree().create_timer(0.1).timeout.connect(
-		func() -> void: placeholder.color = Color(0.96, 0.87, 0.7, 1)
+		func() -> void: placeholder.color = original_color
 	)
 
 
@@ -181,6 +207,29 @@ func _recalculate_stats() -> void:
 	var regen_add := 0.0
 	var dodge_add := 0.0
 
+	# 캐릭터 고유 패시브 적용
+	match _innate_stat_key:
+		"max_hp_percent":
+			hp_mult += _innate_stat_value
+		"move_speed_percent":
+			speed_mult += _innate_stat_value
+		"damage_percent":
+			damage_add += _innate_stat_value
+		"cooldown_percent":
+			cooldown_sub += _innate_stat_value
+		"magnet_percent":
+			magnet_add += _innate_stat_value
+		"range_percent":
+			range_add += _innate_stat_value
+		"xp_percent":
+			xp_add += _innate_stat_value
+		"crit_chance":
+			crit_add += _innate_stat_value
+		"hp_regen":
+			regen_add += _innate_stat_value
+		"dodge_chance":
+			dodge_add += _innate_stat_value
+
 	for p_name: String in _passives:
 		var info: Dictionary = _passives[p_name]
 		var data: PassiveData = info["data"]
@@ -210,11 +259,11 @@ func _recalculate_stats() -> void:
 	var old_max_hp := max_hp
 	max_hp = _base_max_hp * hp_mult
 	move_speed = _base_move_speed * speed_mult
-	damage_multiplier = 1.0 + damage_add
+	damage_multiplier = _base_damage_mult + damage_add
 	cooldown_multiplier = maxf(1.0 - cooldown_sub, 0.2)
-	magnet_radius = Constants.BASE_MAGNET_RADIUS * (1.0 + magnet_add)
+	magnet_radius = _base_magnet * (1.0 + magnet_add)
 	range_multiplier = 1.0 + range_add
-	xp_multiplier = 1.0 + xp_add
+	xp_multiplier = _base_xp_mult + xp_add
 	crit_chance = crit_add
 	dodge_chance = dodge_add
 	hp_regen = regen_add

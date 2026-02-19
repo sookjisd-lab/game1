@@ -24,7 +24,8 @@ func register_player(player: Node2D) -> void:
 
 
 func _process(_delta: float) -> void:
-	if _player == null:
+	if _player == null or not AudioManager.indicator_enabled:
+		_hide_all()
 		return
 	_update_indicators()
 
@@ -91,6 +92,11 @@ func _get_indicator(idx: int) -> ColorRect:
 	_container.add_child(rect)
 	_indicators.append(rect)
 	return rect
+
+
+func _hide_all() -> void:
+	for indicator in _indicators:
+		indicator.visible = false
 
 
 func _build_ui() -> void:

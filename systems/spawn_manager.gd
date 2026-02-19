@@ -6,23 +6,28 @@ extends Node
 signal enemy_killed
 signal boss_warning(boss_name: String)
 signal boss_spawned(boss: Area2D)
-signal boss_defeated
+signal boss_defeated(is_victory: bool)
 
 const ENEMY_SCENE: PackedScene = preload("res://entities/enemies/enemy.tscn")
-const BOSS_SCENE: PackedScene = preload("res://entities/bosses/boss_grimholt.tscn")
+const BOSS1_SCENE: PackedScene = preload("res://entities/bosses/boss_grimholt.tscn")
+const BOSS2_SCENE: PackedScene = preload("res://entities/bosses/boss_witch_messenger.tscn")
 const SPAWN_MARGIN: float = 32.0
 const DESPAWN_DISTANCE: float = 400.0
 const ELITE_INTERVAL: float = 300.0
 const ELITE_BATCH: int = 2
-const BOSS_SPAWN_TIME: float = 600.0
+const BOSS1_SPAWN_TIME: float = 600.0
+const BOSS2_SPAWN_TIME: float = 1200.0
 
 var total_kills: int = 0
 var _spawn_timer: float = 0.0
 var _spawn_interval: float = 1.5
 var _elite_timer: float = 0.0
-var _boss_spawned: bool = false
-var _boss_warning_sent: bool = false
+var _boss1_spawned: bool = false
+var _boss1_warning_sent: bool = false
+var _boss2_spawned: bool = false
+var _boss2_warning_sent: bool = false
 var _current_boss: Area2D = null
+var _pending_boss_scene: PackedScene = null
 var _player: Node2D = null
 var _stage: Node2D = null
 var _all_enemy_data: Array[EnemyData] = []
@@ -51,9 +56,15 @@ func _process(delta: float) -> void:
 		_spawn_elite_wave()
 		_elite_timer = ELITE_INTERVAL
 
-	if not _boss_spawned and not _boss_warning_sent and GameManager.run_elapsed_time >= BOSS_SPAWN_TIME:
-		_boss_warning_sent = true
+	if not _boss1_spawned and not _boss1_warning_sent and GameManager.run_elapsed_time >= BOSS1_SPAWN_TIME:
+		_boss1_warning_sent = true
+		_pending_boss_scene = BOSS1_SCENE
 		boss_warning.emit("영주 그림홀트")
+
+	if _boss1_spawned and not _boss2_spawned and not _boss2_warning_sent and GameManager.run_elapsed_time >= BOSS2_SPAWN_TIME:
+		_boss2_warning_sent = true
+		_pending_boss_scene = BOSS2_SCENE
+		boss_warning.emit("마녀의 사자")
 
 	_despawn_far_enemies()
 	_adjust_difficulty()
@@ -139,10 +150,14 @@ func trigger_boss_spawn() -> void:
 
 
 func _spawn_boss() -> void:
-	if _player == null or _stage == null:
+	if _player == null or _stage == null or _pending_boss_scene == null:
 		return
-	_boss_spawned = true
-	var boss: Area2D = BOSS_SCENE.instantiate()
+	if not _boss1_spawned:
+		_boss1_spawned = true
+	else:
+		_boss2_spawned = true
+	var boss: Area2D = _pending_boss_scene.instantiate()
+	_pending_boss_scene = null
 	_stage.add_child(boss)
 	var spawn_pos := _get_spawn_position()
 	boss.activate(spawn_pos, _player)
@@ -155,7 +170,7 @@ func _on_boss_died() -> void:
 	_current_boss = null
 	total_kills += 1
 	enemy_killed.emit()
-	boss_defeated.emit()
+	boss_defeated.emit(_boss2_spawned)
 
 
 func _get_spawn_position() -> Vector2:
@@ -208,8 +223,11 @@ func _on_enemy_died(enemy: Area2D) -> void:
 func _on_run_started() -> void:
 	_spawn_timer = 2.0
 	_elite_timer = ELITE_INTERVAL
-	_boss_spawned = false
-	_boss_warning_sent = false
+	_boss1_spawned = false
+	_boss1_warning_sent = false
+	_boss2_spawned = false
+	_boss2_warning_sent = false
+	_pending_boss_scene = null
 	_current_boss = null
 	total_kills = 0
 
@@ -223,8 +241,11 @@ func _on_state_changed(
 		if _current_boss != null and is_instance_valid(_current_boss):
 			_current_boss.queue_free()
 			_current_boss = null
-		_boss_spawned = false
-		_boss_warning_sent = false
+		_boss1_spawned = false
+		_boss1_warning_sent = false
+		_boss2_spawned = false
+		_boss2_warning_sent = false
+		_pending_boss_scene = null
 		_player = null
 		_stage = null
 		_spawn_timer = 0.0

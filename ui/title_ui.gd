@@ -1,8 +1,10 @@
 extends CanvasLayer
-## 타이틀 화면. 게임 제목과 시작 버튼을 표시한다.
+## 타이틀 화면. 게임 제목과 메뉴를 표시한다.
 
 
 signal start_pressed
+signal altar_pressed
+signal settings_pressed
 
 
 func _ready() -> void:
@@ -19,9 +21,16 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not visible:
 		return
 	if event is InputEventKey and event.pressed:
-		if event.keycode == KEY_SPACE or event.keycode == KEY_ENTER:
-			visible = false
-			start_pressed.emit()
+		match event.keycode:
+			KEY_SPACE, KEY_ENTER:
+				visible = false
+				start_pressed.emit()
+			KEY_A:
+				visible = false
+				altar_pressed.emit()
+			KEY_S:
+				visible = false
+				settings_pressed.emit()
 
 
 func _build_ui() -> void:
@@ -34,7 +43,7 @@ func _build_ui() -> void:
 
 	var vbox := VBoxContainer.new()
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 12)
+	vbox.add_theme_constant_override("separation", 8)
 
 	var title := Label.new()
 	title.text = "저주받은 밤"
@@ -50,7 +59,7 @@ func _build_ui() -> void:
 	vbox.add_child(subtitle)
 
 	var spacer := Control.new()
-	spacer.custom_minimum_size = Vector2(0, 20)
+	spacer.custom_minimum_size = Vector2(0, 16)
 	vbox.add_child(spacer)
 
 	var start_label := Label.new()
@@ -59,6 +68,31 @@ func _build_ui() -> void:
 	start_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8, 1))
 	vbox.add_child(start_label)
 
+	var altar_label := Label.new()
+	altar_label.text = "[A] 기억의 제단"
+	altar_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	altar_label.add_theme_color_override("font_color", Color(1, 0.84, 0, 0.8))
+	vbox.add_child(altar_label)
+
+	var settings_label := Label.new()
+	settings_label.text = "[S] 설정"
+	settings_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	settings_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.8, 1))
+	vbox.add_child(settings_label)
+
+	var shards_label := Label.new()
+	shards_label.text = ""
+	shards_label.name = "ShardsInfo"
+	shards_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	shards_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6, 1))
+	vbox.add_child(shards_label)
+
 	center.add_child(vbox)
 	bg.add_child(center)
 	add_child(bg)
+
+
+func _update_shards_display() -> void:
+	var label := get_node_or_null("*/*/ShardsInfo") as Label
+	# 동적으로 빌드하므로 경로가 다를 수 있음 — 안전하게 처리
+	pass

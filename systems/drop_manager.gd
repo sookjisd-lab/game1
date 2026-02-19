@@ -13,10 +13,11 @@ const GEM_MEDIUM := { "color": Color(0.3, 0.85, 0.45, 1), "size": Vector2(8, 8) 
 const GEM_LARGE := { "color": Color(0.9, 0.25, 0.25, 1), "size": Vector2(10, 10) }
 
 const MAP_ITEM_DROP_CHANCE: float = 0.03
-const MAP_ITEM_TYPES: Array[String] = ["heal_bread", "magnet_charm", "purify_bell"]
+const MAP_ITEM_TYPES: Array[String] = ["heal_bread", "magnet_charm", "purify_bell", "gold_pouch"]
 const MAP_ITEM_PICKUP_DIST: float = 12.0
 const HEAL_AMOUNT: float = 30.0
 const PURIFY_DAMAGE: float = 30.0
+const GOLD_POUCH_AMOUNT: int = 25
 
 var _player: Node2D = null
 var _stage: Node2D = null
@@ -120,6 +121,8 @@ func _apply_item_effect(item_type: String) -> void:
 			_attract_all_gems()
 		"purify_bell":
 			_damage_all_visible_enemies()
+		"gold_pouch":
+			GameManager.meta.memory_shards += GOLD_POUCH_AMOUNT
 
 
 func _attract_all_gems() -> void:

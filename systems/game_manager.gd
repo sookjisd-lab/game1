@@ -1,5 +1,5 @@
 extends Node
-## 게임 상태 머신, 런 타이머, 시작/종료 생명주기를 관리한다.
+## 게임 상태 머신, 런 타이머, 시작/종료 생명주기, 메타 진행을 관리한다.
 ## Autoload 싱글톤: GameManager
 
 
@@ -20,14 +20,18 @@ signal run_ended(is_victory: bool)
 
 # --- 상태 ---
 
+const SAVE_PATH: String = "user://meta_progress.tres"
+
 var current_state: Enums.GameState = Enums.GameState.MENU
 var run_elapsed_time: float = 0.0
+var meta: MetaProgress = null
 var _is_run_active: bool = false
 var _last_reported_second: int = -1
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_load_meta()
 
 
 func _process(delta: float) -> void:
@@ -66,11 +70,80 @@ func start_run() -> void:
 ## 런을 종료한다.
 func end_run(is_victory: bool) -> void:
 	_is_run_active = false
+	_settle_run(is_victory)
 	if is_victory:
 		change_state(Enums.GameState.VICTORY)
 	else:
 		change_state(Enums.GameState.GAME_OVER)
 	run_ended.emit(is_victory)
+
+
+## 런 종료 시 기억 조각을 정산하고 기록을 갱신한다.
+func _settle_run(is_victory: bool) -> void:
+	var shards: int = 0
+	shards += SpawnManager.total_kills
+	shards += int(run_elapsed_time / 60.0) * 5
+	if is_victory:
+		shards += 50
+
+	meta.memory_shards += shards
+	meta.total_kills_all_time += SpawnManager.total_kills
+	if is_victory:
+		meta.boss_kills += 1
+
+	if run_elapsed_time > meta.best_survival_time:
+		meta.best_survival_time = run_elapsed_time
+
+	if run_elapsed_time >= 600.0 and not meta.fritz_unlocked:
+		meta.fritz_unlocked = true
+
+	_save_meta()
+
+
+## 영구 업그레이드로 인한 기본 스탯 보너스를 반환한다.
+func get_meta_bonus_hp() -> float:
+	return meta.upgrade_hp * 5.0
+
+
+func get_meta_bonus_attack() -> float:
+	return meta.upgrade_attack * 0.03
+
+
+func get_meta_bonus_speed() -> float:
+	return meta.upgrade_speed * 0.02
+
+
+func get_meta_bonus_xp() -> float:
+	return meta.upgrade_xp * 0.05
+
+
+func get_meta_bonus_drop() -> float:
+	return meta.upgrade_drop * 0.03
+
+
+func get_meta_bonus_defense() -> float:
+	return meta.upgrade_defense * 2.0
+
+
+func get_meta_bonus_magnet() -> float:
+	return meta.upgrade_magnet * 0.05
+
+
+func get_meta_revive_count() -> int:
+	return meta.upgrade_revive
+
+
+func _load_meta() -> void:
+	if ResourceLoader.exists(SAVE_PATH):
+		var loaded := ResourceLoader.load(SAVE_PATH)
+		if loaded is MetaProgress:
+			meta = loaded
+			return
+	meta = MetaProgress.new()
+
+
+func _save_meta() -> void:
+	ResourceSaver.save(meta, SAVE_PATH)
 
 
 func _handle_state_transition(

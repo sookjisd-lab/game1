@@ -6,6 +6,7 @@ extends CanvasLayer
 @onready var _kills_value: Label = $Overlay/CenterContainer/VBox/StatsContainer/KillsValue
 @onready var _level_value: Label = $Overlay/CenterContainer/VBox/StatsContainer/LevelValue
 @onready var _xp_value: Label = $Overlay/CenterContainer/VBox/StatsContainer/XPValue
+@onready var _shards_value: Label = $Overlay/CenterContainer/VBox/StatsContainer/ShardsValue
 
 
 func _ready() -> void:
@@ -20,6 +21,8 @@ func show_results(elapsed_time: float, kills: int, level: int, total_xp: int) ->
 	_kills_value.text = str(kills)
 	_level_value.text = str(level)
 	_xp_value.text = str(total_xp)
+	var shards: int = kills + int(elapsed_time / 60.0) * 5
+	_shards_value.text = "+%d" % shards
 	visible = true
 
 

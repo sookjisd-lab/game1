@@ -11,6 +11,8 @@ const TREASURE_UI_SCENE: PackedScene = preload("res://ui/treasure_ui.tscn")
 const BOSS_WARNING_SCENE: PackedScene = preload("res://ui/boss_warning.tscn")
 const OFFSCREEN_INDICATOR_SCENE: PackedScene = preload("res://ui/offscreen_indicator.tscn")
 
+var character_data: CharacterData = null
+
 @onready var _player: CharacterBody2D = $Player
 var _hud: CanvasLayer = null
 var _level_up_ui: CanvasLayer = null
@@ -18,16 +20,21 @@ var _game_over_ui: CanvasLayer = null
 var _boss_hp_bar: CanvasLayer = null
 var _treasure_ui: CanvasLayer = null
 var _boss_warning: CanvasLayer = null
+var _pending_boss_name: String = ""
 
 
 func _ready() -> void:
+	if character_data == null:
+		character_data = preload("res://data/characters/rosie.tres")
 	_player.global_position = Vector2(
 		Constants.VIEWPORT_WIDTH / 2.0,
 		Constants.VIEWPORT_HEIGHT / 2.0
 	)
+	_setup_hud()
+	_player.init_character(character_data)
 	SpawnManager.register_stage(self, _player)
 	DropManager.register(self, _player)
-	UpgradeManager.register_player(_player)
+	UpgradeManager.register_player(_player, character_data.starting_weapon_script)
 	DamageNumberManager.register_stage(self)
 	SpawnManager.boss_warning.connect(_on_boss_warning)
 	SpawnManager.boss_spawned.connect(_on_boss_spawned)
@@ -35,7 +42,6 @@ func _ready() -> void:
 	_player.player_died.connect(_on_player_died)
 	_player.leveled_up.connect(_on_player_leveled_up)
 	UpgradeManager.upgrade_applied.connect(_on_upgrade_applied)
-	_setup_hud()
 	_setup_level_up_ui()
 	_setup_game_over_ui()
 	_setup_pause_ui()
@@ -106,6 +112,7 @@ func _setup_boss_warning() -> void:
 
 
 func _on_boss_warning(boss_name: String) -> void:
+	_pending_boss_name = boss_name
 	_boss_warning.play_warning(boss_name)
 
 
@@ -130,19 +137,20 @@ func _show_treasure() -> void:
 
 
 func _on_boss_spawned(boss: Area2D) -> void:
-	_boss_hp_bar.show_boss("영주 그림홀트", boss.current_hp, boss.max_hp)
+	_boss_hp_bar.show_boss(_pending_boss_name, boss.current_hp, boss.max_hp)
 	boss.boss_hp_changed.connect(_boss_hp_bar.update_hp)
 
 
-func _on_boss_defeated() -> void:
+func _on_boss_defeated(is_victory: bool) -> void:
 	_boss_hp_bar.hide_boss()
-	GameManager.end_run(true)
-	_game_over_ui.show_results(
-		GameManager.run_elapsed_time,
-		SpawnManager.total_kills,
-		_player.current_level,
-		DropManager.total_xp,
-	)
+	if is_victory:
+		GameManager.end_run(true)
+		_game_over_ui.show_results(
+			GameManager.run_elapsed_time,
+			SpawnManager.total_kills,
+			_player.current_level,
+			DropManager.total_xp,
+		)
 
 
 ## 이동 확인용 디버그 격자를 생성한다. 에셋 완성 후 제거 예정.

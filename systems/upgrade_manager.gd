@@ -21,11 +21,12 @@ func _ready() -> void:
 	GameManager.state_changed.connect(_on_state_changed)
 
 
-func register_player(player: CharacterBody2D) -> void:
+func register_player(player: CharacterBody2D, starting_weapon_script: String = "") -> void:
 	_player = player
 	_acquired_weapons.clear()
 	_evolved_weapons.clear()
-	_acquired_weapons.append("res://entities/weapons/cursed_scissors.gd")
+	if starting_weapon_script != "":
+		_acquired_weapons.append(starting_weapon_script)
 
 
 func generate_choices(count: int) -> Array[UpgradeData]:

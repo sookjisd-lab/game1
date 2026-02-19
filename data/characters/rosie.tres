@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/character_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+character_name = "로지"
+description = "꽃집 주인의 딸. 경험치 획득 +15%."
+sprite_color = Color(0.96, 0.87, 0.7, 1)
+base_hp = 120.0
+base_speed = 80.0
+base_damage_mult = 1.0
+starting_weapon_script = "res://entities/weapons/cursed_scissors.gd"
+starting_weapon_data = "res://data/weapons/cursed_scissors.tres"
+passive_name = "꽃의 저항"
+passive_desc = "경험치 획득량 +15%"
+passive_stat_key = "xp_percent"
+passive_value = 0.15
