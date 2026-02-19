@@ -5,6 +5,7 @@ extends CanvasLayer
 signal start_pressed
 signal altar_pressed
 signal settings_pressed
+signal library_pressed
 
 
 func _ready() -> void:
@@ -31,6 +32,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_S:
 				visible = false
 				settings_pressed.emit()
+			KEY_L:
+				visible = false
+				library_pressed.emit()
 
 
 func _build_ui() -> void:
@@ -73,6 +77,12 @@ func _build_ui() -> void:
 	altar_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	altar_label.add_theme_color_override("font_color", Color(1, 0.84, 0, 0.8))
 	vbox.add_child(altar_label)
+
+	var library_label := Label.new()
+	library_label.text = "[L] 기억의 서재"
+	library_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	library_label.add_theme_color_override("font_color", Color(0.7, 0.65, 0.8, 1))
+	vbox.add_child(library_label)
 
 	var settings_label := Label.new()
 	settings_label.text = "[S] 설정"

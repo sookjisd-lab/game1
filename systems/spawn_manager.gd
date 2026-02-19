@@ -70,9 +70,24 @@ func _process(delta: float) -> void:
 	_adjust_difficulty()
 
 
-func register_stage(stage: Node2D, player: Node2D) -> void:
+func register_stage(stage: Node2D, player: Node2D, stage_data: StageData = null) -> void:
 	_stage = stage
 	_player = player
+	if stage_data != null:
+		_load_stage_enemies(stage_data)
+
+
+func _load_stage_enemies(stage_data: StageData) -> void:
+	_all_enemy_data.clear()
+	_elite_data.clear()
+	for path: String in stage_data.enemy_paths:
+		var res := load(path)
+		if res is EnemyData:
+			_all_enemy_data.append(res)
+	for path: String in stage_data.elite_paths:
+		var res := load(path)
+		if res is EnemyData:
+			_elite_data.append(res)
 
 
 func _load_enemy_data() -> void:
@@ -83,6 +98,7 @@ func _load_enemy_data() -> void:
 	_all_enemy_data.append(preload("res://data/enemies/twisted_bread.tres"))
 	_all_enemy_data.append(preload("res://data/enemies/bookworm.tres"))
 	_all_enemy_data.append(preload("res://data/enemies/mirror_ghost.tres"))
+	_all_enemy_data.append(preload("res://data/enemies/root_hand.tres"))
 
 	_elite_data.append(preload("res://data/enemies/elite_tooth_flower.tres"))
 	_elite_data.append(preload("res://data/enemies/elite_spider_doll.tres"))
@@ -167,9 +183,11 @@ func _spawn_boss() -> void:
 
 
 func _on_boss_died() -> void:
+	var boss_pos: Vector2 = _current_boss.global_position if _current_boss != null else Vector2.ZERO
 	_current_boss = null
 	total_kills += 1
 	enemy_killed.emit()
+	DropManager.spawn_treasure_chest(boss_pos)
 	boss_defeated.emit(_boss2_spawned)
 
 
@@ -214,10 +232,14 @@ func _release_enemy(enemy: Area2D) -> void:
 
 
 func _on_enemy_died(enemy: Area2D) -> void:
+	var pos: Vector2 = enemy.global_position
+	var is_elite: bool = enemy.data != null and enemy.data.is_elite
 	_active_enemies.erase(enemy)
 	PoolManager.release(ENEMY_SCENE, enemy)
 	total_kills += 1
 	enemy_killed.emit()
+	if is_elite and randf() < DropManager.ELITE_CHEST_CHANCE:
+		DropManager.spawn_treasure_chest(pos)
 
 
 func _on_run_started() -> void:

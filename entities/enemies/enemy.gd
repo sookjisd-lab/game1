@@ -9,6 +9,7 @@ var data: EnemyData
 var current_hp: float
 var _target: Node2D = null
 var _is_active: bool = false
+var _attack_timer: float = 0.0
 var _placeholder: ColorRect
 var _collision: CollisionShape2D
 
@@ -24,6 +25,7 @@ func activate(enemy_data: EnemyData, spawn_position: Vector2, target: Node2D) ->
 	_target = target
 	global_position = spawn_position
 	_is_active = true
+	_attack_timer = data.attack_interval
 	visible = true
 	_cache_nodes()
 	_collision.set_deferred("disabled", false)
@@ -45,8 +47,16 @@ func deactivate() -> void:
 func _physics_process(delta: float) -> void:
 	if not _is_active or _target == null:
 		return
-	var direction := global_position.direction_to(_target.global_position)
-	global_position += direction * data.move_speed * delta
+
+	if not data.is_stationary:
+		var direction := global_position.direction_to(_target.global_position)
+		global_position += direction * data.move_speed * delta
+
+	if data.attack_interval > 0.0:
+		_attack_timer -= delta
+		if _attack_timer <= 0.0:
+			_attack_timer = data.attack_interval
+			_ground_attack()
 
 
 func take_damage(amount: float, knockback_force: float = 0.0, knockback_origin: Vector2 = Vector2.ZERO) -> void:
@@ -58,6 +68,33 @@ func take_damage(amount: float, knockback_force: float = 0.0, knockback_origin: 
 		global_position += direction * knockback_force
 	if current_hp <= 0.0:
 		call_deferred("_die")
+
+
+func _ground_attack() -> void:
+	if _target == null or data.attack_range <= 0.0:
+		return
+	var dist: float = global_position.distance_to(_target.global_position)
+	if dist > data.attack_range * 1.5:
+		return
+	var wave := Area2D.new()
+	wave.collision_layer = 2
+	wave.collision_mask = 1
+	wave.global_position = global_position
+	var shape := CollisionShape2D.new()
+	var circle := CircleShape2D.new()
+	circle.radius = data.attack_range
+	shape.shape = circle
+	wave.add_child(shape)
+	var vis_size := Vector2(data.attack_range * 2, data.attack_range * 2)
+	var visual := ColorRect.new()
+	visual.color = Color(data.sprite_color, 0.3)
+	visual.size = vis_size
+	visual.position = -vis_size / 2.0
+	wave.add_child(visual)
+	get_tree().current_scene.add_child(wave)
+	var tween := wave.create_tween()
+	tween.tween_property(visual, "modulate:a", 0.0, 0.6)
+	tween.tween_callback(wave.queue_free)
 
 
 func _die() -> void:

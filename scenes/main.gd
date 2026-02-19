@@ -7,12 +7,17 @@ const TITLE_UI_SCENE: PackedScene = preload("res://ui/title_ui.tscn")
 const ALTAR_UI_SCENE: PackedScene = preload("res://ui/altar_ui.tscn")
 const CHARACTER_SELECT_UI_SCENE: PackedScene = preload("res://ui/character_select_ui.tscn")
 const SETTINGS_UI_SCENE: PackedScene = preload("res://ui/settings_ui.tscn")
+const LIBRARY_UI_SCENE: PackedScene = preload("res://ui/library_ui.tscn")
+const STAGE_SELECT_UI_SCENE: PackedScene = preload("res://ui/stage_select_ui.tscn")
 
 var _current_scene: Node = null
 var _title_ui: CanvasLayer = null
 var _altar_ui: CanvasLayer = null
 var _char_select_ui: CanvasLayer = null
 var _settings_ui: CanvasLayer = null
+var _library_ui: CanvasLayer = null
+var _stage_select_ui: CanvasLayer = null
+var _selected_character: CharacterData = null
 
 
 func _ready() -> void:
@@ -22,6 +27,8 @@ func _ready() -> void:
 	_setup_altar_ui()
 	_setup_char_select_ui()
 	_setup_settings_ui()
+	_setup_library_ui()
+	_setup_stage_select_ui()
 	_show_title()
 
 
@@ -36,6 +43,7 @@ func _setup_title_ui() -> void:
 	_title_ui.start_pressed.connect(_on_title_start)
 	_title_ui.altar_pressed.connect(_on_altar_pressed)
 	_title_ui.settings_pressed.connect(_on_settings_pressed)
+	_title_ui.library_pressed.connect(_on_library_pressed)
 
 
 func _setup_altar_ui() -> void:
@@ -60,7 +68,8 @@ func _on_title_start() -> void:
 
 
 func _on_character_selected(data: CharacterData) -> void:
-	_start_game(data)
+	_selected_character = data
+	_stage_select_ui.show_select()
 
 
 func _on_char_select_back() -> void:
@@ -89,15 +98,45 @@ func _on_settings_closed() -> void:
 	_show_title()
 
 
-func _start_game(data: CharacterData) -> void:
-	_load_stage(data)
+func _setup_library_ui() -> void:
+	_library_ui = LIBRARY_UI_SCENE.instantiate()
+	add_child(_library_ui)
+	_library_ui.closed.connect(_on_library_closed)
+
+
+func _on_library_pressed() -> void:
+	_library_ui.show_library()
+
+
+func _on_library_closed() -> void:
+	_show_title()
+
+
+func _setup_stage_select_ui() -> void:
+	_stage_select_ui = STAGE_SELECT_UI_SCENE.instantiate()
+	add_child(_stage_select_ui)
+	_stage_select_ui.stage_selected.connect(_on_stage_selected)
+	_stage_select_ui.back_pressed.connect(_on_stage_select_back)
+
+
+func _on_stage_selected(data: StageData) -> void:
+	_start_game(_selected_character, data)
+
+
+func _on_stage_select_back() -> void:
+	_char_select_ui.show_select()
+
+
+func _start_game(char_data: CharacterData, stg_data: StageData) -> void:
+	_load_stage(char_data, stg_data)
 	GameManager.start_run()
 
 
-func _load_stage(data: CharacterData) -> void:
+func _load_stage(char_data: CharacterData, stg_data: StageData) -> void:
 	_clear_current_scene()
 	_current_scene = STAGE_SCENE.instantiate()
-	_current_scene.character_data = data
+	_current_scene.character_data = char_data
+	_current_scene.stage_data = stg_data
 	add_child(_current_scene)
 
 

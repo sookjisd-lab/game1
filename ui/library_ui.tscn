@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/library_ui.gd" id="1_lu"]
+
+[node name="LibraryUI" type="CanvasLayer"]
+layer = 20
+script = ExtResource("1_lu")

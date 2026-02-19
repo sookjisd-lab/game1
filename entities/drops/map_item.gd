@@ -15,6 +15,7 @@ const ITEM_CONFIGS: Dictionary = {
 	"magnet_charm": { "color": Color(0.45, 0.55, 0.95, 1), "size": Vector2(10, 10) },
 	"purify_bell": { "color": Color(0.9, 0.85, 0.3, 1), "size": Vector2(10, 10) },
 	"gold_pouch": { "color": Color(1.0, 0.84, 0.0, 1), "size": Vector2(10, 10) },
+	"treasure_chest": { "color": Color(0.85, 0.6, 0.2, 1), "size": Vector2(14, 14) },
 }
 
 

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="StageData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/stage_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+stage_name = "에버홀로우 광장"
+description = "저주받은 마을의 중앙 광장."
+bg_color = Color(0.05, 0.03, 0.1, 1)
+grid_color = Color(0.25, 0.15, 0.35, 1)
+enemy_paths = Array[String](["res://data/enemies/tooth_flower.tres", "res://data/enemies/shadow_cat.tres", "res://data/enemies/spider_doll.tres", "res://data/enemies/candle_ghost.tres", "res://data/enemies/twisted_bread.tres"])
+elite_paths = Array[String](["res://data/enemies/elite_tooth_flower.tres", "res://data/enemies/elite_spider_doll.tres", "res://data/enemies/elite_candle_ghost.tres"])
+fog_enabled = false

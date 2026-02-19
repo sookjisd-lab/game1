@@ -12,6 +12,7 @@ const BOSS_WARNING_SCENE: PackedScene = preload("res://ui/boss_warning.tscn")
 const OFFSCREEN_INDICATOR_SCENE: PackedScene = preload("res://ui/offscreen_indicator.tscn")
 
 var character_data: CharacterData = null
+var stage_data: StageData = null
 
 @onready var _player: CharacterBody2D = $Player
 var _hud: CanvasLayer = null
@@ -26,13 +27,16 @@ var _pending_boss_name: String = ""
 func _ready() -> void:
 	if character_data == null:
 		character_data = preload("res://data/characters/rosie.tres")
+	if stage_data == null:
+		stage_data = preload("res://data/stages/stage1_town.tres")
 	_player.global_position = Vector2(
 		Constants.VIEWPORT_WIDTH / 2.0,
 		Constants.VIEWPORT_HEIGHT / 2.0
 	)
 	_setup_hud()
 	_player.init_character(character_data)
-	SpawnManager.register_stage(self, _player)
+	SpawnManager.register_stage(self, _player, stage_data)
+	_apply_stage_visuals()
 	DropManager.register(self, _player)
 	UpgradeManager.register_player(_player, character_data.starting_weapon_script)
 	DamageNumberManager.register_stage(self)
@@ -42,6 +46,7 @@ func _ready() -> void:
 	_player.player_died.connect(_on_player_died)
 	_player.leveled_up.connect(_on_player_leveled_up)
 	UpgradeManager.upgrade_applied.connect(_on_upgrade_applied)
+	DropManager.treasure_chest_collected.connect(_on_treasure_chest_collected)
 	_setup_level_up_ui()
 	_setup_game_over_ui()
 	_setup_pause_ui()
@@ -136,6 +141,16 @@ func _show_treasure() -> void:
 	_treasure_ui.show_choices(evolutions)
 
 
+func _on_treasure_chest_collected() -> void:
+	if GameManager.current_state != Enums.GameState.PLAYING:
+		return
+	var choices := UpgradeManager.generate_choices(Constants.LEVEL_UP_CHOICES)
+	if choices.is_empty():
+		return
+	GameManager.change_state(Enums.GameState.TREASURE)
+	_treasure_ui.show_choices(choices)
+
+
 func _on_boss_spawned(boss: Area2D) -> void:
 	_boss_hp_bar.show_boss(_pending_boss_name, boss.current_hp, boss.max_hp)
 	boss.boss_hp_changed.connect(_boss_hp_bar.update_hp)
@@ -143,6 +158,10 @@ func _on_boss_spawned(boss: Area2D) -> void:
 
 func _on_boss_defeated(is_victory: bool) -> void:
 	_boss_hp_bar.hide_boss()
+	if _pending_boss_name == "영주 그림홀트":
+		StoryManager.discover_clue("lord_diary")
+	elif _pending_boss_name == "마녀의 사자":
+		StoryManager.discover_clue("witch_seal")
 	if is_victory:
 		GameManager.end_run(true)
 		_game_over_ui.show_results(
@@ -153,9 +172,16 @@ func _on_boss_defeated(is_victory: bool) -> void:
 		)
 
 
+func _apply_stage_visuals() -> void:
+	if stage_data.fog_enabled:
+		var fog := CanvasModulate.new()
+		fog.color = Color(1, 1, 1, 1) - stage_data.fog_color
+		add_child(fog)
+
+
 ## 이동 확인용 디버그 격자를 생성한다. 에셋 완성 후 제거 예정.
 func _draw_debug_grid() -> void:
-	var grid_color := Color(0.25, 0.15, 0.35, 1.0)
+	var grid_color: Color = stage_data.grid_color if stage_data != null else Color(0.25, 0.15, 0.35, 1.0)
 	var grid_size := 32
 	var map_size := 640
 

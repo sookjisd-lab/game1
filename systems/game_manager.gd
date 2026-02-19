@@ -97,6 +97,9 @@ func _settle_run(is_victory: bool) -> void:
 	if run_elapsed_time >= 600.0 and not meta.fritz_unlocked:
 		meta.fritz_unlocked = true
 
+	if meta.boss_kills >= 1 and not meta.stage2_unlocked:
+		meta.stage2_unlocked = true
+
 	_save_meta()
 
 

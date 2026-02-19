@@ -32,6 +32,7 @@ var _innate_stat_key: String = ""
 var _innate_stat_value: float = 0.0
 var _character_data: CharacterData = null
 var _damage_cooldown: float = 0.0
+var _revives_remaining: int = 0
 var _weapons: Array[WeaponBase] = []
 var _passives: Dictionary = {}  # passive_name → { "data": PassiveData, "level": int }
 
@@ -59,6 +60,7 @@ func init_character(data: CharacterData) -> void:
 	xp_multiplier = _base_xp_mult
 	magnet_radius = _base_magnet
 	current_hp = max_hp
+	_revives_remaining = GameManager.get_meta_revive_count()
 	var placeholder := $Placeholder as ColorRect
 	placeholder.color = data.sprite_color
 	_equip_starting_weapon()
@@ -114,7 +116,28 @@ func take_damage(amount: float) -> void:
 	_flash_hit()
 	_shake_camera()
 	if current_hp <= 0.0:
-		player_died.emit()
+		if _revives_remaining > 0:
+			_revive()
+		else:
+			player_died.emit()
+
+
+func _revive() -> void:
+	_revives_remaining -= 1
+	current_hp = max_hp * 0.5
+	_damage_cooldown = 2.0
+	hp_changed.emit(current_hp, max_hp)
+	_flash_revive()
+
+
+func _flash_revive() -> void:
+	var placeholder := $Placeholder as ColorRect
+	placeholder.color = Color(1, 1, 0.5, 1)
+	get_tree().create_timer(0.3).timeout.connect(
+		func() -> void:
+			var original: Color = _character_data.sprite_color if _character_data != null else Color(0.96, 0.87, 0.7, 1)
+			placeholder.color = original
+	)
 
 
 func _get_input_direction() -> Vector2:

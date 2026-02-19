@@ -4,6 +4,7 @@ extends Node
 
 
 signal xp_collected(amount: int)
+signal treasure_chest_collected
 
 const XP_GEM_SCENE: PackedScene = preload("res://entities/drops/xp_gem.tscn")
 const MAP_ITEM_SCENE: PackedScene = preload("res://entities/drops/map_item.tscn")
@@ -14,6 +15,7 @@ const GEM_LARGE := { "color": Color(0.9, 0.25, 0.25, 1), "size": Vector2(10, 10)
 
 const MAP_ITEM_DROP_CHANCE: float = 0.03
 const MAP_ITEM_TYPES: Array[String] = ["heal_bread", "magnet_charm", "purify_bell", "gold_pouch"]
+const ELITE_CHEST_CHANCE: float = 0.25
 const MAP_ITEM_PICKUP_DIST: float = 12.0
 const HEAL_AMOUNT: float = 30.0
 const PURIFY_DAMAGE: float = 30.0
@@ -111,6 +113,10 @@ func _check_item_pickup() -> void:
 			PoolManager.release(MAP_ITEM_SCENE, item)
 
 
+func spawn_treasure_chest(position: Vector2) -> void:
+	_spawn_map_item("treasure_chest", position)
+
+
 func _apply_item_effect(item_type: String) -> void:
 	match item_type:
 		"heal_bread":
@@ -123,6 +129,8 @@ func _apply_item_effect(item_type: String) -> void:
 			_damage_all_visible_enemies()
 		"gold_pouch":
 			GameManager.meta.memory_shards += GOLD_POUCH_AMOUNT
+		"treasure_chest":
+			treasure_chest_collected.emit()
 
 
 func _attract_all_gems() -> void:

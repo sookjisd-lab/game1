@@ -20,3 +20,10 @@ extends Resource
 @export var best_survival_time: float = 0.0
 @export var total_kills_all_time: int = 0
 @export var boss_kills: int = 0
+@export var stage2_unlocked: bool = false
+
+## 스토리 단서 발견 기록
+@export var clue_lord_diary: bool = false
+@export var clue_witch_seal: bool = false
+@export var clue_village_diary: bool = false
+@export var clue_wall_painting: bool = false

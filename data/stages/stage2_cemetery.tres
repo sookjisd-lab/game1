@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="StageData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/stage_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+stage_name = "뒤틀린 묘지"
+description = "죽은 자들이 깨어나는 묘지. 안개가 자욱하다."
+bg_color = Color(0.04, 0.05, 0.08, 1)
+grid_color = Color(0.15, 0.18, 0.25, 1)
+enemy_paths = Array[String](["res://data/enemies/tooth_flower.tres", "res://data/enemies/spider_doll.tres", "res://data/enemies/bookworm.tres", "res://data/enemies/mirror_ghost.tres", "res://data/enemies/root_hand.tres", "res://data/enemies/candle_ghost.tres"])
+elite_paths = Array[String](["res://data/enemies/elite_tooth_flower.tres", "res://data/enemies/elite_spider_doll.tres", "res://data/enemies/elite_candle_ghost.tres"])
+fog_enabled = true
+fog_color = Color(0.1, 0.1, 0.15, 0.4)
