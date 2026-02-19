@@ -116,18 +116,13 @@ func _execute_pattern() -> void:
 
 
 func _pattern_summon() -> void:
+	var pool := SpawnManager.get_available_enemies()
+	if pool.is_empty():
+		return
 	for i in range(SUMMON_COUNT):
 		var angle: float = TAU / SUMMON_COUNT * i
 		var offset := Vector2.from_angle(angle) * 60.0
-		var spawn_pos := global_position + offset
-		var pool := SpawnManager._get_available_enemies()
-		if not pool.is_empty():
-			var enemy: Area2D = PoolManager.acquire(SpawnManager.ENEMY_SCENE)
-			if enemy.get_parent() == null and SpawnManager._stage != null:
-				SpawnManager._stage.add_child(enemy)
-			enemy.activate(pool.pick_random(), spawn_pos, _target)
-			enemy.died.connect(SpawnManager._on_enemy_died, CONNECT_ONE_SHOT)
-			SpawnManager._active_enemies.append(enemy)
+		SpawnManager.spawn_enemy_at(pool.pick_random(), global_position + offset)
 
 
 func _pattern_shockwave() -> void:

@@ -173,7 +173,7 @@ func _split_on_death() -> void:
 	var mini_data := _create_mini_data()
 	for i in range(SPLIT_COUNT):
 		var offset := Vector2.from_angle(TAU / float(SPLIT_COUNT) * i) * 10.0
-		SpawnManager.spawn_mini_enemy(mini_data, global_position + offset)
+		SpawnManager.spawn_enemy_at(mini_data, global_position + offset)
 
 
 func _create_mini_data() -> EnemyData:

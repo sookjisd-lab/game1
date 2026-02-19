@@ -108,6 +108,10 @@ func _load_enemy_data() -> void:
 	_elite_data.append(preload("res://data/enemies/elite_candle_ghost.tres"))
 
 
+func get_available_enemies() -> Array[EnemyData]:
+	return _get_available_enemies()
+
+
 func _get_available_enemies() -> Array[EnemyData]:
 	var elapsed: float = GameManager.run_elapsed_time
 	var available: Array[EnemyData] = []
@@ -238,7 +242,7 @@ func _release_enemy(enemy: Area2D) -> void:
 	PoolManager.release(ENEMY_SCENE, enemy)
 
 
-func spawn_mini_enemy(enemy_data: EnemyData, position: Vector2) -> void:
+func spawn_enemy_at(enemy_data: EnemyData, position: Vector2) -> void:
 	if _stage == null or _player == null:
 		return
 	var enemy: Area2D = PoolManager.acquire(ENEMY_SCENE)
