@@ -4,22 +4,27 @@ extends Node
 
 
 signal upgrade_applied(data: UpgradeData)
+signal evolution_available
 
 var _upgrade_pool: Array[UpgradeData] = []
 var _passive_pool: Array[PassiveData] = []
+var _evolution_pool: Array[EvolutionData] = []
 var _acquired_weapons: Array[String] = []
+var _evolved_weapons: Array[String] = []
 var _player: CharacterBody2D = null
 
 
 func _ready() -> void:
 	_load_upgrades()
 	_load_passives()
+	_load_evolutions()
 	GameManager.state_changed.connect(_on_state_changed)
 
 
 func register_player(player: CharacterBody2D) -> void:
 	_player = player
 	_acquired_weapons.clear()
+	_evolved_weapons.clear()
 	_acquired_weapons.append("res://entities/weapons/cursed_scissors.gd")
 
 
@@ -101,8 +106,75 @@ func apply_upgrade(data: UpgradeData) -> void:
 			_acquire_passive(data)
 		"passive_levelup":
 			_levelup_passive(data)
+		"evolution":
+			_apply_evolution(data)
 
 	upgrade_applied.emit(data)
+
+
+func get_available_evolutions() -> Array[UpgradeData]:
+	var result: Array[UpgradeData] = []
+	if _player == null:
+		return result
+
+	for evo in _evolution_pool:
+		if evo.source_weapon_script in _evolved_weapons:
+			continue
+		if not _has_max_level_weapon(evo.source_weapon_script):
+			continue
+		if not _player._passives.has(evo.required_passive):
+			continue
+		var upgrade := UpgradeData.new()
+		upgrade.upgrade_name = evo.evolution_name
+		upgrade.description = evo.description
+		upgrade.card_color = evo.card_color
+		upgrade.stat_key = "evolution"
+		upgrade.weapon_script_path = evo.evolved_weapon_script
+		upgrade.weapon_data_path = evo.evolved_weapon_data
+		upgrade.value = _evolution_pool.find(evo)
+		result.append(upgrade)
+
+	return result
+
+
+func has_pending_evolutions() -> bool:
+	return not get_available_evolutions().is_empty()
+
+
+func _has_max_level_weapon(script_path: String) -> bool:
+	if _player == null:
+		return false
+	for weapon: WeaponBase in _player._weapons:
+		if weapon.get_script().resource_path == script_path:
+			return weapon.level >= weapon.data.max_level
+	return false
+
+
+func _apply_evolution(data: UpgradeData) -> void:
+	var evo_index: int = int(data.value)
+	if evo_index < 0 or evo_index >= _evolution_pool.size():
+		return
+	var evo: EvolutionData = _evolution_pool[evo_index]
+
+	# 기존 무기 제거
+	for i in range(_player._weapons.size() - 1, -1, -1):
+		var weapon: WeaponBase = _player._weapons[i]
+		if weapon.get_script().resource_path == evo.source_weapon_script:
+			_player._weapons.remove_at(i)
+			weapon.queue_free()
+			break
+
+	# 진화 무기 장착
+	var weapon_data: WeaponData = load(evo.evolved_weapon_data)
+	var script: GDScript = load(evo.evolved_weapon_script)
+	var new_weapon := Node2D.new()
+	new_weapon.set_script(script)
+	new_weapon.name = evo.evolution_name
+	_player.add_child(new_weapon)
+	new_weapon.initialize(weapon_data, _player)
+	_player._weapons.append(new_weapon)
+	_evolved_weapons.append(evo.source_weapon_script)
+	_acquired_weapons.append(evo.evolved_weapon_script)
 
 
 func _equip_weapon(data: UpgradeData) -> void:
@@ -172,6 +244,19 @@ func _load_passives() -> void:
 		var res := load(path)
 		if res is PassiveData:
 			_passive_pool.append(res)
+
+
+func _load_evolutions() -> void:
+	var paths := [
+		"res://data/evolutions/evo_scissors.tres",
+		"res://data/evolutions/evo_bible.tres",
+		"res://data/evolutions/evo_candle.tres",
+		"res://data/evolutions/evo_needle.tres",
+	]
+	for path in paths:
+		var res := load(path)
+		if res is EvolutionData:
+			_evolution_pool.append(res)
 
 
 func _on_state_changed(

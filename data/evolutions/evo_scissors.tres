@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EvolutionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/evolution_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+evolution_name = "피의 가위"
+description = "3방향 동시 베기. 파괴적인 공격력."
+card_color = Color(0.8, 0.1, 0.1, 1)
+source_weapon_script = "res://entities/weapons/cursed_scissors.gd"
+required_passive = "저주받은 목걸이"
+evolved_weapon_script = "res://entities/weapons/evolved_scissors.gd"
+evolved_weapon_data = "res://data/weapons/evolved_scissors.tres"

@@ -7,8 +7,10 @@ extends CanvasLayer
 @onready var _kill_label: Label = $TopBar/KillLabel
 @onready var _level_label: Label = $BottomBar/LevelLabel
 @onready var _xp_bar: ProgressBar = $BottomBar/XPBar
+@onready var _passive_bar: HBoxContainer = $PassiveBar
 
 var _kill_count: int = 0
+var _passive_icons: Array[Control] = []
 
 
 func _ready() -> void:
@@ -24,6 +26,7 @@ func connect_player(player: CharacterBody2D) -> void:
 	player.hp_changed.connect(_on_hp_changed)
 	player.xp_changed.connect(_on_xp_changed)
 	player.leveled_up.connect(_on_leveled_up)
+	player.passives_changed.connect(_on_passives_changed.bind(player))
 	_on_hp_changed(player.current_hp, player.max_hp)
 	_update_level(player.current_level)
 	_update_xp_bar(player.current_xp, player.xp_to_next_level())
@@ -72,3 +75,37 @@ func _update_level(level: int) -> void:
 func _update_xp_bar(current: int, needed: int) -> void:
 	_xp_bar.max_value = needed
 	_xp_bar.value = current
+
+
+func _on_passives_changed(player: CharacterBody2D) -> void:
+	_update_passive_icons(player._passives)
+
+
+func _update_passive_icons(passives: Dictionary) -> void:
+	for icon in _passive_icons:
+		icon.queue_free()
+	_passive_icons.clear()
+
+	for p_name: String in passives:
+		var info: Dictionary = passives[p_name]
+		var p_data: PassiveData = info["data"]
+		var p_level: int = info["level"]
+
+		var container := Control.new()
+		container.custom_minimum_size = Vector2(14, 10)
+
+		var color_rect := ColorRect.new()
+		color_rect.color = p_data.icon_color
+		color_rect.size = Vector2(8, 8)
+		color_rect.position = Vector2(3, 0)
+		container.add_child(color_rect)
+
+		var lv_label := Label.new()
+		lv_label.text = str(p_level)
+		lv_label.position = Vector2(2, -1)
+		lv_label.add_theme_font_size_override("font_size", 8)
+		lv_label.add_theme_color_override("font_color", Color.WHITE)
+		container.add_child(lv_label)
+
+		_passive_bar.add_child(container)
+		_passive_icons.append(container)

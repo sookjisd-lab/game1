@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/weapon_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+weapon_name = "피의 가위"
+damage = 30.0
+cooldown = 0.7
+attack_range = 50.0
+knockback = 30.0
+max_level = 1
+projectile_color = Color(0.8, 0.1, 0.1, 1)

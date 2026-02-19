@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EvolutionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/evolution_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+evolution_name = "심판의 경전"
+description = "4개 오브가 빠르게 회전. 넓은 수호 범위."
+card_color = Color(0.6, 0.2, 0.9, 1)
+source_weapon_script = "res://entities/weapons/cursed_bible.gd"
+required_passive = "깨진 시계"
+evolved_weapon_script = "res://entities/weapons/evolved_bible.gd"
+evolved_weapon_data = "res://data/weapons/evolved_bible.tres"

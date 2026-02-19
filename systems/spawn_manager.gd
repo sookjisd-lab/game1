@@ -4,6 +4,7 @@ extends Node
 
 
 signal enemy_killed
+signal boss_warning(boss_name: String)
 signal boss_spawned(boss: Area2D)
 signal boss_defeated
 
@@ -20,6 +21,7 @@ var _spawn_timer: float = 0.0
 var _spawn_interval: float = 1.5
 var _elite_timer: float = 0.0
 var _boss_spawned: bool = false
+var _boss_warning_sent: bool = false
 var _current_boss: Area2D = null
 var _player: Node2D = null
 var _stage: Node2D = null
@@ -49,8 +51,9 @@ func _process(delta: float) -> void:
 		_spawn_elite_wave()
 		_elite_timer = ELITE_INTERVAL
 
-	if not _boss_spawned and GameManager.run_elapsed_time >= BOSS_SPAWN_TIME:
-		_spawn_boss()
+	if not _boss_spawned and not _boss_warning_sent and GameManager.run_elapsed_time >= BOSS_SPAWN_TIME:
+		_boss_warning_sent = true
+		boss_warning.emit("영주 그림홀트")
 
 	_despawn_far_enemies()
 	_adjust_difficulty()
@@ -131,6 +134,10 @@ func _spawn_elite_wave() -> void:
 		_active_enemies.append(enemy)
 
 
+func trigger_boss_spawn() -> void:
+	_spawn_boss()
+
+
 func _spawn_boss() -> void:
 	if _player == null or _stage == null:
 		return
@@ -202,6 +209,7 @@ func _on_run_started() -> void:
 	_spawn_timer = 2.0
 	_elite_timer = ELITE_INTERVAL
 	_boss_spawned = false
+	_boss_warning_sent = false
 	_current_boss = null
 	total_kills = 0
 
@@ -216,6 +224,7 @@ func _on_state_changed(
 			_current_boss.queue_free()
 			_current_boss = null
 		_boss_spawned = false
+		_boss_warning_sent = false
 		_player = null
 		_stage = null
 		_spawn_timer = 0.0

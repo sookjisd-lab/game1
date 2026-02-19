@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EvolutionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/evolution_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+evolution_name = "정화의 불꽃"
+description = "3발 동시 유도탄 + 착탄 시 범위 폭발."
+card_color = Color(1.0, 0.5, 0.0, 1)
+source_weapon_script = "res://entities/weapons/ghost_candle.gd"
+required_passive = "두꺼운 앞치마"
+evolved_weapon_script = "res://entities/weapons/evolved_candle.gd"
+evolved_weapon_data = "res://data/weapons/evolved_candle.tres"

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/weapon_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+weapon_name = "정화의 불꽃"
+damage = 20.0
+cooldown = 1.5
+attack_range = 140.0
+knockback = 15.0
+max_level = 1
+projectile_color = Color(1.0, 0.5, 0.0, 1)

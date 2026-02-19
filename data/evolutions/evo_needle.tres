@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EvolutionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/evolution_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+evolution_name = "인형술사의 비수"
+description = "10방향 관통 비수. 사방에 비수의 폭풍."
+card_color = Color(0.9, 0.2, 0.5, 1)
+source_weapon_script = "res://entities/weapons/doll_needle.gd"
+required_passive = "행운의 동전"
+evolved_weapon_script = "res://entities/weapons/evolved_needle.gd"
+evolved_weapon_data = "res://data/weapons/evolved_needle.tres"

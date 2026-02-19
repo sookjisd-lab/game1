@@ -7,12 +7,17 @@ const LEVEL_UP_UI_SCENE: PackedScene = preload("res://ui/level_up_ui.tscn")
 const GAME_OVER_UI_SCENE: PackedScene = preload("res://ui/game_over_ui.tscn")
 const PAUSE_UI_SCENE: PackedScene = preload("res://ui/pause_ui.tscn")
 const BOSS_HP_BAR_SCENE: PackedScene = preload("res://ui/boss_hp_bar.tscn")
+const TREASURE_UI_SCENE: PackedScene = preload("res://ui/treasure_ui.tscn")
+const BOSS_WARNING_SCENE: PackedScene = preload("res://ui/boss_warning.tscn")
+const OFFSCREEN_INDICATOR_SCENE: PackedScene = preload("res://ui/offscreen_indicator.tscn")
 
 @onready var _player: CharacterBody2D = $Player
 var _hud: CanvasLayer = null
 var _level_up_ui: CanvasLayer = null
 var _game_over_ui: CanvasLayer = null
 var _boss_hp_bar: CanvasLayer = null
+var _treasure_ui: CanvasLayer = null
+var _boss_warning: CanvasLayer = null
 
 
 func _ready() -> void:
@@ -24,15 +29,20 @@ func _ready() -> void:
 	DropManager.register(self, _player)
 	UpgradeManager.register_player(_player)
 	DamageNumberManager.register_stage(self)
+	SpawnManager.boss_warning.connect(_on_boss_warning)
 	SpawnManager.boss_spawned.connect(_on_boss_spawned)
 	SpawnManager.boss_defeated.connect(_on_boss_defeated)
 	_player.player_died.connect(_on_player_died)
 	_player.leveled_up.connect(_on_player_leveled_up)
+	UpgradeManager.upgrade_applied.connect(_on_upgrade_applied)
 	_setup_hud()
 	_setup_level_up_ui()
 	_setup_game_over_ui()
 	_setup_pause_ui()
 	_setup_boss_hp_bar()
+	_setup_treasure_ui()
+	_setup_boss_warning()
+	_setup_offscreen_indicator()
 	_draw_debug_grid()
 
 
@@ -62,6 +72,11 @@ func _setup_boss_hp_bar() -> void:
 	add_child(_boss_hp_bar)
 
 
+func _setup_treasure_ui() -> void:
+	_treasure_ui = TREASURE_UI_SCENE.instantiate()
+	add_child(_treasure_ui)
+
+
 func _on_player_died() -> void:
 	GameManager.end_run(false)
 	_game_over_ui.show_results(
@@ -76,6 +91,42 @@ func _on_player_leveled_up(_new_level: int) -> void:
 	GameManager.change_state(Enums.GameState.LEVEL_UP)
 	var choices := UpgradeManager.generate_choices(Constants.LEVEL_UP_CHOICES)
 	_level_up_ui.show_choices(choices)
+
+
+func _setup_offscreen_indicator() -> void:
+	var indicator := OFFSCREEN_INDICATOR_SCENE.instantiate()
+	add_child(indicator)
+	indicator.register_player(_player)
+
+
+func _setup_boss_warning() -> void:
+	_boss_warning = BOSS_WARNING_SCENE.instantiate()
+	add_child(_boss_warning)
+	_boss_warning.warning_finished.connect(_on_boss_warning_finished)
+
+
+func _on_boss_warning(boss_name: String) -> void:
+	_boss_warning.play_warning(boss_name)
+
+
+func _on_boss_warning_finished() -> void:
+	SpawnManager.trigger_boss_spawn()
+
+
+func _on_upgrade_applied(_data: UpgradeData) -> void:
+	if not UpgradeManager.has_pending_evolutions():
+		return
+	if GameManager.current_state != Enums.GameState.PLAYING:
+		return
+	call_deferred("_show_treasure")
+
+
+func _show_treasure() -> void:
+	var evolutions := UpgradeManager.get_available_evolutions()
+	if evolutions.is_empty():
+		return
+	GameManager.change_state(Enums.GameState.TREASURE)
+	_treasure_ui.show_choices(evolutions)
 
 
 func _on_boss_spawned(boss: Area2D) -> void:

@@ -6,6 +6,7 @@ signal hp_changed(current_hp: float, max_hp: float)
 signal player_died
 signal leveled_up(new_level: int)
 signal xp_changed(current_xp: int, xp_needed: int)
+signal passives_changed
 
 @export var move_speed: float = Constants.PLAYER_BASE_SPEED
 @export var max_hp: float = 120.0
@@ -222,6 +223,7 @@ func _recalculate_stats() -> void:
 		current_hp += max_hp - old_max_hp
 	current_hp = minf(current_hp, max_hp)
 	hp_changed.emit(current_hp, max_hp)
+	passives_changed.emit()
 
 
 func _on_xp_collected(amount: int) -> void:
