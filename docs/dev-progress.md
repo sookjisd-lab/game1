@@ -44,8 +44,8 @@
 | UpgradeManager | **완료** | 선택지 생성, 무기/패시브 획득·레벨업, 중복 방지 |
 | DropManager | **완료** | XP 보석 3티어, 마그넷 흡수, 맵 드롭 아이템 3종 |
 | DamageNumberManager | **완료** | 풀링 20개, 데미지/회복 숫자 팝업 |
-| StatsManager | 스켈레톤 | 미구현 (패시브 시스템이 Player 내부에서 처리) |
-| StoryManager | 스켈레톤 | 미구현 |
+| StatsManager | 스켈레톤 | 패시브 시스템이 Player 내부에서 처리 (별도 매니저 불필요) |
+| StoryManager | **완료** | 단서 4종 발견/기록, NPC 3종 대화, 조건부 해금 |
 | AudioManager | **완료** | 볼륨 관리 (마스터/BGM/SFX), 설정 저장 (ConfigFile) |
 
 ### 4. 데이터 리소스 (data/)
@@ -57,6 +57,7 @@
 | WeaponData | `data/weapon_data.gd` | weapon_name, damage, cooldown, attack_range, knockback, max_level, projectile_color |
 | UpgradeData | `data/upgrade_data.gd` | upgrade_name, description, card_color, stat_key, value, weapon_script_path, weapon_data_path |
 | PassiveData | `data/passive_data.gd` | passive_name, description, icon_color, stat_key, value_per_level, max_level |
+| StageData | `data/stage_data.gd` | stage_name, description, bg_color, grid_color, enemy_paths, elite_paths, map_half_size, fog_enabled, fog_color, lightning_enabled, lightning_interval |
 
 #### 적 데이터 (.tres)
 | 이름 | 등장시간 | HP | 속도 | 데미지 | XP |
@@ -202,7 +203,7 @@
 
 ### 11. 씬 구성 (scenes/)
 - **main.tscn/gd**: 진입점, ESC 일시정지 토글, 타이틀→캐릭터선택→게임 플로우
-- **stage.tscn/gd**: 플레이어 배치, CharacterData 기반 초기화, 매니저 등록, UI 셋업
+- **stage.tscn/gd**: 플레이어 배치, CharacterData 기반 초기화, 매니저 등록, UI 셋업, 맵 경계, 번개 효과
 
 ---
 
@@ -312,7 +313,9 @@
 - [x] ~~적 스폰 유예~~ ✅ (GDD 준수 5초)
 - [x] ~~키 리바인딩~~ ✅ (InputMap 기반, 설정→조작 설정 서브메뉴, ConfigFile 저장)
 - [x] ~~언어 선택 (한국어/영어)~~ ✅ (LocaleManager 싱글톤, 60+ 번역 키, 전체 UI 적용)
-- [ ] MultiMeshInstance2D (적 500마리+ 최적화)
+- [x] ~~맵 경계 시스템~~ ✅ (StageData.map_half_size, 플레이어+스폰 클램핑, 경계선 표시)
+- [x] ~~스테이지 2 번개 효과~~ ✅ (StageData.lightning_enabled, 8~15초 간격 화면 플래시)
+- [ ] MultiMeshInstance2D (적 500마리+ 최적화) — 에셋 완성 후 적용 예정 (YAGNI)
 
 ---
 
