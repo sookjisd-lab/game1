@@ -7,6 +7,7 @@ script = ExtResource("1")
 character_name = "프릿츠"
 description = "시계탑 관리인. 무기 쿨다운 -10%."
 sprite_color = Color(0.6, 0.65, 0.8, 1)
+sprite_path = "res://assets/characters/fritz.png"
 base_hp = 100.0
 base_speed = 70.0
 base_damage_mult = 1.15

@@ -118,9 +118,15 @@ func _build_ui() -> void:
 		card_vbox.alignment = BoxContainer.ALIGNMENT_CENTER
 		card_vbox.add_theme_constant_override("separation", 2)
 
-		var portrait := ColorRect.new()
-		portrait.color = data.sprite_color if _is_unlocked(i) else Color(0.2, 0.2, 0.2, 1)
+		var portrait := TextureRect.new()
 		portrait.custom_minimum_size = Vector2(32, 32)
+		portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		if _is_unlocked(i) and data.sprite_path != "":
+			portrait.texture = load(data.sprite_path)
+		else:
+			portrait.modulate = Color(0.2, 0.2, 0.2, 1)
+			if data.sprite_path != "":
+				portrait.texture = load(data.sprite_path)
 		card_vbox.add_child(portrait)
 
 		var name_label := Label.new()

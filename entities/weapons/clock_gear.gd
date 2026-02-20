@@ -6,6 +6,7 @@ const GEAR_COUNT: int = 3
 const ROTATION_SPEED: float = 3.0
 const GEAR_SIZE: Vector2 = Vector2(8, 8)
 const HIT_COOLDOWN: float = 0.4
+const PROJ_TEXTURE: Texture2D = preload("res://assets/weapons/proj_gear.png")
 
 var _angle: float = 0.0
 var _gears: Array[Area2D] = []
@@ -29,10 +30,8 @@ func _create_gears() -> void:
 		shape.shape = rect
 		gear.add_child(shape)
 
-		var visual := ColorRect.new()
-		visual.color = data.projectile_color
-		visual.size = GEAR_SIZE
-		visual.position = -GEAR_SIZE / 2.0
+		var visual := Sprite2D.new()
+		visual.texture = PROJ_TEXTURE
 		gear.add_child(visual)
 
 		gear.area_entered.connect(_on_gear_hit)

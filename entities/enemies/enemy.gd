@@ -12,6 +12,7 @@ const POISON_DAMAGE: float = 3.0
 const POISON_RADIUS: float = 10.0
 const AURA_INTERVAL: float = 1.0
 const AURA_RADIUS: float = 48.0
+const DEATH_PARTICLE_TEXTURE: Texture2D = preload("res://assets/particles/death_particle.png")
 const AURA_BUFF: float = 1.5
 const SPLIT_COUNT: int = 3
 
@@ -22,7 +23,7 @@ var _target: Node2D = null
 var _is_active: bool = false
 var _attack_timer: float = 0.0
 var _ability_timer: float = 0.0
-var _placeholder: ColorRect
+var _placeholder: Sprite2D
 var _collision: CollisionShape2D
 
 
@@ -185,6 +186,7 @@ func _create_mini_data() -> EnemyData:
 	mini.xp_reward = 2
 	mini.sprite_color = data.sprite_color.lightened(0.2)
 	mini.sprite_size = (data.sprite_size * 0.5).round()
+	mini.sprite_path = data.sprite_path
 	return mini
 
 
@@ -218,12 +220,9 @@ func _update_aura_visual() -> void:
 
 
 func _spawn_death_particles() -> void:
-	var color: Color = data.sprite_color if data != null else Color.WHITE
 	for i in range(4):
-		var particle := ColorRect.new()
-		particle.color = color
-		particle.size = Vector2(3, 3)
-		particle.position = -Vector2(1.5, 1.5)
+		var particle := Sprite2D.new()
+		particle.texture = DEATH_PARTICLE_TEXTURE
 		particle.z_index = 5
 		var container := Node2D.new()
 		container.global_position = global_position
@@ -247,9 +246,9 @@ func _cache_nodes() -> void:
 func _apply_visuals() -> void:
 	if _placeholder == null or _collision == null:
 		return
-	_placeholder.color = data.sprite_color
-	_placeholder.size = data.sprite_size
-	_placeholder.position = -data.sprite_size / 2.0
+	if data.sprite_path != "":
+		_placeholder.texture = load(data.sprite_path)
+	_placeholder.modulate = Color(1, 1, 1, 1)
 	var shape := _collision.shape as RectangleShape2D
 	shape.size = data.sprite_size * 0.8
 
@@ -257,9 +256,9 @@ func _apply_visuals() -> void:
 func _flash_white() -> void:
 	if _placeholder == null:
 		return
-	_placeholder.color = Color.WHITE
+	_placeholder.modulate = Color(5, 5, 5, 1)
 	get_tree().create_timer(0.08).timeout.connect(
 		func() -> void:
 			if _is_active and data != null and _placeholder != null:
-				_placeholder.color = data.sprite_color
+				_placeholder.modulate = Color(1, 1, 1, 1)
 	)

@@ -7,6 +7,7 @@ script = ExtResource("1")
 character_name = "로지"
 description = "꽃집 주인의 딸. 경험치 획득 +15%."
 sprite_color = Color(0.96, 0.87, 0.7, 1)
+sprite_path = "res://assets/characters/rosie.png"
 base_hp = 120.0
 base_speed = 80.0
 base_damage_mult = 1.0

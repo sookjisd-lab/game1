@@ -6,16 +6,16 @@ signal picked_up(item: Area2D)
 
 var item_type: String = ""
 var _is_active: bool = false
-var _visual: ColorRect
+var _visual: Sprite2D
 var _collision: CollisionShape2D
 
 const PICKUP_DISTANCE: float = 12.0
 const ITEM_CONFIGS: Dictionary = {
-	"heal_bread": { "color": Color(0.96, 0.87, 0.5, 1), "size": Vector2(10, 10) },
-	"magnet_charm": { "color": Color(0.45, 0.55, 0.95, 1), "size": Vector2(10, 10) },
-	"purify_bell": { "color": Color(0.9, 0.85, 0.3, 1), "size": Vector2(10, 10) },
-	"gold_pouch": { "color": Color(1.0, 0.84, 0.0, 1), "size": Vector2(10, 10) },
-	"treasure_chest": { "color": Color(0.85, 0.6, 0.2, 1), "size": Vector2(14, 14) },
+	"heal_bread": { "sprite_path": "res://assets/drops/heal_bread.png" },
+	"magnet_charm": { "sprite_path": "res://assets/drops/magnet_charm.png" },
+	"purify_bell": { "sprite_path": "res://assets/drops/purify_bell.png" },
+	"gold_pouch": { "sprite_path": "res://assets/drops/gold_pouch.png" },
+	"treasure_chest": { "sprite_path": "res://assets/drops/treasure_chest.png" },
 }
 
 
@@ -45,10 +45,7 @@ func _apply_visuals() -> void:
 	if _visual == null:
 		return
 	var config: Dictionary = ITEM_CONFIGS.get(item_type, ITEM_CONFIGS["heal_bread"])
-	_visual.color = config["color"]
-	var item_size: Vector2 = config["size"]
-	_visual.size = item_size
-	_visual.position = -item_size / 2.0
+	_visual.texture = load(config["sprite_path"])
 
 
 func _cache_nodes() -> void:

@@ -11,4 +11,5 @@ contact_damage = 7.0
 xp_reward = 3
 sprite_color = Color(0.455, 0.816, 0.945, 0.6)
 sprite_size = Vector2(24, 24)
+sprite_path = "res://assets/enemies/mirror_ghost.png"
 spawn_after_seconds = 600.0

@@ -10,9 +10,9 @@ signal gold_collected(amount: int)
 const XP_GEM_SCENE: PackedScene = preload("res://entities/drops/xp_gem.tscn")
 const MAP_ITEM_SCENE: PackedScene = preload("res://entities/drops/map_item.tscn")
 
-const GEM_SMALL := { "color": Color(0.45, 0.55, 0.95, 1), "size": Vector2(6, 6) }
-const GEM_MEDIUM := { "color": Color(0.3, 0.85, 0.45, 1), "size": Vector2(8, 8) }
-const GEM_LARGE := { "color": Color(0.9, 0.25, 0.25, 1), "size": Vector2(10, 10) }
+const GEM_SMALL := { "sprite_path": "res://assets/drops/xp_gem_small.png" }
+const GEM_MEDIUM := { "sprite_path": "res://assets/drops/xp_gem_medium.png" }
+const GEM_LARGE := { "sprite_path": "res://assets/drops/xp_gem_large.png" }
 
 const MAP_ITEM_DROP_CHANCE: float = 0.03
 const MAP_ITEM_TYPES: Array[String] = ["heal_bread", "magnet_charm", "purify_bell", "gold_pouch"]
@@ -43,7 +43,7 @@ func spawn_xp_gem(position: Vector2, value: int) -> void:
 		_stage.add_child(gem)
 
 	var tier: Dictionary = _get_gem_tier(value)
-	gem.activate(value, position, tier["color"], tier["size"])
+	gem.activate(value, position, tier["sprite_path"])
 	_active_gems.append(gem)
 
 	_try_spawn_map_item(position)

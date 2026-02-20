@@ -64,8 +64,9 @@ func init_character(data: CharacterData) -> void:
 	current_hp = max_hp
 	_defense = GameManager.get_meta_bonus_defense()
 	_revives_remaining = GameManager.get_meta_revive_count()
-	var placeholder := $Placeholder as ColorRect
-	placeholder.color = data.sprite_color
+	var placeholder := $Placeholder as Sprite2D
+	if data.sprite_path != "":
+		placeholder.texture = load(data.sprite_path)
 	_equip_starting_weapon()
 	hp_changed.emit(current_hp, max_hp)
 
@@ -140,16 +141,11 @@ func _revive() -> void:
 	_flash_revive()
 
 
-func _get_sprite_color() -> Color:
-	return _character_data.sprite_color if _character_data != null else Color(0.96, 0.87, 0.7, 1)
-
-
 func _flash_revive() -> void:
-	var placeholder := $Placeholder as ColorRect
-	placeholder.color = Color(1, 1, 0.5, 1)
-	var original := _get_sprite_color()
+	var placeholder := $Placeholder as Sprite2D
+	placeholder.modulate = Color(3, 3, 1, 1)
 	get_tree().create_timer(0.3).timeout.connect(
-		func() -> void: placeholder.color = original
+		func() -> void: placeholder.modulate = Color(1, 1, 1, 1)
 	)
 
 
@@ -178,11 +174,10 @@ func _shake_camera() -> void:
 
 
 func _flash_hit() -> void:
-	var placeholder := $Placeholder as ColorRect
-	var original_color := _get_sprite_color()
-	placeholder.color = Color(1, 0.3, 0.3, 1)
+	var placeholder := $Placeholder as Sprite2D
+	placeholder.modulate = Color(3, 0.5, 0.5, 1)
 	get_tree().create_timer(0.1).timeout.connect(
-		func() -> void: placeholder.color = original_color
+		func() -> void: placeholder.modulate = Color(1, 1, 1, 1)
 	)
 
 

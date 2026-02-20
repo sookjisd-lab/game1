@@ -6,6 +6,7 @@ const NEEDLE_COUNT: int = 6
 const NEEDLE_SPEED: float = 120.0
 const NEEDLE_SIZE: Vector2 = Vector2(3, 8)
 const NEEDLE_LIFETIME: float = 1.5
+const PROJ_TEXTURE: Texture2D = preload("res://assets/weapons/proj_needle.png")
 
 
 func _attack() -> void:
@@ -27,10 +28,8 @@ func _spawn_needle(direction: Vector2) -> void:
 	shape.rotation = direction.angle() + PI / 2.0
 	needle.add_child(shape)
 
-	var visual := ColorRect.new()
-	visual.color = data.projectile_color
-	visual.size = NEEDLE_SIZE
-	visual.position = -NEEDLE_SIZE / 2.0
+	var visual := Sprite2D.new()
+	visual.texture = PROJ_TEXTURE
 	visual.rotation = direction.angle() + PI / 2.0
 	needle.add_child(visual)
 

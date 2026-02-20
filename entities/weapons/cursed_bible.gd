@@ -6,6 +6,7 @@ const ORB_COUNT: int = 2
 const ROTATION_SPEED: float = 2.5
 const ORB_SIZE: Vector2 = Vector2(10, 10)
 const HIT_COOLDOWN: float = 0.5
+const PROJ_TEXTURE: Texture2D = preload("res://assets/weapons/proj_bible.png")
 
 var _angle: float = 0.0
 var _orbs: Array[Area2D] = []
@@ -29,10 +30,8 @@ func _create_orbs() -> void:
 		shape.shape = rect
 		orb.add_child(shape)
 
-		var visual := ColorRect.new()
-		visual.color = data.projectile_color
-		visual.size = ORB_SIZE
-		visual.position = -ORB_SIZE / 2.0
+		var visual := Sprite2D.new()
+		visual.texture = PROJ_TEXTURE
 		orb.add_child(visual)
 
 		orb.area_entered.connect(_on_orb_hit)

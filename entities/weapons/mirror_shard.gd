@@ -6,6 +6,7 @@ const SHARD_SPEED: float = 110.0
 const SHARD_SIZE: Vector2 = Vector2(5, 5)
 const SHARD_LIFETIME: float = 3.0
 const MAX_BOUNCES: int = 3
+const PROJ_TEXTURE: Texture2D = preload("res://assets/weapons/proj_mirror.png")
 
 var _shards: Array[Dictionary] = []
 
@@ -40,10 +41,8 @@ func _spawn_shard(direction: Vector2) -> void:
 	shape.shape = rect
 	shard.add_child(shape)
 
-	var visual := ColorRect.new()
-	visual.color = data.projectile_color
-	visual.size = SHARD_SIZE
-	visual.position = -SHARD_SIZE / 2.0
+	var visual := Sprite2D.new()
+	visual.texture = PROJ_TEXTURE
 	shard.add_child(visual)
 
 	shard.global_position = global_position

@@ -6,6 +6,7 @@ extends Resource
 @export var character_name: String = ""
 @export var description: String = ""
 @export var sprite_color: Color = Color.WHITE
+@export var sprite_path: String = ""
 @export var base_hp: float = 120.0
 @export var base_speed: float = 80.0
 @export var base_damage_mult: float = 1.0

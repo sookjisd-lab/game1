@@ -7,6 +7,7 @@ const CLOUD_SIZE: Vector2 = Vector2(20, 20)
 const CLOUD_LIFETIME: float = 2.5
 const CLOUD_COUNT: int = 3
 const SPREAD_ANGLE: float = PI / 8.0
+const PROJ_TEXTURE: Texture2D = preload("res://assets/weapons/proj_bouquet.png")
 
 
 func _attack() -> void:
@@ -30,10 +31,9 @@ func _spawn_cloud(direction: Vector2) -> void:
 	shape.shape = circle
 	cloud.add_child(shape)
 
-	var visual := ColorRect.new()
-	visual.color = Color(data.projectile_color, 0.6)
-	visual.size = CLOUD_SIZE
-	visual.position = -CLOUD_SIZE / 2.0
+	var visual := Sprite2D.new()
+	visual.texture = PROJ_TEXTURE
+	visual.modulate = Color(1, 1, 1, 0.6)
 	cloud.add_child(visual)
 
 	cloud.global_position = global_position

@@ -6,6 +6,7 @@ const FLAME_SPEED: float = 100.0
 const FLAME_SIZE: Vector2 = Vector2(6, 6)
 const FLAME_LIFETIME: float = 3.0
 const TURN_RATE: float = 3.0
+const PROJ_TEXTURE: Texture2D = preload("res://assets/weapons/proj_candle.png")
 
 var _flames: Array[Dictionary] = []
 
@@ -41,10 +42,8 @@ func _spawn_flame(target: Area2D) -> void:
 	shape.shape = circle
 	flame.add_child(shape)
 
-	var visual := ColorRect.new()
-	visual.color = data.projectile_color
-	visual.size = FLAME_SIZE
-	visual.position = -FLAME_SIZE / 2.0
+	var visual := Sprite2D.new()
+	visual.texture = PROJ_TEXTURE
 	flame.add_child(visual)
 
 	flame.global_position = global_position

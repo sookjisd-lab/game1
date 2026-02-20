@@ -9,7 +9,7 @@ var _is_active: bool = false
 var _being_attracted: bool = false
 var _attract_target: Node2D = null
 var _attract_speed: float = 0.0
-var _visual: ColorRect
+var _visual: Sprite2D
 var _collision: CollisionShape2D
 
 const ATTRACT_ACCELERATION: float = 400.0
@@ -20,7 +20,7 @@ func _ready() -> void:
 	_cache_nodes()
 
 
-func activate(value: int, spawn_position: Vector2, color: Color, gem_size: Vector2 = Vector2(6, 6)) -> void:
+func activate(value: int, spawn_position: Vector2, sprite_path: String) -> void:
 	xp_value = value
 	global_position = spawn_position
 	_is_active = true
@@ -30,10 +30,8 @@ func activate(value: int, spawn_position: Vector2, color: Color, gem_size: Vecto
 	_cache_nodes()
 	if _collision != null:
 		_collision.set_deferred("disabled", false)
-	if _visual != null:
-		_visual.color = color
-		_visual.size = gem_size
-		_visual.position = -gem_size / 2.0
+	if _visual != null and sprite_path != "":
+		_visual.texture = load(sprite_path)
 
 
 func deactivate() -> void:

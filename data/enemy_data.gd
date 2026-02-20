@@ -11,6 +11,7 @@ extends Resource
 @export var xp_reward: int = 1
 @export var sprite_color: Color = Color.WHITE
 @export var sprite_size: Vector2 = Vector2(16, 16)
+@export var sprite_path: String = ""
 @export var spawn_after_seconds: float = 0.0
 @export var is_elite: bool = false
 @export var is_stationary: bool = false

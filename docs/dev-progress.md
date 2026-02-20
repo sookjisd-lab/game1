@@ -17,7 +17,7 @@
 | 캐릭터 | 100% | 로지 + 프릿츠, 캐릭터 선택 UI, 해금 시스템 |
 | 스토리 | 100% | StoryManager + 단서 4종 + 기억의 서재 + NPC 대화 3종 |
 | 스테이지 | 100% | 2개 스테이지 (광장/묘지) + StageData + 선택 UI |
-| 에셋 | 0% | 모든 엔티티 ColorRect placeholder 사용 중 |
+| 에셋 | 40% | 스프라이트 32종 완료 + Sprite2D 통합, 타일셋/UI스킨/오디오 미완 |
 
 ---
 
@@ -53,7 +53,7 @@
 #### Resource 클래스
 | 클래스 | 파일 | 필드 |
 |--------|------|------|
-| EnemyData | `data/enemy_data.gd` | enemy_name, max_hp, move_speed, contact_damage, xp_reward, sprite_color, sprite_size, spawn_after_seconds, is_elite, is_stationary, attack_interval, attack_range, ability_type |
+| EnemyData | `data/enemy_data.gd` | enemy_name, max_hp, move_speed, contact_damage, xp_reward, sprite_color, sprite_size, sprite_path, spawn_after_seconds, is_elite, is_stationary, attack_interval, attack_range, ability_type |
 | WeaponData | `data/weapon_data.gd` | weapon_name, damage, cooldown, attack_range, knockback, max_level, projectile_color |
 | UpgradeData | `data/upgrade_data.gd` | upgrade_name, description, card_color, stat_key, value, weapon_script_path, weapon_data_path |
 | PassiveData | `data/passive_data.gd` | passive_name, description, icon_color, stat_key, value_per_level, max_level |
@@ -271,8 +271,8 @@
 - [x] ~~캐릭터별 고유 패시브~~ ✅ (로지: XP+15%, 프릿츠: 쿨다운-10%)
 
 ### 에셋
-- [ ] 픽셀아트 스프라이트 (모든 엔티티)
-- [ ] 타일셋 (마을 광장)
+- [x] ~~픽셀아트 스프라이트 (모든 엔티티)~~ ✅ (32종 생성 + Sprite2D 통합)
+- [ ] 타일셋 (마을 광장, 묘지)
 - [ ] UI 스킨 (동화책 테마)
 - [ ] BGM / SFX
 

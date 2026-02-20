@@ -30,7 +30,7 @@ var _target: Node2D = null
 var _is_active: bool = false
 var _current_phase: int = 1
 var _pattern_timer: float = 0.0
-var _placeholder: ColorRect
+var _placeholder: Sprite2D
 var _collision: CollisionShape2D
 
 
@@ -62,9 +62,8 @@ func activate(spawn_position: Vector2, target: Node2D) -> void:
 func _apply_visuals() -> void:
 	if _placeholder == null:
 		return
-	_placeholder.color = Color(0.2, 0.6, 0.3, 1)
-	_placeholder.size = SIZE
-	_placeholder.position = -SIZE / 2.0
+	_placeholder.texture = preload("res://assets/bosses/boss_witch_messenger.png")
+	_placeholder.modulate = Color(1, 1, 1, 1)
 	var shape := _collision.shape as RectangleShape2D
 	shape.size = SIZE * 0.8
 
@@ -216,22 +215,22 @@ func _die() -> void:
 func _flash_white() -> void:
 	if _placeholder == null:
 		return
-	_placeholder.color = Color.WHITE
+	_placeholder.modulate = Color(5, 5, 5, 1)
 	get_tree().create_timer(0.08).timeout.connect(
 		func() -> void:
 			if _is_active and _placeholder != null:
-				_placeholder.color = Color(0.2, 0.6, 0.3, 1)
+				_placeholder.modulate = Color(1, 1, 1, 1)
 	)
 
 
 func _flash_teleport() -> void:
 	if _placeholder == null:
 		return
-	_placeholder.color = Color(0.5, 1.0, 0.5, 1)
+	_placeholder.modulate = Color(1.5, 3, 1.5, 1)
 	get_tree().create_timer(0.15).timeout.connect(
 		func() -> void:
 			if _is_active and _placeholder != null:
-				_placeholder.color = Color(0.2, 0.6, 0.3, 1)
+				_placeholder.modulate = Color(1, 1, 1, 1)
 	)
 
 

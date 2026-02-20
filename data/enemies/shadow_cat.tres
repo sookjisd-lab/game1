@@ -11,3 +11,4 @@ contact_damage = 3.0
 xp_reward = 1
 sprite_color = Color(0.2, 0.15, 0.3, 1)
 sprite_size = Vector2(16, 16)
+sprite_path = "res://assets/enemies/shadow_cat.png"
