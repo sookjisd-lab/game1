@@ -197,7 +197,7 @@
 | 타이틀 | title_ui.gd/tscn | 게임 제목, SPACE=시작, A=제단, S=설정 (CanvasLayer 20) |
 | 제단 | altar_ui.gd/tscn | 영구 업그레이드 8종 구매 (CanvasLayer 20) |
 | 캐릭터선택 | character_select_ui.gd/tscn | 캐릭터 선택, 해금 표시 (CanvasLayer 20) |
-| 설정 | settings_ui.gd/tscn | 볼륨 3종 + 토글 4종 (인디케이터/흔들림/데미지숫자/전체화면) (CanvasLayer 22) |
+| 설정 | settings_ui.gd/tscn | 볼륨 3종 + 토글 4종 + 해상도 + 키리바인딩 + 언어 (CanvasLayer 22) |
 | 인디케이터 | offscreen_indicator.gd/tscn | 화면 밖 적 방향 마커 (CanvasLayer 9) |
 
 ### 11. 씬 구성 (scenes/)
@@ -307,9 +307,12 @@
 - [x] ~~해상도 선택~~ ✅ (설정 8번째 항목, 2x~6x 스케일)
 - [x] ~~보물상자 강화 선택지~~ ✅ (무기 레벨업 우선, generate_treasure_choices)
 - [x] ~~패시브 값 GDD 일치~~ ✅ (자석 30%/Lv, 재생 0.2/Lv)
+- [x] ~~보스 사망 대사~~ ✅ (그림홀트/마녀의사자 대사 2초 표시, 승리 연출 딜레이 연동)
+- [x] ~~석양 카운트다운~~ ✅ (해질녘→밤 색상 전환, Tween 3초)
+- [x] ~~적 스폰 유예~~ ✅ (GDD 준수 5초)
+- [x] ~~키 리바인딩~~ ✅ (InputMap 기반, 설정→조작 설정 서브메뉴, ConfigFile 저장)
+- [x] ~~언어 선택 (한국어/영어)~~ ✅ (LocaleManager 싱글톤, 60+ 번역 키, 전체 UI 적용)
 - [ ] MultiMeshInstance2D (적 500마리+ 최적화)
-- [ ] 언어 선택 (한국어/영어)
-- [ ] 키 리바인딩
 
 ---
 
