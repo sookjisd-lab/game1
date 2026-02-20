@@ -69,7 +69,7 @@ func _refresh() -> void:
 	if _is_unlocked(_selected):
 		_desc_label.text = "%s\n%s" % [data.stage_name, data.description]
 	else:
-		_desc_label.text = "??? (스테이지 1 보스를 처치하여 해금)"
+		_desc_label.text = LocaleManager.tr_text("stage_locked")
 
 
 func _load_stages() -> void:
@@ -90,7 +90,7 @@ func _build_ui() -> void:
 	vbox.add_theme_constant_override("separation", 6)
 
 	var title := Label.new()
-	title.text = "스테이지 선택"
+	title.text = LocaleManager.tr_text("stage_select")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 14)
 	title.add_theme_color_override("font_color", Color(0.9, 0.75, 0.5, 1))
@@ -134,7 +134,7 @@ func _build_ui() -> void:
 	vbox.add_child(_desc_label)
 
 	var hint := Label.new()
-	hint.text = "[A/D] 선택  [SPACE] 확인  [ESC] 뒤로"
+	hint.text = LocaleManager.tr_text("stage_hint")
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5, 1))
 	vbox.add_child(hint)

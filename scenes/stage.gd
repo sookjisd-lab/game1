@@ -182,15 +182,40 @@ func _on_boss_spawned(boss: Area2D) -> void:
 
 func _on_boss_defeated(is_victory: bool) -> void:
 	_boss_hp_bar.hide_boss()
+	var death_line: String = ""
 	if _pending_boss_name == "영주 그림홀트":
 		StoryManager.discover_clue("lord_diary")
+		death_line = LocaleManager.tr_text("grimholt_death")
 	elif _pending_boss_name == "마녀의 사자":
 		StoryManager.discover_clue("witch_seal")
+		death_line = LocaleManager.tr_text("witch_death")
+	if death_line != "":
+		_show_boss_death_line(death_line)
 	if is_victory:
 		GameManager.end_run(true)
 		Engine.time_scale = 0.3
-		_show_victory_message()
-		get_tree().create_timer(2.0, true, false, true).timeout.connect(_show_victory_results)
+		var death_delay: float = 2.0 if death_line != "" else 0.0
+		get_tree().create_timer(death_delay + 1.5, true, false, true).timeout.connect(_show_victory_message)
+		get_tree().create_timer(death_delay + 3.5, true, false, true).timeout.connect(_show_victory_results)
+
+
+func _show_boss_death_line(text: String) -> void:
+	var overlay := CanvasLayer.new()
+	overlay.layer = 25
+	overlay.name = "BossDeathLine"
+	add_child(overlay)
+
+	var label := Label.new()
+	label.set_anchors_preset(Control.PRESET_CENTER)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 10)
+	label.add_theme_color_override("font_color", Color(0.8, 0.3, 0.3, 1))
+	label.text = text
+	overlay.add_child(label)
+
+	get_tree().create_timer(2.0, true, false, true).timeout.connect(
+		func() -> void: overlay.queue_free()
+	)
 
 
 func _show_victory_message() -> void:
@@ -204,7 +229,7 @@ func _show_victory_message() -> void:
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.add_theme_font_size_override("font_size", 16)
 	label.add_theme_color_override("font_color", Color(0.9, 0.75, 0.5, 1))
-	label.text = "저주가 약해지고 있다..."
+	label.text = LocaleManager.tr_text("curse_weakening")
 	overlay.add_child(label)
 
 
@@ -243,7 +268,6 @@ func _start_countdown() -> void:
 	add_child(overlay)
 
 	var bg := ColorRect.new()
-	bg.color = Color(0.05, 0.02, 0.1, 0.6)
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	overlay.add_child(bg)
 
@@ -251,14 +275,25 @@ func _start_countdown() -> void:
 	label.set_anchors_preset(Control.PRESET_CENTER)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.add_theme_font_size_override("font_size", 24)
-	label.add_theme_color_override("font_color", Color(0.9, 0.75, 0.5, 1))
 	overlay.add_child(label)
 
+	var sunset_color := Color(0.45, 0.2, 0.1, 0.7)
+	var night_color := Color(0.05, 0.02, 0.1, 0.6)
+	var sunset_text := Color(0.95, 0.85, 0.6, 1)
+	var night_text := Color(0.9, 0.75, 0.5, 1)
+
 	get_tree().paused = true
+	bg.color = sunset_color
+	label.add_theme_color_override("font_color", sunset_text)
 	label.text = "3"
+	var tween := create_tween()
+	tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tween.tween_property(bg, "color", night_color, 3.0)
 	await get_tree().create_timer(1.0, true, false, true).timeout
+	label.add_theme_color_override("font_color", night_text.lerp(sunset_text, 0.5))
 	label.text = "2"
 	await get_tree().create_timer(1.0, true, false, true).timeout
+	label.add_theme_color_override("font_color", night_text)
 	label.text = "1"
 	await get_tree().create_timer(1.0, true, false, true).timeout
 	overlay.queue_free()

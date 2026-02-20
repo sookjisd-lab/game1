@@ -9,18 +9,30 @@ signal library_pressed
 signal npc_pressed
 
 var _shards_label: Label = null
+var _title_label: Label = null
+var _menu_labels: Array[Label] = []
+const MENU_KEYS: Array[String] = ["start", "altar", "library", "npc_menu", "settings_menu", "quit"]
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
 	_build_ui()
+	LocaleManager.language_changed.connect(_retranslate)
 
 
 func show_title() -> void:
+	_retranslate()
 	if _shards_label != null:
-		_shards_label.text = "기억 조각: %d" % GameManager.meta.memory_shards
+		_shards_label.text = LocaleManager.tr_text("memory_shards_fmt") % GameManager.meta.memory_shards
 	visible = true
+
+
+func _retranslate() -> void:
+	_title_label.text = LocaleManager.tr_text("game_title")
+	for i in range(MENU_KEYS.size()):
+		if i < _menu_labels.size():
+			_menu_labels[i].text = LocaleManager.tr_text(MENU_KEYS[i])
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -59,12 +71,12 @@ func _build_ui() -> void:
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
 	vbox.add_theme_constant_override("separation", 8)
 
-	var title := Label.new()
-	title.text = "저주받은 밤"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 24)
-	title.add_theme_color_override("font_color", Color(0.9, 0.75, 0.5, 1))
-	vbox.add_child(title)
+	_title_label = Label.new()
+	_title_label.text = LocaleManager.tr_text("game_title")
+	_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_title_label.add_theme_font_size_override("font_size", 24)
+	_title_label.add_theme_color_override("font_color", Color(0.9, 0.75, 0.5, 1))
+	vbox.add_child(_title_label)
 
 	var subtitle := Label.new()
 	subtitle.text = "Cursed Night"
@@ -76,41 +88,21 @@ func _build_ui() -> void:
 	spacer.custom_minimum_size = Vector2(0, 16)
 	vbox.add_child(spacer)
 
-	var start_label := Label.new()
-	start_label.text = "[SPACE] 시작"
-	start_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	start_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8, 1))
-	vbox.add_child(start_label)
-
-	var altar_label := Label.new()
-	altar_label.text = "[A] 기억의 제단"
-	altar_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	altar_label.add_theme_color_override("font_color", Color(1, 0.84, 0, 0.8))
-	vbox.add_child(altar_label)
-
-	var library_label := Label.new()
-	library_label.text = "[L] 기억의 서재"
-	library_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	library_label.add_theme_color_override("font_color", Color(0.7, 0.65, 0.8, 1))
-	vbox.add_child(library_label)
-
-	var npc_label := Label.new()
-	npc_label.text = "[N] 각성자"
-	npc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	npc_label.add_theme_color_override("font_color", Color(0.6, 0.8, 0.7, 1))
-	vbox.add_child(npc_label)
-
-	var settings_label := Label.new()
-	settings_label.text = "[S] 설정"
-	settings_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	settings_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.8, 1))
-	vbox.add_child(settings_label)
-
-	var quit_label := Label.new()
-	quit_label.text = "[Q] 종료"
-	quit_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	quit_label.add_theme_color_override("font_color", Color(0.6, 0.5, 0.5, 1))
-	vbox.add_child(quit_label)
+	var colors: Array[Color] = [
+		Color(0.8, 0.8, 0.8, 1),
+		Color(1, 0.84, 0, 0.8),
+		Color(0.7, 0.65, 0.8, 1),
+		Color(0.6, 0.8, 0.7, 1),
+		Color(0.7, 0.7, 0.8, 1),
+		Color(0.6, 0.5, 0.5, 1),
+	]
+	for i in range(MENU_KEYS.size()):
+		var label := Label.new()
+		label.text = LocaleManager.tr_text(MENU_KEYS[i])
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.add_theme_color_override("font_color", colors[i])
+		vbox.add_child(label)
+		_menu_labels.append(label)
 
 	_shards_label = Label.new()
 	_shards_label.text = ""

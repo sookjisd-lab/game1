@@ -26,6 +26,7 @@ StatsManager="*res://systems/stats_manager.gd"
 StoryManager="*res://systems/story_manager.gd"
 DamageNumberManager="*res://systems/damage_number_manager.gd"
 AudioManager="*res://systems/audio_manager.gd"
+LocaleManager="*res://systems/locale_manager.gd"
 
 [display]
 

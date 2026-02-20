@@ -29,7 +29,7 @@ func show_results(
 ) -> void:
 	_clear_dynamic()
 
-	_title_label.text = "클리어!" if is_victory else "밤이 끝났다..."
+	_title_label.text = LocaleManager.tr_text("victory") if is_victory else LocaleManager.tr_text("defeat")
 	_title_label.modulate = Color(1, 0.84, 0, 1) if is_victory else Color(0.9, 0.3, 0.3, 1)
 
 	_time_value.text = GameManager.format_time(elapsed_time)
@@ -41,13 +41,13 @@ func show_results(
 	_shards_value.text = "+%d" % shards
 
 	if not weapon_names.is_empty():
-		_add_section("사용한 무기", weapon_names)
+		_add_section(LocaleManager.tr_text("weapons_used"), weapon_names)
 
 	if not discoveries.is_empty():
 		var clue_names: Array[String] = []
 		for clue_id in discoveries:
 			clue_names.append(StoryManager.get_clue_name(clue_id))
-		_add_section("발견한 단서", clue_names)
+		_add_section(LocaleManager.tr_text("clues_found"), clue_names)
 
 	visible = true
 

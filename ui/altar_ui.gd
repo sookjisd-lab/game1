@@ -67,7 +67,7 @@ func _try_purchase(idx: int) -> void:
 
 
 func _refresh() -> void:
-	_shards_label.text = "기억 조각: %d" % GameManager.meta.memory_shards
+	_shards_label.text = LocaleManager.tr_text("memory_shards_fmt") % GameManager.meta.memory_shards
 	for i in range(UPGRADES.size()):
 		var info: Dictionary = UPGRADES[i]
 		var row: Dictionary = _rows[i]
@@ -108,14 +108,14 @@ func _build_ui() -> void:
 	vbox.add_theme_constant_override("separation", 2)
 
 	var title := Label.new()
-	title.text = "기억의 제단"
+	title.text = LocaleManager.tr_text("altar_title")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_color_override("font_color", Color.GOLD)
 	title.add_theme_font_size_override("font_size", 14)
 	vbox.add_child(title)
 
 	_shards_label = Label.new()
-	_shards_label.text = "기억 조각: 0"
+	_shards_label.text = LocaleManager.tr_text("memory_shards_fmt") % 0
 	_shards_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_shards_label.add_theme_color_override("font_color", Color(1, 0.84, 0, 1))
 	vbox.add_child(_shards_label)
@@ -157,7 +157,7 @@ func _build_ui() -> void:
 	vbox.add_child(grid)
 
 	var hint := Label.new()
-	hint.text = "[W/S] 선택  [SPACE] 구매  [ESC] 뒤로"
+	hint.text = LocaleManager.tr_text("altar_hint")
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5, 1))
 	vbox.add_child(hint)

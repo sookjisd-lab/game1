@@ -89,7 +89,7 @@ func _open_dialogue() -> void:
 
 
 func _refresh_npc_list() -> void:
-	_npc_name_label.text = "각성자들"
+	_npc_name_label.text = LocaleManager.tr_text("npc_title")
 	_npc_name_label.add_theme_color_override("font_color", Color(0.9, 0.75, 0.5, 1))
 
 	for i in range(_npc_labels.size()):
@@ -118,9 +118,9 @@ func _refresh_npc_list() -> void:
 		var npc_id: String = _npc_ids[_selected_npc]
 		if StoryManager.is_npc_unlocked(npc_id):
 			var count: int = StoryManager.get_npc_dialogues(npc_id).size()
-			_dialogue_label.text = "대화 %d개  [SPACE] 대화하기" % count
+			_dialogue_label.text = LocaleManager.tr_text("npc_dialogue_fmt") % count
 		else:
-			_dialogue_label.text = "아직 만나지 못한 각성자입니다."
+			_dialogue_label.text = LocaleManager.tr_text("npc_locked")
 	else:
 		_dialogue_label.text = ""
 
@@ -147,7 +147,7 @@ func _build_ui() -> void:
 	vbox.add_theme_constant_override("separation", 6)
 
 	_npc_name_label = Label.new()
-	_npc_name_label.text = "각성자들"
+	_npc_name_label.text = LocaleManager.tr_text("npc_title")
 	_npc_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_npc_name_label.add_theme_font_size_override("font_size", 14)
 	_npc_name_label.add_theme_color_override("font_color", Color(0.9, 0.75, 0.5, 1))
@@ -178,7 +178,7 @@ func _build_ui() -> void:
 	vbox.add_child(_dialogue_label)
 
 	var hint := Label.new()
-	hint.text = "[W/S] 선택  [ESC] 뒤로"
+	hint.text = LocaleManager.tr_text("npc_hint")
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5, 1))
 	vbox.add_child(hint)

@@ -63,7 +63,7 @@ func _refresh() -> void:
 		if StoryManager.is_clue_discovered(clue_id):
 			_detail_label.text = StoryManager.get_clue_text(clue_id)
 		else:
-			_detail_label.text = "아직 발견하지 못한 단서입니다."
+			_detail_label.text = LocaleManager.tr_text("library_locked")
 
 
 func _build_ui() -> void:
@@ -79,7 +79,7 @@ func _build_ui() -> void:
 	vbox.add_theme_constant_override("separation", 6)
 
 	var title := Label.new()
-	title.text = "기억의 서재"
+	title.text = LocaleManager.tr_text("library_title")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 14)
 	title.add_theme_color_override("font_color", Color(0.9, 0.75, 0.5, 1))
@@ -110,7 +110,7 @@ func _build_ui() -> void:
 	vbox.add_child(_detail_label)
 
 	var hint := Label.new()
-	hint.text = "[W/S] 선택  [ESC] 닫기"
+	hint.text = LocaleManager.tr_text("library_hint")
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5, 1))
 	vbox.add_child(hint)

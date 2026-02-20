@@ -78,9 +78,9 @@ func _refresh_summary() -> void:
 		passive_names.append("%s Lv.%d" % [p_name, info["level"]])
 
 	var lines: Array[String] = []
-	lines.append("시간: %s  레벨: %d" % [time_text, _player.current_level])
+	lines.append(LocaleManager.tr_text("time_level_fmt") % [time_text, _player.current_level])
 	if not weapon_names.is_empty():
-		lines.append("무기: " + ", ".join(weapon_names))
+		lines.append(LocaleManager.tr_text("weapons_label") + ", ".join(weapon_names))
 	if not passive_names.is_empty():
-		lines.append("패시브: " + ", ".join(passive_names))
+		lines.append(LocaleManager.tr_text("passives_label") + ", ".join(passive_names))
 	_summary_label.text = "\n".join(lines)

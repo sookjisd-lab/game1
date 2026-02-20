@@ -73,7 +73,50 @@ func _apply_resolution_scale() -> void:
 	DisplayServer.window_set_size(Vector2i(w, h))
 
 
+const REBIND_ACTIONS: Array[String] = ["move_up", "move_down", "move_left", "move_right"]
+const REBIND_LABELS: Dictionary = {
+	"move_up": "위로 이동",
+	"move_down": "아래로 이동",
+	"move_left": "왼쪽 이동",
+	"move_right": "오른쪽 이동",
+}
+var _default_bindings: Dictionary = {}
+
+
+func _save_default_bindings() -> void:
+	for action: String in REBIND_ACTIONS:
+		var events := InputMap.action_get_events(action)
+		_default_bindings[action] = events.duplicate()
+
+
+func rebind_action(action: String, new_event: InputEventKey) -> void:
+	var events := InputMap.action_get_events(action)
+	if not events.is_empty():
+		InputMap.action_erase_event(action, events[0])
+	InputMap.action_add_event(action, new_event)
+	save_settings()
+
+
+func reset_bindings() -> void:
+	for action: String in REBIND_ACTIONS:
+		InputMap.action_erase_events(action)
+		for event: InputEvent in _default_bindings[action]:
+			InputMap.action_add_event(action, event)
+	save_settings()
+
+
+func get_action_key_name(action: String) -> String:
+	var events := InputMap.action_get_events(action)
+	if events.is_empty():
+		return "없음"
+	var event: InputEvent = events[0]
+	if event is InputEventKey:
+		return event.as_text().split(" (")[0]
+	return "???"
+
+
 func load_settings() -> void:
+	_save_default_bindings()
 	var config := ConfigFile.new()
 	if config.load(SETTINGS_PATH) != OK:
 		return
@@ -90,6 +133,18 @@ func load_settings() -> void:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 	else:
 		_apply_resolution_scale()
+	for action: String in REBIND_ACTIONS:
+		var keycode: int = config.get_value("keybinds", action, 0)
+		if keycode != 0:
+			var events := InputMap.action_get_events(action)
+			if not events.is_empty():
+				InputMap.action_erase_event(action, events[0])
+			var ev := InputEventKey.new()
+			ev.physical_keycode = keycode
+			InputMap.action_add_event(action, ev)
+	var lang: String = config.get_value("display", "language", "ko")
+	if lang == "en":
+		LocaleManager.current_language = "en"
 
 
 func save_settings() -> void:
@@ -102,4 +157,9 @@ func save_settings() -> void:
 	config.set_value("display", "damage_numbers", damage_numbers_enabled)
 	config.set_value("display", "fullscreen", fullscreen_enabled)
 	config.set_value("display", "resolution_scale", resolution_scale)
+	config.set_value("display", "language", LocaleManager.current_language)
+	for action: String in REBIND_ACTIONS:
+		var events := InputMap.action_get_events(action)
+		if not events.is_empty() and events[0] is InputEventKey:
+			config.set_value("keybinds", action, events[0].physical_keycode)
 	config.save(SETTINGS_PATH)
