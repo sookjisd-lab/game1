@@ -5,8 +5,10 @@ extends Node
 
 const DAMAGE_NUMBER_SCENE: PackedScene = preload("res://ui/damage_number.tscn")
 const DAMAGE_COLOR := Color(1, 1, 1, 1)
+const CRIT_COLOR := Color(1.0, 0.84, 0.0, 1)
 const HEAL_COLOR := Color(0.3, 1, 0.4, 1)
 
+var next_is_crit: bool = false
 var _pool: Array[Node2D] = []
 var _index: int = 0
 var _stage: Node2D = null
@@ -23,10 +25,15 @@ func register_stage(stage: Node2D) -> void:
 
 func spawn_damage(value: float, pos: Vector2) -> void:
 	if _stage == null or not AudioManager.damage_numbers_enabled:
+		next_is_crit = false
 		return
 	var num: Node2D = _pool[_index]
 	_index = (_index + 1) % _pool.size()
-	num.show_number(value, pos, DAMAGE_COLOR)
+	if next_is_crit:
+		num.show_number(value, pos, CRIT_COLOR, 1.5)
+		next_is_crit = false
+	else:
+		num.show_number(value, pos, DAMAGE_COLOR)
 
 
 func spawn_heal(value: float, pos: Vector2) -> void:

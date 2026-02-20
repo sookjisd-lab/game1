@@ -17,7 +17,7 @@ func _ready() -> void:
 	add_child(_label)
 
 
-func show_number(value: float, pos: Vector2, color: Color) -> void:
+func show_number(value: float, pos: Vector2, color: Color, number_scale: float = 1.0) -> void:
 	global_position = pos
 	_lifetime = DURATION
 	_velocity = Vector2(randf_range(-10, 10), -RISE_SPEED)
@@ -25,6 +25,7 @@ func show_number(value: float, pos: Vector2, color: Color) -> void:
 	_label.text = str(int(value))
 	_label.add_theme_color_override("font_color", color)
 	_label.modulate.a = 1.0
+	scale = Vector2(number_scale, number_scale)
 
 
 func _process(delta: float) -> void:
@@ -35,3 +36,4 @@ func _process(delta: float) -> void:
 	_label.modulate.a = maxf(_lifetime / DURATION, 0.0)
 	if _lifetime <= 0.0:
 		visible = false
+		scale = Vector2.ONE

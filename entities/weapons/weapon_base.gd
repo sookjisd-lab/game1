@@ -34,7 +34,9 @@ func get_effective_damage() -> float:
 func calc_final_damage() -> float:
 	var base: float = get_effective_damage() * _owner_node.damage_multiplier
 	if _owner_node.crit_chance > 0.0 and randf() < _owner_node.crit_chance:
+		DamageNumberManager.next_is_crit = true
 		return base * 1.5
+	DamageNumberManager.next_is_crit = false
 	return base
 
 
