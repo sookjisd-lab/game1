@@ -315,8 +315,6 @@
 - [x] ~~언어 선택 (한국어/영어)~~ ✅ (LocaleManager 싱글톤, 60+ 번역 키, 전체 UI 적용)
 - [x] ~~맵 경계 시스템~~ ✅ (StageData.map_half_size, 플레이어+스폰 클램핑, 경계선 표시)
 - [x] ~~스테이지 2 번개 효과~~ ✅ (StageData.lightning_enabled, 8~15초 간격 화면 플래시)
-- [ ] MultiMeshInstance2D (적 500마리+ 최적화) — 에셋 완성 후 적용 예정 (YAGNI)
-
 ---
 
 ## 기술적 패턴
