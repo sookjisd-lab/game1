@@ -12,6 +12,7 @@ var indicator_enabled: bool = true
 var screen_shake_enabled: bool = true
 var damage_numbers_enabled: bool = true
 var fullscreen_enabled: bool = false
+var resolution_scale: int = 3
 
 
 func _ready() -> void:
@@ -55,7 +56,21 @@ func set_fullscreen_enabled(value: bool) -> void:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 	else:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+		_apply_resolution_scale()
 	save_settings()
+
+
+func set_resolution_scale(scale: int) -> void:
+	resolution_scale = clampi(scale, 2, 6)
+	if not fullscreen_enabled:
+		_apply_resolution_scale()
+	save_settings()
+
+
+func _apply_resolution_scale() -> void:
+	var w: int = Constants.VIEWPORT_WIDTH * resolution_scale
+	var h: int = Constants.VIEWPORT_HEIGHT * resolution_scale
+	DisplayServer.window_set_size(Vector2i(w, h))
 
 
 func load_settings() -> void:
@@ -69,9 +84,12 @@ func load_settings() -> void:
 	screen_shake_enabled = config.get_value("display", "screen_shake", true)
 	damage_numbers_enabled = config.get_value("display", "damage_numbers", true)
 	fullscreen_enabled = config.get_value("display", "fullscreen", false)
+	resolution_scale = config.get_value("display", "resolution_scale", 3)
 	AudioServer.set_bus_volume_db(0, linear_to_db(master_volume))
 	if fullscreen_enabled:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+	else:
+		_apply_resolution_scale()
 
 
 func save_settings() -> void:
@@ -83,4 +101,5 @@ func save_settings() -> void:
 	config.set_value("display", "screen_shake", screen_shake_enabled)
 	config.set_value("display", "damage_numbers", damage_numbers_enabled)
 	config.set_value("display", "fullscreen", fullscreen_enabled)
+	config.set_value("display", "resolution_scale", resolution_scale)
 	config.save(SETTINGS_PATH)

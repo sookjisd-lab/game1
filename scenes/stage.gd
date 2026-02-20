@@ -166,7 +166,7 @@ func _on_treasure_chest_collected() -> void:
 		return
 	if randf() < 0.2:
 		StoryManager.discover_clue("village_diary")
-	var choices := UpgradeManager.generate_choices(Constants.LEVEL_UP_CHOICES)
+	var choices := UpgradeManager.generate_treasure_choices(Constants.LEVEL_UP_CHOICES)
 	if choices.is_empty():
 		return
 	GameManager.change_state(Enums.GameState.TREASURE)

@@ -5,7 +5,8 @@ extends CanvasLayer
 signal closed
 
 const VOLUME_STEP: float = 0.1
-const ITEMS: Array[String] = ["마스터 볼륨", "BGM 볼륨", "SFX 볼륨", "오프스크린 표시", "화면 흔들림", "데미지 숫자", "전체화면"]
+const ITEMS: Array[String] = ["마스터 볼륨", "BGM 볼륨", "SFX 볼륨", "오프스크린 표시", "화면 흔들림", "데미지 숫자", "전체화면", "해상도"]
+const RESOLUTION_LABELS: Array[String] = ["640x360", "960x540", "1280x720", "1600x900", "1920x1080"]
 
 var _selected: int = 0
 var _value_labels: Array[Label] = []
@@ -62,6 +63,9 @@ func _adjust(direction: int) -> void:
 			AudioManager.set_damage_numbers_enabled(not AudioManager.damage_numbers_enabled)
 		6:
 			AudioManager.set_fullscreen_enabled(not AudioManager.fullscreen_enabled)
+		7:
+			var new_scale: int = AudioManager.resolution_scale + direction
+			AudioManager.set_resolution_scale(new_scale)
 	_refresh()
 
 
@@ -73,6 +77,11 @@ func _refresh() -> void:
 	_value_labels[4].text = "ON" if AudioManager.screen_shake_enabled else "OFF"
 	_value_labels[5].text = "ON" if AudioManager.damage_numbers_enabled else "OFF"
 	_value_labels[6].text = "ON" if AudioManager.fullscreen_enabled else "OFF"
+	var scale_index: int = AudioManager.resolution_scale - 2
+	if scale_index >= 0 and scale_index < RESOLUTION_LABELS.size():
+		_value_labels[7].text = RESOLUTION_LABELS[scale_index]
+	else:
+		_value_labels[7].text = "%dx" % AudioManager.resolution_scale
 
 	for i in range(ITEMS.size()):
 		var color := Color(0.9, 0.75, 0.5, 1) if i == _selected else Color(0.6, 0.6, 0.6, 1)

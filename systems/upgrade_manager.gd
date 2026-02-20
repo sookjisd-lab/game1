@@ -90,6 +90,41 @@ func generate_choices(count: int) -> Array[UpgradeData]:
 	return result
 
 
+func generate_treasure_choices(count: int) -> Array[UpgradeData]:
+	var weapon_ups: Array[UpgradeData] = []
+	var new_weapons: Array[UpgradeData] = []
+	var others: Array[UpgradeData] = []
+
+	var all := generate_choices(count + 3)
+	for choice: UpgradeData in all:
+		match choice.stat_key:
+			"weapon_levelup":
+				weapon_ups.append(choice)
+			"new_weapon":
+				new_weapons.append(choice)
+			_:
+				others.append(choice)
+
+	var result: Array[UpgradeData] = []
+	for arr: Array in [weapon_ups, new_weapons, others]:
+		for item: UpgradeData in arr:
+			if result.size() >= count:
+				break
+			result.append(item)
+		if result.size() >= count:
+			break
+
+	# 선택지가 부족하면 일반 선택지로 채움
+	if result.size() < count:
+		for choice: UpgradeData in all:
+			if choice not in result:
+				result.append(choice)
+				if result.size() >= count:
+					break
+
+	return result
+
+
 func apply_upgrade(data: UpgradeData) -> void:
 	if _player == null:
 		return
