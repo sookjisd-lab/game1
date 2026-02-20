@@ -69,6 +69,11 @@ pause={
 ]
 }
 
+[gui]
+
+theme/custom_font="res://assets/fonts/Galmuri11.ttf"
+theme/default_font_size=11
+
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
