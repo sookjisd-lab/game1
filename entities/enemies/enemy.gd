@@ -98,6 +98,7 @@ func take_damage(amount: float, knockback_force: float = 0.0, knockback_origin: 
 	current_hp -= amount
 	_flash_white()
 	DamageNumberManager.spawn_damage(amount, global_position)
+	AudioManager.play_sfx("res://assets/audio/sfx/enemy_hit.wav")
 	if knockback_force > 0.0 and knockback_origin != Vector2.ZERO:
 		var direction: Vector2 = knockback_origin.direction_to(global_position)
 		global_position += direction * knockback_force
@@ -134,6 +135,7 @@ func _ground_attack() -> void:
 
 func _die() -> void:
 	_spawn_death_particles()
+	AudioManager.play_sfx("res://assets/audio/sfx/enemy_death.wav")
 	DropManager.spawn_xp_gem(global_position, data.xp_reward)
 	if data.ability_type == "split_on_death":
 		_split_on_death()

@@ -10,3 +10,4 @@ extends Resource
 @export var knockback: float = 20.0
 @export var max_level: int = 8
 @export var projectile_color: Color = Color.WHITE
+@export var icon_path: String = ""

@@ -26,6 +26,7 @@ func show_title() -> void:
 	if _shards_label != null:
 		_shards_label.text = LocaleManager.tr_text("memory_shards_fmt") % GameManager.meta.memory_shards
 	visible = true
+	AudioManager.play_bgm("res://assets/audio/bgm/title.wav")
 
 
 func _retranslate() -> void:
@@ -41,18 +42,23 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
 		match event.keycode:
 			KEY_SPACE, KEY_ENTER:
+				AudioManager.play_sfx("res://assets/audio/sfx/ui_confirm.wav")
 				visible = false
 				start_pressed.emit()
 			KEY_A:
+				AudioManager.play_sfx("res://assets/audio/sfx/ui_select.wav")
 				visible = false
 				altar_pressed.emit()
 			KEY_S:
+				AudioManager.play_sfx("res://assets/audio/sfx/ui_select.wav")
 				visible = false
 				settings_pressed.emit()
 			KEY_L:
+				AudioManager.play_sfx("res://assets/audio/sfx/ui_select.wav")
 				visible = false
 				library_pressed.emit()
 			KEY_N:
+				AudioManager.play_sfx("res://assets/audio/sfx/ui_select.wav")
 				visible = false
 				npc_pressed.emit()
 			KEY_Q:

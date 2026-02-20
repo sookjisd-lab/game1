@@ -11,3 +11,4 @@ attack_range = 45.0
 knockback = 15.0
 max_level = 8
 projectile_color = Color(0.75, 0.65, 0.4, 1)
+icon_path = "res://assets/icons/weapon_gear.png"

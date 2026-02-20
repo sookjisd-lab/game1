@@ -14,3 +14,6 @@ fog_enabled = true
 fog_color = Color(0.1, 0.1, 0.15, 0.4)
 lightning_enabled = true
 lightning_interval = Vector2(8, 15)
+ground_texture_path = "res://assets/tilesets/cemetery_ground.png"
+decoration_paths = Array[String](["res://assets/decorations/gravestone_a.png", "res://assets/decorations/gravestone_b.png", "res://assets/decorations/dead_tree.png", "res://assets/decorations/iron_fence.png", "res://assets/decorations/skull.png"])
+bgm_path = "res://assets/audio/bgm/stage2_cemetery.wav"

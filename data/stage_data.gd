@@ -14,3 +14,6 @@ extends Resource
 @export var fog_color: Color = Color(0.1, 0.1, 0.15, 0.4)
 @export var lightning_enabled: bool = false
 @export var lightning_interval: Vector2 = Vector2(8.0, 15.0)
+@export var ground_texture_path: String = ""
+@export var decoration_paths: Array[String] = []
+@export var bgm_path: String = ""

@@ -10,3 +10,4 @@ icon_color = Color(0.6, 0.7, 0.9, 1)
 stat_key = "cooldown_percent"
 value_per_level = 0.08
 max_level = 5
+icon_path = "res://assets/icons/passive_clock.png"

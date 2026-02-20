@@ -11,3 +11,4 @@ attack_range = 120.0
 knockback = 5.0
 max_level = 8
 projectile_color = Color(1, 0.75, 0.3, 1)
+icon_path = "res://assets/icons/weapon_candle.png"

@@ -14,8 +14,14 @@ var damage_numbers_enabled: bool = true
 var fullscreen_enabled: bool = false
 var resolution_scale: int = 3
 
+var _bgm_player: AudioStreamPlayer = null
+var _sfx_pool: Array[AudioStreamPlayer] = []
+var _current_bgm_path: String = ""
+const SFX_POOL_SIZE: int = 8
+
 
 func _ready() -> void:
+	_setup_audio_players()
 	load_settings()
 
 
@@ -27,6 +33,8 @@ func set_master_volume(value: float) -> void:
 
 func set_bgm_volume(value: float) -> void:
 	bgm_volume = clampf(value, 0.0, 1.0)
+	if _bgm_player != null:
+		_bgm_player.volume_db = linear_to_db(bgm_volume * master_volume)
 	save_settings()
 
 
@@ -71,6 +79,46 @@ func _apply_resolution_scale() -> void:
 	var w: int = Constants.VIEWPORT_WIDTH * resolution_scale
 	var h: int = Constants.VIEWPORT_HEIGHT * resolution_scale
 	DisplayServer.window_set_size(Vector2i(w, h))
+
+
+func _setup_audio_players() -> void:
+	_bgm_player = AudioStreamPlayer.new()
+	_bgm_player.bus = "Master"
+	add_child(_bgm_player)
+	for i in range(SFX_POOL_SIZE):
+		var sfx := AudioStreamPlayer.new()
+		sfx.bus = "Master"
+		add_child(sfx)
+		_sfx_pool.append(sfx)
+
+
+func play_bgm(path: String) -> void:
+	if path == _current_bgm_path and _bgm_player.playing:
+		return
+	_current_bgm_path = path
+	if not ResourceLoader.exists(path):
+		return
+	var stream: AudioStream = load(path)
+	_bgm_player.stream = stream
+	_bgm_player.volume_db = linear_to_db(bgm_volume * master_volume)
+	_bgm_player.play()
+
+
+func stop_bgm() -> void:
+	_bgm_player.stop()
+	_current_bgm_path = ""
+
+
+func play_sfx(path: String) -> void:
+	if not ResourceLoader.exists(path):
+		return
+	var stream: AudioStream = load(path)
+	for player: AudioStreamPlayer in _sfx_pool:
+		if not player.playing:
+			player.stream = stream
+			player.volume_db = linear_to_db(sfx_volume * master_volume)
+			player.play()
+			return
 
 
 const REBIND_ACTIONS: Array[String] = ["move_up", "move_down", "move_left", "move_right"]

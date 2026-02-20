@@ -61,7 +61,8 @@ func _ready() -> void:
 	_setup_boss_warning()
 	_setup_offscreen_indicator()
 	_setup_lightning()
-	_draw_debug_grid()
+	_build_map()
+	_start_bgm()
 	_start_countdown()
 
 
@@ -105,6 +106,8 @@ func _on_run_timer_updated(elapsed: float) -> void:
 
 func _on_player_died() -> void:
 	GameManager.end_run(false)
+	AudioManager.play_sfx("res://assets/audio/sfx/game_over.wav")
+	AudioManager.stop_bgm()
 	Engine.time_scale = 0.3
 	get_tree().create_timer(0.5 * 0.3).timeout.connect(_show_death_results)
 
@@ -143,6 +146,7 @@ func _setup_boss_warning() -> void:
 func _on_boss_warning(boss_name: String) -> void:
 	_pending_boss_name = boss_name
 	_boss_warning.play_warning(boss_name)
+	AudioManager.play_sfx("res://assets/audio/sfx/boss_warning.wav")
 
 
 func _on_boss_warning_finished() -> void:
@@ -182,10 +186,17 @@ func _on_boss_spawned(boss: Area2D) -> void:
 	boss.boss_hp_changed.connect(_boss_hp_bar.update_hp)
 	if boss.has_signal("boss_phase_changed"):
 		boss.boss_phase_changed.connect(_boss_hp_bar.show_phase)
+	if _pending_boss_name == "영주 그림홀트":
+		AudioManager.play_bgm("res://assets/audio/bgm/boss_grimholt.wav")
+	elif _pending_boss_name == "마녀의 사자":
+		AudioManager.play_bgm("res://assets/audio/bgm/boss_witch.wav")
 
 
 func _on_boss_defeated(is_victory: bool) -> void:
 	_boss_hp_bar.hide_boss()
+	AudioManager.play_sfx("res://assets/audio/sfx/boss_death.wav")
+	if not is_victory and stage_data.bgm_path != "":
+		AudioManager.play_bgm(stage_data.bgm_path)
 	var death_line: String = ""
 	if _pending_boss_name == "영주 그림홀트":
 		StoryManager.discover_clue("lord_diary")
@@ -197,6 +208,8 @@ func _on_boss_defeated(is_victory: bool) -> void:
 		_show_boss_death_line(death_line)
 	if is_victory:
 		GameManager.end_run(true)
+		AudioManager.play_sfx("res://assets/audio/sfx/victory.wav")
+		AudioManager.stop_bgm()
 		Engine.time_scale = 0.3
 		var death_delay: float = 2.0 if death_line != "" else 0.0
 		get_tree().create_timer(death_delay + 1.5, true, false, true).timeout.connect(_show_victory_message)
@@ -336,9 +349,15 @@ func _setup_lightning() -> void:
 
 
 func _flash_lightning() -> void:
+	AudioManager.play_sfx("res://assets/audio/sfx/thunder.wav")
 	var tween := create_tween()
 	tween.tween_property(_lightning_rect, "color:a", 0.3, 0.05)
 	tween.tween_property(_lightning_rect, "color:a", 0.0, 0.15)
+
+
+func _start_bgm() -> void:
+	if stage_data.bgm_path != "":
+		AudioManager.play_bgm(stage_data.bgm_path)
 
 
 func _apply_stage_visuals() -> void:
@@ -348,29 +367,54 @@ func _apply_stage_visuals() -> void:
 		add_child(fog)
 
 
-## 이동 확인용 디버그 격자를 생성한다. 에셋 완성 후 제거 예정.
-func _draw_debug_grid() -> void:
-	var grid_color: Color = stage_data.grid_color if stage_data != null else Color(0.25, 0.15, 0.35, 1.0)
-	var grid_size := 32
-	var half: Vector2 = stage_data.map_half_size if stage_data != null else Vector2(1280, 720)
+## 배경 타일을 깔고 장식물을 배치한다.
+func _build_map() -> void:
+	var half: Vector2 = stage_data.map_half_size
 	var hw: int = int(half.x)
 	var hh: int = int(half.y)
 
-	for x in range(-hw, hw + 1, grid_size):
-		var line := Line2D.new()
-		line.points = [Vector2(x, -hh), Vector2(x, hh)]
-		line.width = 1
-		line.default_color = grid_color
-		add_child(line)
+	# 배경색
+	var bg := ColorRect.new()
+	bg.color = stage_data.bg_color
+	bg.size = Vector2(hw * 2, hh * 2)
+	bg.position = Vector2(-hw, -hh)
+	bg.z_index = -10
+	add_child(bg)
 
-	for y in range(-hh, hh + 1, grid_size):
-		var line := Line2D.new()
-		line.points = [Vector2(-hw, y), Vector2(hw, y)]
-		line.width = 1
-		line.default_color = grid_color
-		add_child(line)
+	# 타일 배경
+	if stage_data.ground_texture_path != "":
+		var tile_tex: Texture2D = load(stage_data.ground_texture_path)
+		var tile_size: int = 32
+		for tx in range(-hw, hw, tile_size):
+			for ty in range(-hh, hh, tile_size):
+				var tile := Sprite2D.new()
+				tile.texture = tile_tex
+				tile.centered = false
+				tile.position = Vector2(tx, ty)
+				tile.z_index = -9
+				add_child(tile)
 
-	# 맵 경계 표시 (밝은 빨강 테두리)
+	# 장식물 배치
+	if not stage_data.decoration_paths.is_empty():
+		var rng := RandomNumberGenerator.new()
+		rng.seed = 12345
+		var deco_count: int = int((hw * hh * 4.0) / (300.0 * 300.0))
+		deco_count = clampi(deco_count, 20, 120)
+		var deco_textures: Array[Texture2D] = []
+		for path: String in stage_data.decoration_paths:
+			deco_textures.append(load(path))
+		for i in range(deco_count):
+			var tex: Texture2D = deco_textures[rng.randi() % deco_textures.size()]
+			var deco := Sprite2D.new()
+			deco.texture = tex
+			deco.position = Vector2(
+				rng.randf_range(-hw + 16, hw - 16),
+				rng.randf_range(-hh + 16, hh - 16),
+			)
+			deco.z_index = -8
+			add_child(deco)
+
+	# 맵 경계 표시
 	var border_color := Color(0.6, 0.15, 0.15, 0.8)
 	for border in [
 		[Vector2(-hw, -hh), Vector2(hw, -hh)],
@@ -382,16 +426,4 @@ func _draw_debug_grid() -> void:
 		line.points = border
 		line.width = 2
 		line.default_color = border_color
-		add_child(line)
-
-	# 원점 표시 (빨간 십자)
-	var origin_color := Color(0.55, 0.1, 0.1, 1.0)
-	for data in [
-		[Vector2(-16, 0), Vector2(16, 0)],
-		[Vector2(0, -16), Vector2(0, 16)],
-	]:
-		var line := Line2D.new()
-		line.points = data
-		line.width = 2
-		line.default_color = origin_color
 		add_child(line)

@@ -11,3 +11,6 @@ grid_color = Color(0.25, 0.15, 0.35, 1)
 enemy_paths = Array[String](["res://data/enemies/tooth_flower.tres", "res://data/enemies/shadow_cat.tres", "res://data/enemies/spider_doll.tres", "res://data/enemies/candle_ghost.tres", "res://data/enemies/twisted_bread.tres"])
 elite_paths = Array[String](["res://data/enemies/elite_tooth_flower.tres", "res://data/enemies/elite_spider_doll.tres", "res://data/enemies/elite_candle_ghost.tres"])
 fog_enabled = false
+ground_texture_path = "res://assets/tilesets/town_ground.png"
+decoration_paths = Array[String](["res://assets/decorations/twisted_tree.png", "res://assets/decorations/broken_barrel.png", "res://assets/decorations/lamp_post.png", "res://assets/decorations/blood_spot.png"])
+bgm_path = "res://assets/audio/bgm/stage1_town.wav"

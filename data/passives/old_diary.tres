@@ -10,3 +10,4 @@ icon_color = Color(0.7, 0.6, 0.4, 1)
 stat_key = "xp_percent"
 value_per_level = 0.1
 max_level = 5
+icon_path = "res://assets/icons/passive_diary.png"

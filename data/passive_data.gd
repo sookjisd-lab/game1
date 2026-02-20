@@ -9,3 +9,4 @@ extends Resource
 @export var stat_key: String = ""
 @export var value_per_level: float = 0.0
 @export var max_level: int = 5
+@export var icon_path: String = ""

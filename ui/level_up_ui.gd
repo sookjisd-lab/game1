@@ -36,6 +36,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func _select(index: int) -> void:
 	if index < 0 or index >= _choices.size():
 		return
+	AudioManager.play_sfx("res://assets/audio/sfx/ui_confirm.wav")
 	UpgradeManager.apply_upgrade(_choices[index])
 	visible = false
 	_clear_cards()

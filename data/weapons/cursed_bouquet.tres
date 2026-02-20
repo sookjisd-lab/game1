@@ -11,3 +11,4 @@ attack_range = 60.0
 knockback = 5.0
 max_level = 8
 projectile_color = Color(0.224, 1, 0.078, 1)
+icon_path = "res://assets/icons/weapon_bouquet.png"

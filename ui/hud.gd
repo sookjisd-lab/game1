@@ -129,11 +129,20 @@ func _update_weapon_icons(weapons: Array[WeaponBase]) -> void:
 		var container := Control.new()
 		container.custom_minimum_size = Vector2(10, 10)
 
-		var color_rect := ColorRect.new()
-		color_rect.color = weapon.data.projectile_color
-		color_rect.size = Vector2(8, 8)
-		color_rect.position = Vector2(1, 1)
-		container.add_child(color_rect)
+		if weapon.data.icon_path != "":
+			var tex_rect := TextureRect.new()
+			tex_rect.texture = load(weapon.data.icon_path)
+			tex_rect.custom_minimum_size = Vector2(8, 8)
+			tex_rect.size = Vector2(8, 8)
+			tex_rect.position = Vector2(1, 1)
+			tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			container.add_child(tex_rect)
+		else:
+			var color_rect := ColorRect.new()
+			color_rect.color = weapon.data.projectile_color
+			color_rect.size = Vector2(8, 8)
+			color_rect.position = Vector2(1, 1)
+			container.add_child(color_rect)
 
 		_weapon_bar.add_child(container)
 		_weapon_icons.append(container)
@@ -152,11 +161,20 @@ func _update_passive_icons(passives: Dictionary) -> void:
 		var container := Control.new()
 		container.custom_minimum_size = Vector2(14, 10)
 
-		var color_rect := ColorRect.new()
-		color_rect.color = p_data.icon_color
-		color_rect.size = Vector2(8, 8)
-		color_rect.position = Vector2(3, 0)
-		container.add_child(color_rect)
+		if p_data.icon_path != "":
+			var tex_rect := TextureRect.new()
+			tex_rect.texture = load(p_data.icon_path)
+			tex_rect.custom_minimum_size = Vector2(8, 8)
+			tex_rect.size = Vector2(8, 8)
+			tex_rect.position = Vector2(3, 0)
+			tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			container.add_child(tex_rect)
+		else:
+			var color_rect := ColorRect.new()
+			color_rect.color = p_data.icon_color
+			color_rect.size = Vector2(8, 8)
+			color_rect.position = Vector2(3, 0)
+			container.add_child(color_rect)
 
 		var lv_label := Label.new()
 		lv_label.text = str(p_level)

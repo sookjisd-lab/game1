@@ -11,3 +11,4 @@ attack_range = 100.0
 knockback = 12.0
 max_level = 1
 projectile_color = Color(0.6, 0.8, 1.0, 1)
+icon_path = "res://assets/icons/weapon_mirror.png"

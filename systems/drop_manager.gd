@@ -125,14 +125,19 @@ func _apply_item_effect(item_type: String) -> void:
 			_player.current_hp = minf(_player.current_hp + HEAL_AMOUNT, _player.max_hp)
 			_player.hp_changed.emit(_player.current_hp, _player.max_hp)
 			DamageNumberManager.spawn_heal(HEAL_AMOUNT, _player.global_position)
+			AudioManager.play_sfx("res://assets/audio/sfx/heal.wav")
 		"magnet_charm":
 			_attract_all_gems()
+			AudioManager.play_sfx("res://assets/audio/sfx/item_pickup.wav")
 		"purify_bell":
 			_damage_all_visible_enemies()
+			AudioManager.play_sfx("res://assets/audio/sfx/item_pickup.wav")
 		"gold_pouch":
 			GameManager.meta.memory_shards += GOLD_POUCH_AMOUNT
 			gold_collected.emit(GOLD_POUCH_AMOUNT)
+			AudioManager.play_sfx("res://assets/audio/sfx/item_pickup.wav")
 		"treasure_chest":
+			AudioManager.play_sfx("res://assets/audio/sfx/chest_open.wav")
 			treasure_chest_collected.emit()
 
 
@@ -153,6 +158,7 @@ func _damage_all_visible_enemies() -> void:
 func _on_gem_collected(gem: Area2D) -> void:
 	total_xp += gem.xp_value
 	xp_collected.emit(gem.xp_value)
+	AudioManager.play_sfx("res://assets/audio/sfx/gem_pickup.wav")
 	_active_gems.erase(gem)
 	PoolManager.release(XP_GEM_SCENE, gem)
 

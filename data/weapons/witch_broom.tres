@@ -11,3 +11,4 @@ attack_range = 55.0
 knockback = 25.0
 max_level = 8
 projectile_color = Color(0.55, 0.35, 0.2, 1)
+icon_path = "res://assets/icons/weapon_broom.png"

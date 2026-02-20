@@ -126,6 +126,7 @@ func take_damage(amount: float) -> void:
 	hp_changed.emit(current_hp, max_hp)
 	_flash_hit()
 	_shake_camera()
+	AudioManager.play_sfx("res://assets/audio/sfx/player_hit.wav")
 	if current_hp <= 0.0:
 		if _revives_remaining > 0:
 			_revive()
@@ -139,6 +140,7 @@ func _revive() -> void:
 	_damage_cooldown = 2.0
 	hp_changed.emit(current_hp, max_hp)
 	_flash_revive()
+	AudioManager.play_sfx("res://assets/audio/sfx/revive.wav")
 
 
 func _flash_revive() -> void:
@@ -204,6 +206,7 @@ func _check_levelup() -> void:
 		current_xp -= needed
 		current_level += 1
 		xp_changed.emit(current_xp, xp_to_next_level())
+		AudioManager.play_sfx("res://assets/audio/sfx/level_up.wav")
 		leveled_up.emit(current_level)
 	else:
 		xp_changed.emit(current_xp, needed)

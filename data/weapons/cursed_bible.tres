@@ -11,3 +11,4 @@ attack_range = 50.0
 knockback = 10.0
 max_level = 8
 projectile_color = Color(0.6, 0.4, 0.9, 1)
+icon_path = "res://assets/icons/weapon_bible.png"
