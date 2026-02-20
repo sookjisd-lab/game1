@@ -33,6 +33,7 @@ var _current_boss: Area2D = null
 var _pending_boss_scene: PackedScene = null
 var _player: Node2D = null
 var _stage: Node2D = null
+var _map_half_size: Vector2 = Vector2.ZERO
 var _all_enemy_data: Array[EnemyData] = []
 var _elite_data: Array[EnemyData] = []
 var _active_enemies: Array[Area2D] = []
@@ -77,6 +78,7 @@ func register_stage(stage: Node2D, player: Node2D, stage_data: StageData = null)
 	_stage = stage
 	_player = player
 	if stage_data != null:
+		_map_half_size = stage_data.map_half_size
 		_load_stage_enemies(stage_data)
 
 
@@ -211,7 +213,10 @@ func _get_spawn_position() -> Vector2:
 		2: offset = Vector2(-half_w, randf_range(-half_h, half_h))
 		3: offset = Vector2(half_w, randf_range(-half_h, half_h))
 
-	return _player.global_position + offset
+	var pos := _player.global_position + offset
+	if _map_half_size != Vector2.ZERO:
+		pos = pos.clamp(-_map_half_size, _map_half_size)
+	return pos
 
 
 func _despawn_far_enemies() -> void:
@@ -296,6 +301,7 @@ func _on_state_changed(
 		_pending_boss_scene = null
 		_player = null
 		_stage = null
+		_map_half_size = Vector2.ZERO
 		_spawn_timer = 0.0
 
 

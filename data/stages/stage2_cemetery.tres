@@ -12,3 +12,5 @@ enemy_paths = Array[String](["res://data/enemies/tooth_flower.tres", "res://data
 elite_paths = Array[String](["res://data/enemies/elite_tooth_flower.tres", "res://data/enemies/elite_spider_doll.tres", "res://data/enemies/elite_candle_ghost.tres"])
 fog_enabled = true
 fog_color = Color(0.1, 0.1, 0.15, 0.4)
+lightning_enabled = true
+lightning_interval = Vector2(8, 15)

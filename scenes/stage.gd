@@ -24,6 +24,8 @@ var _boss_warning: CanvasLayer = null
 var _pending_boss_name: String = ""
 var _countdown_active: bool = false
 var _wall_painting_discovered: bool = false
+var _lightning_rect: ColorRect = null
+var _lightning_timer: float = 0.0
 
 
 func _ready() -> void:
@@ -37,6 +39,7 @@ func _ready() -> void:
 	)
 	_setup_hud()
 	_player.init_character(character_data)
+	_player.set_map_bounds(stage_data.map_half_size)
 	SpawnManager.register_stage(self, _player, stage_data)
 	_apply_stage_visuals()
 	DropManager.register(self, _player)
@@ -57,6 +60,7 @@ func _ready() -> void:
 	_setup_treasure_ui()
 	_setup_boss_warning()
 	_setup_offscreen_indicator()
+	_setup_lightning()
 	_draw_debug_grid()
 	_start_countdown()
 
@@ -301,6 +305,42 @@ func _start_countdown() -> void:
 	GameManager.start_run()
 
 
+func _process(delta: float) -> void:
+	if _lightning_rect == null:
+		return
+	_lightning_timer -= delta
+	if _lightning_timer <= 0.0:
+		_flash_lightning()
+		_lightning_timer = randf_range(
+			stage_data.lightning_interval.x,
+			stage_data.lightning_interval.y,
+		)
+
+
+func _setup_lightning() -> void:
+	if not stage_data.lightning_enabled:
+		return
+	var overlay := CanvasLayer.new()
+	overlay.layer = 5
+	overlay.name = "LightningOverlay"
+	add_child(overlay)
+	_lightning_rect = ColorRect.new()
+	_lightning_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_lightning_rect.color = Color(0.9, 0.9, 1.0, 0.0)
+	_lightning_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.add_child(_lightning_rect)
+	_lightning_timer = randf_range(
+		stage_data.lightning_interval.x,
+		stage_data.lightning_interval.y,
+	)
+
+
+func _flash_lightning() -> void:
+	var tween := create_tween()
+	tween.tween_property(_lightning_rect, "color:a", 0.3, 0.05)
+	tween.tween_property(_lightning_rect, "color:a", 0.0, 0.15)
+
+
 func _apply_stage_visuals() -> void:
 	if stage_data.fog_enabled:
 		var fog := CanvasModulate.new()
@@ -312,20 +352,36 @@ func _apply_stage_visuals() -> void:
 func _draw_debug_grid() -> void:
 	var grid_color: Color = stage_data.grid_color if stage_data != null else Color(0.25, 0.15, 0.35, 1.0)
 	var grid_size := 32
-	var map_size := 640
+	var half: Vector2 = stage_data.map_half_size if stage_data != null else Vector2(1280, 720)
+	var hw: int = int(half.x)
+	var hh: int = int(half.y)
 
-	for x in range(-map_size, map_size + 1, grid_size):
+	for x in range(-hw, hw + 1, grid_size):
 		var line := Line2D.new()
-		line.points = [Vector2(x, -map_size), Vector2(x, map_size)]
+		line.points = [Vector2(x, -hh), Vector2(x, hh)]
 		line.width = 1
 		line.default_color = grid_color
 		add_child(line)
 
-	for y in range(-map_size, map_size + 1, grid_size):
+	for y in range(-hh, hh + 1, grid_size):
 		var line := Line2D.new()
-		line.points = [Vector2(-map_size, y), Vector2(map_size, y)]
+		line.points = [Vector2(-hw, y), Vector2(hw, y)]
 		line.width = 1
 		line.default_color = grid_color
+		add_child(line)
+
+	# 맵 경계 표시 (밝은 빨강 테두리)
+	var border_color := Color(0.6, 0.15, 0.15, 0.8)
+	for border in [
+		[Vector2(-hw, -hh), Vector2(hw, -hh)],
+		[Vector2(-hw, hh), Vector2(hw, hh)],
+		[Vector2(-hw, -hh), Vector2(-hw, hh)],
+		[Vector2(hw, -hh), Vector2(hw, hh)],
+	]:
+		var line := Line2D.new()
+		line.points = border
+		line.width = 2
+		line.default_color = border_color
 		add_child(line)
 
 	# 원점 표시 (빨간 십자)

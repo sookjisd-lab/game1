@@ -34,6 +34,7 @@ var _character_data: CharacterData = null
 var _damage_cooldown: float = 0.0
 var _defense: float = 0.0
 var _revives_remaining: int = 0
+var _map_half_size: Vector2 = Vector2.ZERO
 var _weapons: Array[WeaponBase] = []
 var _passives: Dictionary = {}  # passive_name → { "data": PassiveData, "level": int }
 
@@ -90,10 +91,16 @@ func _equip_starting_weapon() -> void:
 	_weapons.append(weapon)
 
 
+func set_map_bounds(half_size: Vector2) -> void:
+	_map_half_size = half_size
+
+
 func _physics_process(delta: float) -> void:
 	var input_direction := _get_input_direction()
 	velocity = input_direction * move_speed
 	move_and_slide()
+	if _map_half_size != Vector2.ZERO:
+		global_position = global_position.clamp(-_map_half_size, _map_half_size)
 
 	if _damage_cooldown > 0.0:
 		_damage_cooldown -= delta
