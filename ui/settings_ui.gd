@@ -5,7 +5,7 @@ extends CanvasLayer
 signal closed
 
 const VOLUME_STEP: float = 0.1
-const ITEMS: Array[String] = ["마스터 볼륨", "BGM 볼륨", "SFX 볼륨", "오프스크린 표시", "화면 흔들림", "데미지 숫자"]
+const ITEMS: Array[String] = ["마스터 볼륨", "BGM 볼륨", "SFX 볼륨", "오프스크린 표시", "화면 흔들림", "데미지 숫자", "전체화면"]
 
 var _selected: int = 0
 var _value_labels: Array[Label] = []
@@ -60,6 +60,8 @@ func _adjust(direction: int) -> void:
 			AudioManager.set_screen_shake_enabled(not AudioManager.screen_shake_enabled)
 		5:
 			AudioManager.set_damage_numbers_enabled(not AudioManager.damage_numbers_enabled)
+		6:
+			AudioManager.set_fullscreen_enabled(not AudioManager.fullscreen_enabled)
 	_refresh()
 
 
@@ -70,6 +72,7 @@ func _refresh() -> void:
 	_value_labels[3].text = "ON" if AudioManager.indicator_enabled else "OFF"
 	_value_labels[4].text = "ON" if AudioManager.screen_shake_enabled else "OFF"
 	_value_labels[5].text = "ON" if AudioManager.damage_numbers_enabled else "OFF"
+	_value_labels[6].text = "ON" if AudioManager.fullscreen_enabled else "OFF"
 
 	for i in range(ITEMS.size()):
 		var color := Color(0.9, 0.75, 0.5, 1) if i == _selected else Color(0.6, 0.6, 0.6, 1)

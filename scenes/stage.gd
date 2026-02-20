@@ -23,6 +23,7 @@ var _treasure_ui: CanvasLayer = null
 var _boss_warning: CanvasLayer = null
 var _pending_boss_name: String = ""
 var _countdown_active: bool = false
+var _wall_painting_discovered: bool = false
 
 
 func _ready() -> void:
@@ -41,6 +42,7 @@ func _ready() -> void:
 	DropManager.register(self, _player)
 	UpgradeManager.register_player(_player, character_data.starting_weapon_script)
 	DamageNumberManager.register_stage(self)
+	GameManager.run_timer_updated.connect(_on_run_timer_updated)
 	SpawnManager.boss_warning.connect(_on_boss_warning)
 	SpawnManager.boss_spawned.connect(_on_boss_spawned)
 	SpawnManager.boss_defeated.connect(_on_boss_defeated)
@@ -89,6 +91,12 @@ func _setup_boss_hp_bar() -> void:
 func _setup_treasure_ui() -> void:
 	_treasure_ui = TREASURE_UI_SCENE.instantiate()
 	add_child(_treasure_ui)
+
+
+func _on_run_timer_updated(elapsed: float) -> void:
+	if not _wall_painting_discovered and elapsed >= 900.0:
+		_wall_painting_discovered = true
+		StoryManager.discover_clue("wall_painting")
 
 
 func _on_player_died() -> void:
@@ -156,6 +164,8 @@ func _show_treasure() -> void:
 func _on_treasure_chest_collected() -> void:
 	if GameManager.current_state != Enums.GameState.PLAYING:
 		return
+	if randf() < 0.2:
+		StoryManager.discover_clue("village_diary")
 	var choices := UpgradeManager.generate_choices(Constants.LEVEL_UP_CHOICES)
 	if choices.is_empty():
 		return

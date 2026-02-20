@@ -10,6 +10,8 @@ extends CanvasLayer
 @onready var _passive_bar: HBoxContainer = $PassiveBar
 
 var _kill_count: int = 0
+var _gold_count: int = 0
+var _gold_label: Label = null
 var _passive_icons: Array[Control] = []
 var _weapon_bar: HBoxContainer = null
 var _weapon_icons: Array[Control] = []
@@ -18,9 +20,12 @@ var _weapon_icons: Array[Control] = []
 func _ready() -> void:
 	GameManager.run_timer_updated.connect(_on_timer_updated)
 	SpawnManager.enemy_killed.connect(_on_enemy_killed)
+	DropManager.gold_collected.connect(_on_gold_collected)
 	_build_weapon_bar()
+	_build_gold_label()
 	_update_timer(0.0)
 	_update_kills(0)
+	_update_gold(0)
 	_update_level(1)
 	_update_xp_bar(0, Constants.XP_BASE)
 
@@ -69,6 +74,25 @@ func _update_timer(elapsed: float) -> void:
 
 func _update_kills(count: int) -> void:
 	_kill_label.text = str(count)
+
+
+func _update_gold(count: int) -> void:
+	if _gold_label != null:
+		_gold_label.text = str(count)
+
+
+func _on_gold_collected(amount: int) -> void:
+	_gold_count += amount
+	_update_gold(_gold_count)
+
+
+func _build_gold_label() -> void:
+	_gold_label = Label.new()
+	_gold_label.text = "0"
+	_gold_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_gold_label.add_theme_color_override("font_color", Color(0.85, 0.75, 0.4, 1))
+	var top_bar: HBoxContainer = $TopBar
+	top_bar.add_child(_gold_label)
 
 
 func _update_level(level: int) -> void:

@@ -5,6 +5,7 @@ extends Node
 
 signal xp_collected(amount: int)
 signal treasure_chest_collected
+signal gold_collected(amount: int)
 
 const XP_GEM_SCENE: PackedScene = preload("res://entities/drops/xp_gem.tscn")
 const MAP_ITEM_SCENE: PackedScene = preload("res://entities/drops/map_item.tscn")
@@ -130,6 +131,7 @@ func _apply_item_effect(item_type: String) -> void:
 			_damage_all_visible_enemies()
 		"gold_pouch":
 			GameManager.meta.memory_shards += GOLD_POUCH_AMOUNT
+			gold_collected.emit(GOLD_POUCH_AMOUNT)
 		"treasure_chest":
 			treasure_chest_collected.emit()
 

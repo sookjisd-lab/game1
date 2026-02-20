@@ -11,6 +11,7 @@ var sfx_volume: float = 1.0
 var indicator_enabled: bool = true
 var screen_shake_enabled: bool = true
 var damage_numbers_enabled: bool = true
+var fullscreen_enabled: bool = false
 
 
 func _ready() -> void:
@@ -48,6 +49,15 @@ func set_damage_numbers_enabled(value: bool) -> void:
 	save_settings()
 
 
+func set_fullscreen_enabled(value: bool) -> void:
+	fullscreen_enabled = value
+	if fullscreen_enabled:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+	else:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	save_settings()
+
+
 func load_settings() -> void:
 	var config := ConfigFile.new()
 	if config.load(SETTINGS_PATH) != OK:
@@ -58,7 +68,10 @@ func load_settings() -> void:
 	indicator_enabled = config.get_value("display", "indicator", true)
 	screen_shake_enabled = config.get_value("display", "screen_shake", true)
 	damage_numbers_enabled = config.get_value("display", "damage_numbers", true)
+	fullscreen_enabled = config.get_value("display", "fullscreen", false)
 	AudioServer.set_bus_volume_db(0, linear_to_db(master_volume))
+	if fullscreen_enabled:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 
 
 func save_settings() -> void:
@@ -69,4 +82,5 @@ func save_settings() -> void:
 	config.set_value("display", "indicator", indicator_enabled)
 	config.set_value("display", "screen_shake", screen_shake_enabled)
 	config.set_value("display", "damage_numbers", damage_numbers_enabled)
+	config.set_value("display", "fullscreen", fullscreen_enabled)
 	config.save(SETTINGS_PATH)
