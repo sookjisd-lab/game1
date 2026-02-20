@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EvolutionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/evolution_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+evolution_name = "환영의 거울"
+description = "3발 동시 + 반사 5회 + 관통."
+card_color = Color(0.6, 0.8, 1.0, 1)
+source_weapon_script = "res://entities/weapons/mirror_shard.gd"
+required_passive = "유령 망토"
+evolved_weapon_script = "res://entities/weapons/evolved_mirror.gd"
+evolved_weapon_data = "res://data/weapons/evolved_mirror.tres"

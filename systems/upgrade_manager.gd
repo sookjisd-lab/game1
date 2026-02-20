@@ -253,6 +253,10 @@ func _load_evolutions() -> void:
 		"res://data/evolutions/evo_bible.tres",
 		"res://data/evolutions/evo_candle.tres",
 		"res://data/evolutions/evo_needle.tres",
+		"res://data/evolutions/evo_bouquet.tres",
+		"res://data/evolutions/evo_gear.tres",
+		"res://data/evolutions/evo_mirror.tres",
+		"res://data/evolutions/evo_broom.tres",
 	]
 	for path in paths:
 		var res := load(path)

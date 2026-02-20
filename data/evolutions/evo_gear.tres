@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EvolutionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/evolution_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+evolution_name = "시공의 톱니"
+description = "5개 기어가 빠르게 회전. 넓은 궤도."
+card_color = Color(0.85, 0.75, 0.3, 1)
+source_weapon_script = "res://entities/weapons/clock_gear.gd"
+required_passive = "달리기 신발"
+evolved_weapon_script = "res://entities/weapons/evolved_gear.gd"
+evolved_weapon_data = "res://data/weapons/evolved_gear.tres"

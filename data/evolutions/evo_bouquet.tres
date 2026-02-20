@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EvolutionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/evolution_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+evolution_name = "만개의 독포자"
+description = "3발 동시 독구름. 넓은 범위의 독안개."
+card_color = Color(0.15, 0.85, 0.0, 1)
+source_weapon_script = "res://entities/weapons/cursed_bouquet.gd"
+required_passive = "돋보기"
+evolved_weapon_script = "res://entities/weapons/evolved_bouquet.gd"
+evolved_weapon_data = "res://data/weapons/evolved_bouquet.tres"

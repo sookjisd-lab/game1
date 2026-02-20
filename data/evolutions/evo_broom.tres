@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EvolutionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/evolution_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+evolution_name = "생명의 빗자루"
+description = "양방향 휩쓸기 + 적 피격 시 HP 회복."
+card_color = Color(0.4, 0.75, 0.3, 1)
+source_weapon_script = "res://entities/weapons/witch_broom.gd"
+required_passive = "재생 약초"
+evolved_weapon_script = "res://entities/weapons/evolved_broom.gd"
+evolved_weapon_data = "res://data/weapons/evolved_broom.tres"

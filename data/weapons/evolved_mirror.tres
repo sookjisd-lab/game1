@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/weapon_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+weapon_name = "환영의 거울"
+damage = 20.0
+cooldown = 1.8
+attack_range = 100.0
+knockback = 12.0
+max_level = 1
+projectile_color = Color(0.6, 0.8, 1.0, 1)

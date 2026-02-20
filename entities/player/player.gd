@@ -32,6 +32,7 @@ var _innate_stat_key: String = ""
 var _innate_stat_value: float = 0.0
 var _character_data: CharacterData = null
 var _damage_cooldown: float = 0.0
+var _defense: float = 0.0
 var _revives_remaining: int = 0
 var _weapons: Array[WeaponBase] = []
 var _passives: Dictionary = {}  # passive_name → { "data": PassiveData, "level": int }
@@ -60,6 +61,7 @@ func init_character(data: CharacterData) -> void:
 	xp_multiplier = _base_xp_mult
 	magnet_radius = _base_magnet
 	current_hp = max_hp
+	_defense = GameManager.get_meta_bonus_defense()
 	_revives_remaining = GameManager.get_meta_revive_count()
 	var placeholder := $Placeholder as ColorRect
 	placeholder.color = data.sprite_color
@@ -110,7 +112,8 @@ func take_damage(amount: float) -> void:
 		return
 	if dodge_chance > 0.0 and randf() < dodge_chance:
 		return
-	current_hp = maxf(current_hp - amount, 0.0)
+	var reduced: float = maxf(amount - _defense, 1.0)
+	current_hp = maxf(current_hp - reduced, 0.0)
 	_damage_cooldown = 0.5
 	hp_changed.emit(current_hp, max_hp)
 	_flash_hit()

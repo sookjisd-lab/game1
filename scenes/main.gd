@@ -9,6 +9,7 @@ const CHARACTER_SELECT_UI_SCENE: PackedScene = preload("res://ui/character_selec
 const SETTINGS_UI_SCENE: PackedScene = preload("res://ui/settings_ui.tscn")
 const LIBRARY_UI_SCENE: PackedScene = preload("res://ui/library_ui.tscn")
 const STAGE_SELECT_UI_SCENE: PackedScene = preload("res://ui/stage_select_ui.tscn")
+const NPC_DIALOGUE_UI_SCENE: PackedScene = preload("res://ui/npc_dialogue_ui.tscn")
 
 var _current_scene: Node = null
 var _title_ui: CanvasLayer = null
@@ -17,6 +18,7 @@ var _char_select_ui: CanvasLayer = null
 var _settings_ui: CanvasLayer = null
 var _library_ui: CanvasLayer = null
 var _stage_select_ui: CanvasLayer = null
+var _npc_dialogue_ui: CanvasLayer = null
 var _selected_character: CharacterData = null
 
 
@@ -29,6 +31,7 @@ func _ready() -> void:
 	_setup_settings_ui()
 	_setup_library_ui()
 	_setup_stage_select_ui()
+	_setup_npc_dialogue_ui()
 	_show_title()
 
 
@@ -44,6 +47,7 @@ func _setup_title_ui() -> void:
 	_title_ui.altar_pressed.connect(_on_altar_pressed)
 	_title_ui.settings_pressed.connect(_on_settings_pressed)
 	_title_ui.library_pressed.connect(_on_library_pressed)
+	_title_ui.npc_pressed.connect(_on_npc_pressed)
 
 
 func _setup_altar_ui() -> void:
@@ -109,6 +113,20 @@ func _on_library_pressed() -> void:
 
 
 func _on_library_closed() -> void:
+	_show_title()
+
+
+func _setup_npc_dialogue_ui() -> void:
+	_npc_dialogue_ui = NPC_DIALOGUE_UI_SCENE.instantiate()
+	add_child(_npc_dialogue_ui)
+	_npc_dialogue_ui.closed.connect(_on_npc_closed)
+
+
+func _on_npc_pressed() -> void:
+	_npc_dialogue_ui.show_npcs()
+
+
+func _on_npc_closed() -> void:
 	_show_title()
 
 

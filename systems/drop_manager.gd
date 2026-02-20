@@ -49,7 +49,8 @@ func spawn_xp_gem(position: Vector2, value: int) -> void:
 
 
 func _try_spawn_map_item(position: Vector2) -> void:
-	if randf() > MAP_ITEM_DROP_CHANCE:
+	var drop_chance: float = MAP_ITEM_DROP_CHANCE + GameManager.get_meta_bonus_drop()
+	if randf() > drop_chance:
 		return
 	var item_type: String = MAP_ITEM_TYPES.pick_random()
 	var offset := Vector2(randf_range(-8, 8), randf_range(-8, 8))

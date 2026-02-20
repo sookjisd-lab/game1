@@ -6,6 +6,7 @@ signal start_pressed
 signal altar_pressed
 signal settings_pressed
 signal library_pressed
+signal npc_pressed
 
 var _shards_label: Label = null
 
@@ -39,6 +40,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_L:
 				visible = false
 				library_pressed.emit()
+			KEY_N:
+				visible = false
+				npc_pressed.emit()
 			KEY_Q:
 				get_tree().quit()
 
@@ -89,6 +93,12 @@ func _build_ui() -> void:
 	library_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	library_label.add_theme_color_override("font_color", Color(0.7, 0.65, 0.8, 1))
 	vbox.add_child(library_label)
+
+	var npc_label := Label.new()
+	npc_label.text = "[N] 각성자"
+	npc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	npc_label.add_theme_color_override("font_color", Color(0.6, 0.8, 0.7, 1))
+	vbox.add_child(npc_label)
 
 	var settings_label := Label.new()
 	settings_label.text = "[S] 설정"
