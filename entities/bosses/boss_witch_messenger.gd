@@ -153,6 +153,12 @@ func _spawn_poison_cloud(pos: Vector2) -> void:
 	visual.position = -vis_size / 2.0
 	cloud.add_child(visual)
 
+	var _hit_bodies: Dictionary = {}
+	cloud.body_entered.connect(func(body: Node2D) -> void:
+		if body.has_method("take_damage") and not _hit_bodies.has(body):
+			_hit_bodies[body] = true
+			body.take_damage(POISON_CLOUD_DAMAGE)
+	)
 	get_tree().current_scene.add_child(cloud)
 
 	var tween := cloud.create_tween()
@@ -193,6 +199,11 @@ func _spawn_bullet(pos: Vector2, direction: Vector2) -> void:
 	visual.position = Vector2(-4, -4)
 	bullet.add_child(visual)
 
+	bullet.body_entered.connect(func(body: Node2D) -> void:
+		if body.has_method("take_damage"):
+			body.take_damage(BULLET_DAMAGE)
+			bullet.queue_free()
+	)
 	get_tree().current_scene.add_child(bullet)
 
 	var tween := bullet.create_tween()

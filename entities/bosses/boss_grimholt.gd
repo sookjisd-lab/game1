@@ -143,6 +143,10 @@ func _pattern_shockwave() -> void:
 	visual.position = -vis_size / 2.0
 	wave.add_child(visual)
 
+	wave.body_entered.connect(func(body: Node2D) -> void:
+		if body.has_method("take_damage"):
+			body.take_damage(SHOCKWAVE_DAMAGE)
+	)
 	get_tree().current_scene.add_child(wave)
 
 	var tween := wave.create_tween()
