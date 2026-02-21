@@ -81,12 +81,17 @@ func _refresh() -> void:
 
 	var data: CharacterData = _characters[_selected]
 	if _is_unlocked(_selected):
+		var weapon_display: String = data.starting_weapon_data.get_file().get_basename()
+		if data.starting_weapon_data != "":
+			var wdata: WeaponData = load(data.starting_weapon_data)
+			if wdata != null and wdata.weapon_name != "":
+				weapon_display = wdata.weapon_name
 		_desc_label.text = "%s\nHP:%d SPD:%d ATK:x%.2f\n%s\n%s" % [
 			data.description,
 			int(data.base_hp),
 			int(data.base_speed),
 			data.base_damage_mult,
-			data.starting_weapon_data.get_file().get_basename(),
+			weapon_display,
 			data.passive_desc,
 		]
 		_desc_label.add_theme_color_override("font_color", UITheme.TEXT_NORMAL)

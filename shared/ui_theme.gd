@@ -29,7 +29,10 @@ const SELECT_ACTIVE := Color(0.95, 0.82, 0.4, 1.0)
 const SELECT_INACTIVE := Color(0.5, 0.45, 0.38, 1.0)
 
 # HUD 전용
-const HP_GREEN := Color(0.35, 0.7, 0.3, 1.0)
+const HP_FULL := Color(0.7, 0.2, 0.15, 1.0)       # 체력 높을 때 (진한 핏빛)
+const HP_MID := Color(0.85, 0.45, 0.1, 1.0)        # 체력 중간 (경고 주황)
+const HP_LOW := Color(0.95, 0.15, 0.1, 1.0)        # 체력 낮을 때 (밝은 빨강)
+const HP_GREEN := Color(0.35, 0.7, 0.3, 1.0)       # 하위 호환용
 const HP_RED := Color(0.8, 0.2, 0.15, 1.0)
 const XP_BLUE := Color(0.3, 0.5, 0.85, 1.0)
 
@@ -87,15 +90,15 @@ static func make_card_style(
 
 static func make_hp_bar_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = HP_GREEN
+	style.bg_color = HP_FULL
 	style.set_corner_radius_all(1)
 	return style
 
 
 static func make_hp_bar_bg() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.15, 0.1, 0.1, 0.9)
-	style.border_color = Color(0.4, 0.2, 0.2, 0.6)
+	style.bg_color = Color(0.12, 0.05, 0.05, 0.9)
+	style.border_color = Color(0.5, 0.15, 0.1, 0.6)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(1)
 	return style

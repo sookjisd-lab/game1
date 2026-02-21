@@ -86,8 +86,8 @@ func _refresh() -> void:
 
 		if current_level >= info["max"]:
 			cost_label.text = "MAX"
-			cost_label.add_theme_color_override("font_color", UITheme.HP_GREEN)
-			bar.color = UITheme.HP_GREEN
+			cost_label.add_theme_color_override("font_color", UITheme.GOLD)
+			bar.color = UITheme.GOLD_DIM
 		else:
 			var cost: int = info["costs"][current_level]
 			cost_label.text = "%d" % cost

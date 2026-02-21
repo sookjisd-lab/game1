@@ -71,16 +71,16 @@ func _apply_theme() -> void:
 func _on_hp_changed(current: float, maximum: float) -> void:
 	_hp_bar.max_value = maximum
 	_hp_bar.value = current
-	# HP 비율에 따라 바 색상 변경
+	# HP 비율에 따라 바 색상 변경 (핏빛 테마)
 	var ratio: float = current / maximum if maximum > 0 else 0.0
 	var fill: StyleBoxFlat = _hp_bar.get_theme_stylebox("fill") as StyleBoxFlat
 	if fill != null:
 		if ratio <= 0.25:
-			fill.bg_color = UITheme.HP_RED
+			fill.bg_color = UITheme.HP_LOW
 		elif ratio <= 0.5:
-			fill.bg_color = Color(0.8, 0.6, 0.15, 1.0)
+			fill.bg_color = UITheme.HP_MID
 		else:
-			fill.bg_color = UITheme.HP_GREEN
+			fill.bg_color = UITheme.HP_FULL
 
 
 func _on_timer_updated(elapsed: float) -> void:
@@ -121,6 +121,7 @@ func _build_gold_label() -> void:
 	_gold_label = Label.new()
 	_gold_label.text = "0"
 	_gold_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_gold_label.custom_minimum_size = Vector2(20, 0)
 	_gold_label.add_theme_color_override("font_color", UITheme.GOLD_DIM)
 	_gold_label.add_theme_font_size_override("font_size", UITheme.SMALL_FONT_SIZE)
 	var top_bar: HBoxContainer = $TopBar

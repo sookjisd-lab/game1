@@ -369,7 +369,8 @@ func _start_bgm() -> void:
 func _apply_stage_visuals() -> void:
 	if stage_data.fog_enabled:
 		var fog := CanvasModulate.new()
-		fog.color = Color(1, 1, 1, 1) - stage_data.fog_color
+		var fc: Color = stage_data.fog_color
+		fog.color = Color(1.0 - fc.r, 1.0 - fc.g, 1.0 - fc.b, 1.0)
 		add_child(fog)
 
 

@@ -30,7 +30,7 @@ func _apply_theme() -> void:
 	UITheme.apply_heading_style(paused_label, UITheme.GOLD)
 
 	var resume_label: Label = $Overlay/CenterContainer/VBox/ResumeLabel
-	resume_label.add_theme_color_override("font_color", UITheme.HP_GREEN)
+	resume_label.add_theme_color_override("font_color", UITheme.CREAM)
 	resume_label.modulate = Color.WHITE
 
 	var settings_label: Label = $Overlay/CenterContainer/VBox/SettingsLabel
