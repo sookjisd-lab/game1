@@ -1,6 +1,6 @@
 # 개발 진행 현황
 
-> 최종 업데이트: 2026-02-20
+> 최종 업데이트: 2026-02-21
 
 ## 구현 상태 요약
 
@@ -17,7 +17,8 @@
 | 캐릭터 | 100% | 로지 + 프릿츠, 캐릭터 선택 UI, 해금 시스템 |
 | 스토리 | 100% | StoryManager + 단서 4종 + 기억의 서재 + NPC 대화 3종 |
 | 스테이지 | 100% | 2개 스테이지 (광장/묘지) + StageData + 선택 UI |
-| 에셋 | 100% | 스프라이트 32종 + 타일셋 2종 + 장식물 9종 + 아이콘 18종 + SFX 19종 + BGM 5종 |
+| 에셋 | 100% | 스프라이트 32종 + 타일셋 4종 + 장식물 13종 + 아이콘 18종 + SFX 19종 + BGM 5종 + FX 2종 |
+| 디자인 폴리시 | 100% | UITheme 통합, 비네팅/글로우, 페이드 전환, 스프라이트 개선, idle 애니메이션 |
 
 ---
 
@@ -57,7 +58,7 @@
 | WeaponData | `data/weapon_data.gd` | weapon_name, damage, cooldown, attack_range, knockback, max_level, projectile_color |
 | UpgradeData | `data/upgrade_data.gd` | upgrade_name, description, card_color, stat_key, value, weapon_script_path, weapon_data_path |
 | PassiveData | `data/passive_data.gd` | passive_name, description, icon_color, stat_key, value_per_level, max_level |
-| StageData | `data/stage_data.gd` | stage_name, description, bg_color, grid_color, enemy_paths, elite_paths, map_half_size, fog_enabled, fog_color, lightning_enabled, lightning_interval |
+| StageData | `data/stage_data.gd` | stage_name, description, bg_color, grid_color, enemy_paths, elite_paths, map_half_size, fog_enabled, fog_color, lightning_enabled, lightning_interval, ground_variant_paths, variant_ratio, vignette_strength, player_glow_color |
 
 #### 적 데이터 (.tres)
 | 이름 | 등장시간 | HP | 속도 | 데미지 | XP |
@@ -315,6 +316,26 @@
 - [x] ~~언어 선택 (한국어/영어)~~ ✅ (LocaleManager 싱글톤, 60+ 번역 키, 전체 UI 적용)
 - [x] ~~맵 경계 시스템~~ ✅ (StageData.map_half_size, 플레이어+스폰 클램핑, 경계선 표시)
 - [x] ~~스테이지 2 번개 효과~~ ✅ (StageData.lightning_enabled, 8~15초 간격 화면 플래시)
+
+### 디자인 폴리시
+- [x] ~~UITheme 공통 스타일~~ ✅ (shared/ui_theme.gd, 색상 팔레트+StyleBox 빌더)
+- [x] ~~UI 전체 리디자인~~ ✅ (13개 UI, 패널/테두리/색상 통일, 타이틀 파티클)
+- [x] ~~스프라이트 품질 개선~~ ✅ (32종 재생성, 음영 3단계, idle 2프레임 애니메이션)
+- [x] ~~비네팅 + 플레이어 글로우~~ ✅ (assets/fx/, CanvasLayer 오버레이)
+- [x] ~~타일 변형~~ ✅ (스테이지별 2종 타일 혼합 배치)
+- [x] ~~장식물 4종 추가~~ ✅ (우물, 수레, 버섯, 부서진 관)
+- [x] ~~사망 파티클 개선~~ ✅ (6개+색상 변형+크기 랜덤)
+- [x] ~~피격 스케일 펀치~~ ✅ (1.15x 스케일 충격)
+- [x] ~~씬 페이드 전환~~ ✅ (main.gd TransitionLayer, 0.5초 페이드 인/아웃)
+- [x] ~~이동 방향 전환~~ ✅ (플레이어/적 flip_h)
+
+### 버그 수정 (QA)
+- [x] ~~HP바 색상 테마 불일치~~ ✅ (초록→핏빛 3단계)
+- [x] ~~CanvasModulate 안개 알파 버그~~ ✅ (RGB만 반전, 알파 1.0 고정)
+- [x] ~~캐릭터 선택 무기명 raw 표시~~ ✅ (WeaponData.weapon_name 사용)
+- [x] ~~HUD 킬카운트 잘림~~ ✅ (TopBar 좌우 마진)
+- [x] ~~제단/일시정지 색상 테마 불일치~~ ✅ (GOLD/CREAM으로 통일)
+- [x] ~~보스 투사체 데미지 미적용~~ ✅ (body_entered 시그널 연결)
 ---
 
 ## 기술적 패턴
