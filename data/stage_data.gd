@@ -15,5 +15,9 @@ extends Resource
 @export var lightning_enabled: bool = false
 @export var lightning_interval: Vector2 = Vector2(8.0, 15.0)
 @export var ground_texture_path: String = ""
+@export var ground_variant_paths: Array[String] = []
+@export var variant_ratio: float = 0.2
 @export var decoration_paths: Array[String] = []
+@export var vignette_strength: float = 0.4
+@export var player_glow_color: Color = Color(0.9, 0.8, 0.6, 0.15)
 @export var bgm_path: String = ""

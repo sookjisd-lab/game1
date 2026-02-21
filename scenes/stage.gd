@@ -26,6 +26,7 @@ var _countdown_active: bool = false
 var _wall_painting_discovered: bool = false
 var _lightning_rect: ColorRect = null
 var _lightning_timer: float = 0.0
+var _player_glow: Sprite2D = null
 
 
 func _ready() -> void:
@@ -62,6 +63,8 @@ func _ready() -> void:
 	_setup_offscreen_indicator()
 	_setup_lightning()
 	_build_map()
+	_setup_vignette()
+	_setup_player_glow()
 	_start_bgm()
 	_start_countdown()
 
@@ -319,6 +322,9 @@ func _start_countdown() -> void:
 
 
 func _process(delta: float) -> void:
+	if _player_glow != null:
+		_player_glow.global_position = _player.global_position
+
 	if _lightning_rect == null:
 		return
 	_lightning_timer -= delta
@@ -367,6 +373,33 @@ func _apply_stage_visuals() -> void:
 		add_child(fog)
 
 
+func _setup_vignette() -> void:
+	if stage_data.vignette_strength <= 0.0:
+		return
+	var overlay := CanvasLayer.new()
+	overlay.layer = 4
+	overlay.name = "VignetteOverlay"
+	add_child(overlay)
+	var rect := TextureRect.new()
+	rect.texture = preload("res://assets/fx/vignette.png")
+	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	rect.stretch_mode = TextureRect.STRETCH_SCALE
+	rect.modulate.a = stage_data.vignette_strength
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.add_child(rect)
+
+
+func _setup_player_glow() -> void:
+	if stage_data.player_glow_color.a <= 0.0:
+		return
+	_player_glow = Sprite2D.new()
+	_player_glow.texture = preload("res://assets/fx/player_glow.png")
+	_player_glow.modulate = stage_data.player_glow_color
+	_player_glow.z_index = -7
+	_player_glow.global_position = _player.global_position
+	add_child(_player_glow)
+
+
 ## 배경 타일을 깔고 장식물을 배치한다.
 func _build_map() -> void:
 	var half: Vector2 = stage_data.map_half_size
@@ -381,14 +414,22 @@ func _build_map() -> void:
 	bg.z_index = -10
 	add_child(bg)
 
-	# 타일 배경
+	# 타일 배경 (메인 + 변형 혼합)
 	if stage_data.ground_texture_path != "":
 		var tile_tex: Texture2D = load(stage_data.ground_texture_path)
+		var variant_textures: Array[Texture2D] = []
+		for vpath: String in stage_data.ground_variant_paths:
+			variant_textures.append(load(vpath))
 		var tile_size: int = 32
+		var tile_rng := RandomNumberGenerator.new()
+		tile_rng.seed = 99999
 		for tx in range(-hw, hw, tile_size):
 			for ty in range(-hh, hh, tile_size):
 				var tile := Sprite2D.new()
-				tile.texture = tile_tex
+				if not variant_textures.is_empty() and tile_rng.randf() < stage_data.variant_ratio:
+					tile.texture = variant_textures[tile_rng.randi() % variant_textures.size()]
+				else:
+					tile.texture = tile_tex
 				tile.centered = false
 				tile.position = Vector2(tx, ty)
 				tile.z_index = -9

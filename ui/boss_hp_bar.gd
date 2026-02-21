@@ -44,30 +44,41 @@ func hide_boss() -> void:
 func _build_ui() -> void:
 	var panel := PanelContainer.new()
 	panel.anchors_preset = Control.PRESET_BOTTOM_WIDE
-	panel.anchor_top = 0.9
+	panel.anchor_top = 0.88
 	panel.anchor_bottom = 1.0
-	panel.anchor_left = 0.2
-	panel.anchor_right = 0.8
+	panel.anchor_left = 0.15
+	panel.anchor_right = 0.85
 	panel.offset_top = 0
 	panel.offset_bottom = 0
+	panel.add_theme_stylebox_override("panel", UITheme.make_panel_style(
+		Color(0.05, 0.02, 0.08, 0.85),
+		UITheme.BLOOD_RED,
+		1, 2
+	))
 
 	var vbox := VBoxContainer.new()
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.add_theme_constant_override("separation", 1)
 
 	_phase_label = Label.new()
 	_phase_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_phase_label.add_theme_color_override("font_color", Color(1, 0.3, 0.3, 1))
+	_phase_label.add_theme_color_override("font_color", UITheme.BLOOD_LIGHT)
+	_phase_label.add_theme_font_size_override("font_size", UITheme.SMALL_FONT_SIZE)
 	_phase_label.text = ""
 	vbox.add_child(_phase_label)
 
 	_name_label = Label.new()
 	_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_name_label.text = "BOSS"
+	_name_label.add_theme_color_override("font_color", UITheme.BLOOD_LIGHT)
+	_name_label.add_theme_font_size_override("font_size", UITheme.SMALL_FONT_SIZE)
 	vbox.add_child(_name_label)
 
 	_hp_bar = ProgressBar.new()
-	_hp_bar.custom_minimum_size = Vector2(0, 6)
+	_hp_bar.custom_minimum_size = Vector2(0, 5)
 	_hp_bar.show_percentage = false
+	_hp_bar.add_theme_stylebox_override("fill", UITheme.make_boss_hp_style())
+	_hp_bar.add_theme_stylebox_override("background", UITheme.make_boss_hp_bg())
 	vbox.add_child(_hp_bar)
 
 	panel.add_child(vbox)

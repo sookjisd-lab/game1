@@ -21,6 +21,7 @@ func _ready() -> void:
 	GameManager.run_timer_updated.connect(_on_timer_updated)
 	SpawnManager.enemy_killed.connect(_on_enemy_killed)
 	DropManager.gold_collected.connect(_on_gold_collected)
+	_apply_theme()
 	_build_weapon_bar()
 	_build_gold_label()
 	_update_timer(0.0)
@@ -47,9 +48,39 @@ func add_kill() -> void:
 	_update_kills(_kill_count)
 
 
+func _apply_theme() -> void:
+	# HP 바 스타일
+	_hp_bar.add_theme_stylebox_override("fill", UITheme.make_hp_bar_style())
+	_hp_bar.add_theme_stylebox_override("background", UITheme.make_hp_bar_bg())
+
+	# XP 바 스타일
+	_xp_bar.add_theme_stylebox_override("fill", UITheme.make_xp_bar_style())
+	_xp_bar.add_theme_stylebox_override("background", UITheme.make_xp_bar_bg())
+
+	# 타이머 라벨
+	_timer_label.add_theme_color_override("font_color", UITheme.CREAM)
+
+	# 킬 카운트
+	_kill_label.add_theme_color_override("font_color", UITheme.BLOOD_LIGHT)
+
+	# 레벨 라벨
+	_level_label.add_theme_color_override("font_color", UITheme.GOLD)
+	_level_label.add_theme_font_size_override("font_size", UITheme.SMALL_FONT_SIZE)
+
+
 func _on_hp_changed(current: float, maximum: float) -> void:
 	_hp_bar.max_value = maximum
 	_hp_bar.value = current
+	# HP 비율에 따라 바 색상 변경
+	var ratio: float = current / maximum if maximum > 0 else 0.0
+	var fill: StyleBoxFlat = _hp_bar.get_theme_stylebox("fill") as StyleBoxFlat
+	if fill != null:
+		if ratio <= 0.25:
+			fill.bg_color = UITheme.HP_RED
+		elif ratio <= 0.5:
+			fill.bg_color = Color(0.8, 0.6, 0.15, 1.0)
+		else:
+			fill.bg_color = UITheme.HP_GREEN
 
 
 func _on_timer_updated(elapsed: float) -> void:
@@ -90,7 +121,8 @@ func _build_gold_label() -> void:
 	_gold_label = Label.new()
 	_gold_label.text = "0"
 	_gold_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_gold_label.add_theme_color_override("font_color", Color(0.85, 0.75, 0.4, 1))
+	_gold_label.add_theme_color_override("font_color", UITheme.GOLD_DIM)
+	_gold_label.add_theme_font_size_override("font_size", UITheme.SMALL_FONT_SIZE)
 	var top_bar: HBoxContainer = $TopBar
 	top_bar.add_child(_gold_label)
 
@@ -126,22 +158,25 @@ func _update_weapon_icons(weapons: Array[WeaponBase]) -> void:
 	_weapon_icons.clear()
 
 	for weapon: WeaponBase in weapons:
-		var container := Control.new()
+		var container := PanelContainer.new()
 		container.custom_minimum_size = Vector2(10, 10)
+		container.add_theme_stylebox_override("panel", UITheme.make_panel_style(
+			Color(0.08, 0.05, 0.12, 0.8),
+			UITheme.BORDER_DIM,
+			1, 1
+		))
 
 		if weapon.data.icon_path != "":
 			var tex_rect := TextureRect.new()
 			tex_rect.texture = load(weapon.data.icon_path)
 			tex_rect.custom_minimum_size = Vector2(8, 8)
 			tex_rect.size = Vector2(8, 8)
-			tex_rect.position = Vector2(1, 1)
 			tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			container.add_child(tex_rect)
 		else:
 			var color_rect := ColorRect.new()
 			color_rect.color = weapon.data.projectile_color
-			color_rect.size = Vector2(8, 8)
-			color_rect.position = Vector2(1, 1)
+			color_rect.custom_minimum_size = Vector2(8, 8)
 			container.add_child(color_rect)
 
 		_weapon_bar.add_child(container)
@@ -158,29 +193,37 @@ func _update_passive_icons(passives: Dictionary) -> void:
 		var p_data: PassiveData = info["data"]
 		var p_level: int = info["level"]
 
-		var container := Control.new()
-		container.custom_minimum_size = Vector2(14, 10)
+		var container := PanelContainer.new()
+		container.custom_minimum_size = Vector2(12, 12)
+		container.add_theme_stylebox_override("panel", UITheme.make_panel_style(
+			Color(0.08, 0.05, 0.12, 0.8),
+			UITheme.BORDER_DIM,
+			1, 1
+		))
+
+		var inner := Control.new()
+		inner.custom_minimum_size = Vector2(8, 8)
 
 		if p_data.icon_path != "":
 			var tex_rect := TextureRect.new()
 			tex_rect.texture = load(p_data.icon_path)
 			tex_rect.custom_minimum_size = Vector2(8, 8)
 			tex_rect.size = Vector2(8, 8)
-			tex_rect.position = Vector2(3, 0)
 			tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			container.add_child(tex_rect)
+			inner.add_child(tex_rect)
 		else:
 			var color_rect := ColorRect.new()
 			color_rect.color = p_data.icon_color
 			color_rect.size = Vector2(8, 8)
-			color_rect.position = Vector2(3, 0)
-			container.add_child(color_rect)
+			inner.add_child(color_rect)
+
+		container.add_child(inner)
 
 		var lv_label := Label.new()
 		lv_label.text = str(p_level)
-		lv_label.position = Vector2(2, -1)
-		lv_label.add_theme_font_size_override("font_size", 8)
-		lv_label.add_theme_color_override("font_color", Color.WHITE)
+		lv_label.position = Vector2(0, -2)
+		lv_label.add_theme_font_size_override("font_size", 7)
+		lv_label.add_theme_color_override("font_color", UITheme.GOLD)
 		container.add_child(lv_label)
 
 		_passive_bar.add_child(container)

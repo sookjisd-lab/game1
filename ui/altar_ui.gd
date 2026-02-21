@@ -18,6 +18,7 @@ const UPGRADES: Array[Dictionary] = [
 var _rows: Array[Dictionary] = []
 var _shards_label: Label
 var _selected: int = 0
+var _selector_rect: ColorRect = null
 
 
 func _ready() -> void:
@@ -75,26 +76,32 @@ func _refresh() -> void:
 		var level_label: Label = row["level"]
 		var cost_label: Label = row["cost"]
 		var name_label: Label = row["name"]
+		var bar: ColorRect = row["bar"]
 
 		level_label.text = "Lv.%d/%d" % [current_level, info["max"]]
 
+		# 레벨 바 너비 업데이트
+		var ratio: float = float(current_level) / float(info["max"])
+		bar.custom_minimum_size.x = int(40 * ratio)
+
 		if current_level >= info["max"]:
 			cost_label.text = "MAX"
-			cost_label.add_theme_color_override("font_color", Color.GREEN)
+			cost_label.add_theme_color_override("font_color", UITheme.HP_GREEN)
+			bar.color = UITheme.HP_GREEN
 		else:
 			var cost: int = info["costs"][current_level]
 			cost_label.text = "%d" % cost
 			var can_afford: bool = GameManager.meta.memory_shards >= cost
-			var c: Color = Color.WHITE if can_afford else Color(0.5, 0.5, 0.5, 1)
-			cost_label.add_theme_color_override("font_color", c)
+			cost_label.add_theme_color_override("font_color", UITheme.GOLD if can_afford else UITheme.TEXT_DISABLED)
+			bar.color = UITheme.PURPLE_DIM
 
-		var sel_color: Color = Color.GOLD if i == _selected else Color.WHITE
-		name_label.add_theme_color_override("font_color", sel_color)
+		var is_sel: bool = i == _selected
+		name_label.add_theme_color_override("font_color", UITheme.SELECT_ACTIVE if is_sel else UITheme.TEXT_NORMAL)
 
 
 func _build_ui() -> void:
 	var bg := ColorRect.new()
-	bg.color = Color(0.05, 0.03, 0.1, 1.0)
+	bg.color = UITheme.BG_DARK
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 
 	var margin := MarginContainer.new()
@@ -109,57 +116,75 @@ func _build_ui() -> void:
 
 	var title := Label.new()
 	title.text = LocaleManager.tr_text("altar_title")
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_color_override("font_color", Color.GOLD)
-	title.add_theme_font_size_override("font_size", 14)
+	UITheme.apply_heading_style(title, UITheme.GOLD)
 	vbox.add_child(title)
 
 	_shards_label = Label.new()
 	_shards_label.text = LocaleManager.tr_text("memory_shards_fmt") % 0
-	_shards_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_shards_label.add_theme_color_override("font_color", Color(1, 0.84, 0, 1))
+	UITheme.apply_body_style(_shards_label, UITheme.GOLD_DIM)
+	_shards_label.add_theme_font_size_override("font_size", UITheme.SMALL_FONT_SIZE)
 	vbox.add_child(_shards_label)
 
+	var sep := UITheme.make_separator()
+	sep.custom_minimum_size = Vector2(200, 1)
+	sep.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	vbox.add_child(sep)
+
 	var grid := GridContainer.new()
-	grid.columns = 4
-	grid.add_theme_constant_override("h_separation", 6)
+	grid.columns = 5
+	grid.add_theme_constant_override("h_separation", 4)
 	grid.add_theme_constant_override("v_separation", 1)
 
 	for info: Dictionary in UPGRADES:
 		var name_label := Label.new()
 		name_label.text = info["name"]
-		name_label.custom_minimum_size = Vector2(90, 0)
+		name_label.custom_minimum_size = Vector2(80, 0)
+		name_label.add_theme_color_override("font_color", UITheme.TEXT_NORMAL)
 		grid.add_child(name_label)
 
 		var desc_label := Label.new()
 		desc_label.text = info["desc"]
-		desc_label.custom_minimum_size = Vector2(80, 0)
-		desc_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7, 1))
+		desc_label.custom_minimum_size = Vector2(70, 0)
+		desc_label.add_theme_color_override("font_color", UITheme.TEXT_DIM)
+		desc_label.add_theme_font_size_override("font_size", UITheme.SMALL_FONT_SIZE)
 		grid.add_child(desc_label)
+
+		# 레벨 진행 바
+		var bar_bg := ColorRect.new()
+		bar_bg.color = Color(0.15, 0.1, 0.2, 0.5)
+		bar_bg.custom_minimum_size = Vector2(40, 6)
+		var bar_fill := ColorRect.new()
+		bar_fill.color = UITheme.PURPLE_DIM
+		bar_fill.custom_minimum_size = Vector2(0, 6)
+		bar_bg.add_child(bar_fill)
+		grid.add_child(bar_bg)
 
 		var level_label := Label.new()
 		level_label.text = "Lv.0/%d" % info["max"]
-		level_label.custom_minimum_size = Vector2(50, 0)
+		level_label.custom_minimum_size = Vector2(42, 0)
+		level_label.add_theme_color_override("font_color", UITheme.TEXT_NORMAL)
+		level_label.add_theme_font_size_override("font_size", UITheme.SMALL_FONT_SIZE)
 		grid.add_child(level_label)
 
 		var cost_label := Label.new()
 		cost_label.text = "0"
 		cost_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		cost_label.custom_minimum_size = Vector2(30, 0)
+		cost_label.add_theme_font_size_override("font_size", UITheme.SMALL_FONT_SIZE)
 		grid.add_child(cost_label)
 
 		_rows.append({
 			"name": name_label,
 			"level": level_label,
 			"cost": cost_label,
+			"bar": bar_fill,
 		})
 
 	vbox.add_child(grid)
 
 	var hint := Label.new()
 	hint.text = LocaleManager.tr_text("altar_hint")
-	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hint.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5, 1))
+	UITheme.apply_hint_style(hint)
 	vbox.add_child(hint)
 
 	margin.add_child(vbox)

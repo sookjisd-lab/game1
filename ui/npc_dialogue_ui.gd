@@ -10,6 +10,7 @@ var _npc_ids: Array[String] = []
 var _npc_labels: Array[Label] = []
 var _dialogue_label: Label
 var _npc_name_label: Label
+var _dialogue_panel: PanelContainer
 var _current_dialogues: Array[String] = []
 var _mode: String = "npc_list"  # "npc_list" or "dialogue"
 
@@ -90,7 +91,7 @@ func _open_dialogue() -> void:
 
 func _refresh_npc_list() -> void:
 	_npc_name_label.text = LocaleManager.tr_text("npc_title")
-	_npc_name_label.add_theme_color_override("font_color", Color(0.9, 0.75, 0.5, 1))
+	_npc_name_label.add_theme_color_override("font_color", UITheme.GOLD)
 
 	for i in range(_npc_labels.size()):
 		if i >= _npc_ids.size():
@@ -107,12 +108,12 @@ func _refresh_npc_list() -> void:
 		if is_sel and unlocked:
 			color = npc_info["color"]
 		elif is_sel:
-			color = Color(0.5, 0.4, 0.4, 1)
+			color = UITheme.BLOOD_LIGHT
 		elif unlocked:
-			color = Color(0.7, 0.7, 0.7, 1)
+			color = UITheme.TEXT_NORMAL
 		else:
-			color = Color(0.4, 0.4, 0.4, 1)
-		_npc_labels[i].modulate = color
+			color = UITheme.TEXT_DISABLED
+		_npc_labels[i].add_theme_color_override("font_color", color)
 
 	if _selected_npc >= 0 and _selected_npc < _npc_ids.size():
 		var npc_id: String = _npc_ids[_selected_npc]
@@ -136,7 +137,7 @@ func _refresh_dialogue() -> void:
 
 func _build_ui() -> void:
 	var bg := ColorRect.new()
-	bg.color = Color(0.05, 0.03, 0.1, 1.0)
+	bg.color = UITheme.BG_DARK
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 
 	var center := CenterContainer.new()
@@ -144,43 +145,53 @@ func _build_ui() -> void:
 
 	var vbox := VBoxContainer.new()
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 6)
+	vbox.add_theme_constant_override("separation", 4)
 
 	_npc_name_label = Label.new()
 	_npc_name_label.text = LocaleManager.tr_text("npc_title")
-	_npc_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_npc_name_label.add_theme_font_size_override("font_size", 14)
-	_npc_name_label.add_theme_color_override("font_color", Color(0.9, 0.75, 0.5, 1))
+	UITheme.apply_heading_style(_npc_name_label, UITheme.GOLD)
 	vbox.add_child(_npc_name_label)
 
+	var sep := UITheme.make_separator()
+	sep.custom_minimum_size = Vector2(120, 1)
+	sep.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	vbox.add_child(sep)
+
 	var spacer := Control.new()
-	spacer.custom_minimum_size = Vector2(0, 4)
+	spacer.custom_minimum_size = Vector2(0, 2)
 	vbox.add_child(spacer)
 
 	for i in range(StoryManager.NPC_DATA.size()):
 		var label := Label.new()
 		label.text = "???"
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5, 1))
+		label.add_theme_color_override("font_color", UITheme.TEXT_DISABLED)
 		vbox.add_child(label)
 		_npc_labels.append(label)
 
 	var spacer2 := Control.new()
-	spacer2.custom_minimum_size = Vector2(0, 6)
+	spacer2.custom_minimum_size = Vector2(0, 4)
 	vbox.add_child(spacer2)
+
+	# 대화 내용 패널
+	_dialogue_panel = PanelContainer.new()
+	_dialogue_panel.add_theme_stylebox_override("panel", UITheme.make_panel_style(
+		UITheme.BG_PANEL, UITheme.BORDER_DIM, 1, 2
+	))
+	_dialogue_panel.custom_minimum_size = Vector2(280, 60)
 
 	_dialogue_label = Label.new()
 	_dialogue_label.text = ""
 	_dialogue_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_dialogue_label.autowrap_mode = TextServer.AUTOWRAP_WORD
-	_dialogue_label.custom_minimum_size = Vector2(280, 60)
-	_dialogue_label.add_theme_color_override("font_color", Color(0.65, 0.6, 0.55, 1))
-	vbox.add_child(_dialogue_label)
+	_dialogue_label.add_theme_color_override("font_color", UITheme.CREAM)
+	_dialogue_label.add_theme_font_size_override("font_size", UITheme.SMALL_FONT_SIZE)
+	_dialogue_panel.add_child(_dialogue_label)
+	vbox.add_child(_dialogue_panel)
 
 	var hint := Label.new()
 	hint.text = LocaleManager.tr_text("npc_hint")
-	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hint.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5, 1))
+	UITheme.apply_hint_style(hint)
 	vbox.add_child(hint)
 
 	center.add_child(vbox)

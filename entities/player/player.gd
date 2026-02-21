@@ -37,6 +37,9 @@ var _revives_remaining: int = 0
 var _map_half_size: Vector2 = Vector2.ZERO
 var _weapons: Array[WeaponBase] = []
 var _passives: Dictionary = {}  # passive_name → { "data": PassiveData, "level": int }
+var _anim_timer: float = 0.0
+
+const ANIM_FRAME_DURATION: float = 0.5
 
 @onready var _hitbox: Area2D = $Hitbox
 
@@ -67,6 +70,8 @@ func init_character(data: CharacterData) -> void:
 	var placeholder := $Placeholder as Sprite2D
 	if data.sprite_path != "":
 		placeholder.texture = load(data.sprite_path)
+		placeholder.hframes = 2
+		placeholder.frame = 0
 	_equip_starting_weapon()
 	hp_changed.emit(current_hp, max_hp)
 
@@ -100,11 +105,21 @@ func _physics_process(delta: float) -> void:
 	var input_direction := _get_input_direction()
 	velocity = input_direction * move_speed
 	move_and_slide()
+	if input_direction.x != 0.0:
+		var placeholder := $Placeholder as Sprite2D
+		placeholder.flip_h = input_direction.x < 0.0
 	if _map_half_size != Vector2.ZERO:
 		global_position = global_position.clamp(-_map_half_size, _map_half_size)
 
 	if _damage_cooldown > 0.0:
 		_damage_cooldown -= delta
+
+	_anim_timer += delta
+	if _anim_timer >= ANIM_FRAME_DURATION:
+		_anim_timer -= ANIM_FRAME_DURATION
+		var placeholder := $Placeholder as Sprite2D
+		if placeholder.hframes > 1:
+			placeholder.frame = (placeholder.frame + 1) % placeholder.hframes
 
 	if hp_regen > 0.0 and current_hp < max_hp:
 		_regen_accumulator += hp_regen * delta

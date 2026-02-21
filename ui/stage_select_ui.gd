@@ -63,13 +63,27 @@ func _refresh() -> void:
 	for i in range(_cards.size()):
 		var card: PanelContainer = _cards[i]
 		var is_sel: bool = i == _selected
-		card.modulate = Color.WHITE if is_sel else Color(0.5, 0.5, 0.5, 1)
+		var unlocked: bool = _is_unlocked(i)
+
+		if is_sel and unlocked:
+			card.add_theme_stylebox_override("panel", UITheme.make_card_style(true))
+		elif is_sel:
+			card.add_theme_stylebox_override("panel", UITheme.make_panel_style(
+				Color(0.1, 0.06, 0.14, 0.9),
+				UITheme.BLOOD_RED, 1, 2
+			))
+		else:
+			card.add_theme_stylebox_override("panel", UITheme.make_card_style(false))
+
+		card.modulate = Color.WHITE if is_sel else Color(0.6, 0.55, 0.5, 1)
 
 	var data: StageData = _stages[_selected]
 	if _is_unlocked(_selected):
 		_desc_label.text = "%s\n%s" % [data.stage_name, data.description]
+		_desc_label.add_theme_color_override("font_color", UITheme.TEXT_NORMAL)
 	else:
 		_desc_label.text = LocaleManager.tr_text("stage_locked")
+		_desc_label.add_theme_color_override("font_color", UITheme.TEXT_DISABLED)
 
 
 func _load_stages() -> void:
@@ -79,7 +93,7 @@ func _load_stages() -> void:
 
 func _build_ui() -> void:
 	var bg := ColorRect.new()
-	bg.color = Color(0.05, 0.03, 0.1, 1.0)
+	bg.color = UITheme.BG_DARK
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 
 	var center := CenterContainer.new()
@@ -91,10 +105,13 @@ func _build_ui() -> void:
 
 	var title := Label.new()
 	title.text = LocaleManager.tr_text("stage_select")
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 14)
-	title.add_theme_color_override("font_color", Color(0.9, 0.75, 0.5, 1))
+	UITheme.apply_heading_style(title, UITheme.GOLD)
 	vbox.add_child(title)
+
+	var sep := UITheme.make_separator()
+	sep.custom_minimum_size = Vector2(140, 1)
+	sep.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	vbox.add_child(sep)
 
 	var container := HBoxContainer.new()
 	container.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -104,19 +121,21 @@ func _build_ui() -> void:
 		var data: StageData = _stages[i]
 		var card := PanelContainer.new()
 		card.custom_minimum_size = Vector2(100, 60)
+		card.add_theme_stylebox_override("panel", UITheme.make_card_style(false))
 
 		var card_vbox := VBoxContainer.new()
 		card_vbox.alignment = BoxContainer.ALIGNMENT_CENTER
 		card_vbox.add_theme_constant_override("separation", 2)
 
 		var preview := ColorRect.new()
-		preview.color = data.bg_color if _is_unlocked(i) else Color(0.15, 0.15, 0.15, 1)
+		preview.color = data.bg_color if _is_unlocked(i) else Color(0.12, 0.08, 0.15, 1)
 		preview.custom_minimum_size = Vector2(40, 24)
 		card_vbox.add_child(preview)
 
 		var name_label := Label.new()
 		name_label.text = data.stage_name if _is_unlocked(i) else "???"
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		name_label.add_theme_color_override("font_color", UITheme.CREAM if _is_unlocked(i) else UITheme.TEXT_DISABLED)
 		card_vbox.add_child(name_label)
 
 		card.add_child(card_vbox)
@@ -130,13 +149,13 @@ func _build_ui() -> void:
 	_desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	_desc_label.custom_minimum_size = Vector2(280, 30)
-	_desc_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7, 1))
+	_desc_label.add_theme_color_override("font_color", UITheme.TEXT_NORMAL)
+	_desc_label.add_theme_font_size_override("font_size", UITheme.SMALL_FONT_SIZE)
 	vbox.add_child(_desc_label)
 
 	var hint := Label.new()
 	hint.text = LocaleManager.tr_text("stage_hint")
-	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hint.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5, 1))
+	UITheme.apply_hint_style(hint)
 	vbox.add_child(hint)
 
 	center.add_child(vbox)

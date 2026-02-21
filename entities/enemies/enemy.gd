@@ -70,6 +70,8 @@ func _physics_process(delta: float) -> void:
 	if not data.is_stationary:
 		var direction := global_position.direction_to(_target.global_position)
 		global_position += direction * data.move_speed * delta
+		if _placeholder != null and direction.x != 0.0:
+			_placeholder.flip_h = direction.x < 0.0
 
 	if data.attack_interval > 0.0:
 		_attack_timer -= delta
@@ -222,7 +224,9 @@ func _update_aura_visual() -> void:
 
 
 func _spawn_death_particles() -> void:
-	for i in range(4):
+	var base_color := Color(data.sprite_color) if data != null else Color.WHITE
+	var particle_count: int = 6
+	for i in range(particle_count):
 		var particle := Sprite2D.new()
 		particle.texture = DEATH_PARTICLE_TEXTURE
 		particle.z_index = 5
@@ -230,11 +234,27 @@ func _spawn_death_particles() -> void:
 		container.global_position = global_position
 		get_tree().current_scene.add_child(container)
 		container.add_child(particle)
-		var dir := Vector2.from_angle(TAU / 4.0 * i + randf_range(-0.3, 0.3))
+		# Vary color: mix base with lighter/darker variants
+		var hue_shift: float = randf_range(-0.05, 0.05)
+		var brightness: float = randf_range(0.7, 1.5)
+		var particle_color := Color(
+			clampf(base_color.r * brightness + hue_shift, 0.0, 1.0),
+			clampf(base_color.g * brightness + hue_shift, 0.0, 1.0),
+			clampf(base_color.b * brightness, 0.0, 1.0),
+			1.0,
+		)
+		particle.modulate = particle_color
+		# Vary size
+		var s: float = randf_range(0.6, 1.4)
+		particle.scale = Vector2(s, s)
+		# Randomized direction and distance
+		var dir := Vector2.from_angle(TAU / float(particle_count) * i + randf_range(-0.5, 0.5))
+		var dist: float = randf_range(6, 20)
+		var duration: float = randf_range(0.2, 0.4)
 		var tween := container.create_tween()
 		tween.set_parallel(true)
-		tween.tween_property(container, "position", container.position + dir * randf_range(8, 16), 0.3)
-		tween.tween_property(particle, "modulate:a", 0.0, 0.3)
+		tween.tween_property(container, "position", container.position + dir * dist, duration)
+		tween.tween_property(particle, "modulate:a", 0.0, duration)
 		tween.chain().tween_callback(container.queue_free)
 
 
@@ -259,8 +279,12 @@ func _flash_white() -> void:
 	if _placeholder == null:
 		return
 	_placeholder.modulate = Color(5, 5, 5, 1)
+	# Scale punch for impact feel
+	var original_scale: Vector2 = _placeholder.scale
+	_placeholder.scale = original_scale * 1.15
 	get_tree().create_timer(0.08).timeout.connect(
 		func() -> void:
 			if _is_active and data != null and _placeholder != null:
 				_placeholder.modulate = Color(1, 1, 1, 1)
+				_placeholder.scale = original_scale
 	)

@@ -20,11 +20,14 @@ var _library_ui: CanvasLayer = null
 var _stage_select_ui: CanvasLayer = null
 var _npc_dialogue_ui: CanvasLayer = null
 var _selected_character: CharacterData = null
+var _transition_layer: CanvasLayer = null
+var _transition_rect: ColorRect = null
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	GameManager.state_changed.connect(_on_game_state_changed)
+	_setup_transition_layer()
 	_setup_title_ui()
 	_setup_altar_ui()
 	_setup_char_select_ui()
@@ -33,6 +36,34 @@ func _ready() -> void:
 	_setup_stage_select_ui()
 	_setup_npc_dialogue_ui()
 	_show_title()
+
+
+func _setup_transition_layer() -> void:
+	_transition_layer = CanvasLayer.new()
+	_transition_layer.layer = 30
+	_transition_layer.name = "TransitionLayer"
+	add_child(_transition_layer)
+	_transition_rect = ColorRect.new()
+	_transition_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_transition_rect.color = Color(0, 0, 0, 0)
+	_transition_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_transition_layer.add_child(_transition_rect)
+
+
+func _fade_out(duration: float = 0.4) -> void:
+	var tween := create_tween()
+	tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	_transition_rect.mouse_filter = Control.MOUSE_FILTER_STOP
+	tween.tween_property(_transition_rect, "color:a", 1.0, duration)
+	await tween.finished
+
+
+func _fade_in(duration: float = 0.4) -> void:
+	_transition_rect.color.a = 1.0
+	var tween := create_tween()
+	tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tween.tween_property(_transition_rect, "color:a", 0.0, duration)
+	tween.tween_callback(func() -> void: _transition_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -146,7 +177,9 @@ func _on_stage_select_back() -> void:
 
 
 func _start_game(char_data: CharacterData, stg_data: StageData) -> void:
+	await _fade_out(0.5)
 	_load_stage(char_data, stg_data)
+	_fade_in(0.5)
 
 
 func _load_stage(char_data: CharacterData, stg_data: StageData) -> void:
@@ -173,11 +206,17 @@ func _toggle_pause() -> void:
 		GameManager.change_state(Enums.GameState.PLAYING)
 
 
+func _transition_to_title() -> void:
+	await _fade_out(0.5)
+	_clear_current_scene()
+	_show_title()
+	_fade_in(0.5)
+
+
 func _on_game_state_changed(
 		_old_state: Enums.GameState,
 		new_state: Enums.GameState
 ) -> void:
 	match new_state:
 		Enums.GameState.MENU:
-			_clear_current_scene()
-			call_deferred("_show_title")
+			_transition_to_title()

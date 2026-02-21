@@ -282,7 +282,6 @@ def generate_town_tile():
 
     rng = random.Random(456)
     for sx, sy, sw, sh in stones:
-        # Fill stone with slightly lighter color
         lr = rng.randint(-5, 8)
         stone_col = (
             min(255, COBBLE_LIGHT[0] + lr),
@@ -296,7 +295,7 @@ def generate_town_tile():
                 py = (sy + dy) % 32
                 c.set(px, py, stone_col)
 
-    # Draw grout lines between stones (wrap around for seamless)
+    # Grout lines between stones (wrap for seamless)
     for sx, sy, sw, sh in stones:
         for dx in range(sw):
             px = (sx + dx) % 32
@@ -315,16 +314,94 @@ def generate_town_tile():
             if rng.random() > 0.3:
                 c.set(px_right, py, COBBLE_LINE)
 
-    # Add occasional dark spots
+    # Dark spots
     for _ in range(6):
         dx = rng.randint(0, 31)
         dy = rng.randint(0, 31)
         c.set(dx, dy, COBBLE_DARK)
 
+    # Cracks on random stones
+    crack_col = (18, 10, 25, 255)
+    c.draw_line(5, 2, 3, 4, crack_col)
+    c.draw_line(22, 8, 24, 11, crack_col)
+    c.draw_line(12, 20, 14, 22, crack_col)
+
+    # Moss patches on edges
+    moss_col = (25, 40, 20, 200)
+    for mx, my in [(0, 6), (1, 6), (0, 7), (31, 19), (31, 20), (30, 20)]:
+        c.set(mx, my, moss_col)
+
     # Subtle blood stain
     c.set(14, 10, (80, 15, 15, 180))
     c.set(15, 10, (70, 10, 10, 150))
     c.set(14, 11, (60, 10, 10, 120))
+
+    # Small puddle
+    puddle_col = (20, 18, 35, 160)
+    for px, py in [(26, 14), (27, 14), (26, 15), (27, 15), (28, 15)]:
+        c.set(px, py, puddle_col)
+
+    return c
+
+
+def generate_town_tile_b():
+    """Stage 1 variant B: cobblestone with more wear (32x32, seamless)."""
+    c = Canvas(32, 32)
+    c.noise_fill(COBBLE_BASE, 7, seed=555)
+
+    stones = [
+        (0, 0, 8, 6), (9, 0, 7, 5), (17, 0, 7, 6), (25, 0, 7, 6),
+        (0, 7, 6, 5), (7, 6, 8, 6), (16, 7, 8, 5), (25, 7, 7, 5),
+        (0, 13, 7, 6), (8, 13, 7, 5), (16, 13, 8, 6), (25, 13, 7, 6),
+        (0, 20, 8, 5), (9, 19, 6, 6), (16, 20, 8, 5), (25, 20, 7, 5),
+        (0, 26, 7, 6), (8, 26, 8, 6), (17, 26, 7, 6), (25, 26, 7, 6),
+    ]
+
+    rng = random.Random(777)
+    for sx, sy, sw, sh in stones:
+        lr = rng.randint(-8, 5)
+        stone_col = (
+            max(0, min(255, COBBLE_LIGHT[0] + lr - 3)),
+            max(0, min(255, COBBLE_LIGHT[1] + lr - 3)),
+            max(0, min(255, COBBLE_LIGHT[2] + lr - 3)),
+            255
+        )
+        for dy in range(sh):
+            for dx in range(sw):
+                c.set((sx + dx) % 32, (sy + dy) % 32, stone_col)
+
+    for sx, sy, sw, sh in stones:
+        for dx in range(sw):
+            px = (sx + dx) % 32
+            if rng.random() > 0.25:
+                c.set(px, sy % 32, COBBLE_LINE)
+            if rng.random() > 0.25:
+                c.set(px, (sy + sh) % 32, COBBLE_LINE)
+        for dy in range(sh):
+            py = (sy + dy) % 32
+            if rng.random() > 0.25:
+                c.set(sx % 32, py, COBBLE_LINE)
+            if rng.random() > 0.25:
+                c.set((sx + sw) % 32, py, COBBLE_LINE)
+
+    # More cracks
+    crack_col = (18, 10, 25, 255)
+    c.draw_line(3, 1, 6, 5, crack_col)
+    c.draw_line(6, 5, 5, 8, crack_col)
+    c.draw_line(20, 15, 23, 18, crack_col)
+    c.draw_line(10, 25, 13, 28, crack_col)
+
+    # Moss in grout lines
+    moss_col = (25, 40, 20, 180)
+    for _ in range(8):
+        c.set(rng.randint(0, 31), rng.randint(0, 31), moss_col)
+
+    # Larger puddle with reflection
+    puddle_dark = (15, 12, 30, 180)
+    puddle_light = (25, 22, 45, 140)
+    for px, py in [(8, 10), (9, 10), (10, 10), (8, 11), (9, 11), (10, 11), (9, 12)]:
+        c.set(px, py, puddle_dark)
+    c.set(9, 10, puddle_light)
 
     return c
 
@@ -337,28 +414,76 @@ def generate_cemetery_tile():
     rng = random.Random(101)
 
     # Dirt patches
-    for _ in range(8):
+    for _ in range(10):
         px = rng.randint(0, 31)
         py = rng.randint(0, 31)
         col = DIRT_LIGHT if rng.random() > 0.5 else DIRT_DARK
         c.set(px, py, col)
-        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            if rng.random() > 0.4:
-                c.set((px + dx) % 32, (py + dy) % 32, col)
+        for ddx, ddy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            if rng.random() > 0.35:
+                c.set((px + ddx) % 32, (py + ddy) % 32, col)
 
     # Small stones
-    for _ in range(5):
+    for _ in range(6):
         px = rng.randint(0, 31)
         py = rng.randint(0, 31)
         c.set(px, py, (50, 48, 55, 255))
 
     # Dead grass tufts
     grass_col = (35, 45, 25, 255)
-    for _ in range(4):
+    grass_dry = (45, 40, 20, 255)
+    for _ in range(6):
         gx = rng.randint(0, 31)
         gy = rng.randint(0, 31)
-        c.set(gx, gy, grass_col)
-        c.set((gx + 1) % 32, gy - 1 if gy > 0 else 31, grass_col)
+        gc = grass_col if rng.random() > 0.5 else grass_dry
+        c.set(gx, gy, gc)
+        c.set((gx + 1) % 32, gy - 1 if gy > 0 else 31, gc)
+        if rng.random() > 0.5:
+            c.set((gx - 1) % 32, gy - 1 if gy > 0 else 31, gc)
+
+    # Worm tracks
+    worm_col = (22, 20, 16, 255)
+    wx, wy = 5, 5
+    for _ in range(8):
+        c.set(wx % 32, wy % 32, worm_col)
+        wx += rng.choice([-1, 0, 1])
+        wy += rng.choice([0, 1])
+
+    return c
+
+
+def generate_cemetery_tile_b():
+    """Stage 2 variant B: muddier dirt (32x32, seamless)."""
+    c = Canvas(32, 32)
+    c.noise_fill((25, 22, 18, 255), 8, seed=202)
+
+    rng = random.Random(303)
+
+    # Mud patches
+    mud_col = (20, 16, 12, 255)
+    mud_wet = (18, 14, 10, 220)
+    for _ in range(6):
+        mx = rng.randint(0, 31)
+        my = rng.randint(0, 31)
+        r = rng.randint(1, 3)
+        for dy in range(-r, r + 1):
+            for dx in range(-r, r + 1):
+                if dx * dx + dy * dy <= r * r:
+                    cc = mud_wet if dx * dx + dy * dy <= (r - 1) * (r - 1) else mud_col
+                    c.set((mx + dx) % 32, (my + dy) % 32, cc)
+
+    # Scattered bones
+    bone_col = (160, 150, 130, 200)
+    c.set(10, 8, bone_col)
+    c.set(11, 8, bone_col)
+    c.set(12, 8, bone_col)
+    c.set(22, 20, bone_col)
+    c.set(23, 20, bone_col)
+
+    # Dead roots
+    root_col = (35, 25, 18, 255)
+    c.draw_line(0, 15, 5, 18, root_col)
+    c.draw_line(25, 5, 31, 8, root_col)
 
     return c
 
@@ -610,6 +735,127 @@ def generate_skull():
     c.set(5, 6, dark)
 
     return c.add_outline((30, 25, 35, 200))
+
+
+def generate_well():
+    """Old broken well decoration (16x16) for town stage."""
+    c = Canvas(16, 16)
+    stone = STONE_GRAY
+    dark = STONE_DARK
+    water = (20, 25, 50, 200)
+    wood = WOOD_BROWN
+
+    # Stone ring
+    c.fill_rect(3, 6, 10, 8, stone)
+    c.fill_rect(4, 5, 8, 1, stone)
+    c.fill_rect(4, 14, 8, 2, dark)
+    # Interior (dark water)
+    c.fill_rect(5, 7, 6, 6, water)
+    c.set(6, 8, (25, 30, 60, 180))
+    # Wooden frame posts
+    c.fill_rect(4, 1, 2, 5, wood)
+    c.fill_rect(10, 1, 2, 5, wood)
+    # Crossbar
+    c.fill_rect(4, 1, 8, 1, wood)
+    # Rope
+    c.set(8, 2, (120, 100, 70, 255))
+    c.set(8, 3, (120, 100, 70, 255))
+    c.set(8, 4, (120, 100, 70, 255))
+
+    return c.add_outline((20, 15, 30, 200))
+
+
+def generate_cart():
+    """Overturned cart decoration (32x16) for town stage."""
+    c = Canvas(32, 16)
+    wood = WOOD_BROWN
+    wood_d = WOOD_DARK
+    wheel = IRON_GRAY
+    wheel_d = IRON_DARK
+
+    # Cart body (tilted)
+    c.fill_rect(4, 4, 20, 8, wood)
+    c.fill_rect(3, 5, 1, 6, wood_d)
+    c.fill_rect(24, 5, 1, 6, wood_d)
+    # Planks
+    for px in [8, 14, 20]:
+        for py in range(4, 12):
+            c.set(px, py, wood_d)
+    # Wheel
+    c.fill_circle(27, 10, 3, wheel)
+    c.fill_circle(27, 10, 1, wheel_d)
+    # Broken wheel spokes
+    c.draw_line(27, 7, 27, 13, wheel_d)
+    c.draw_line(24, 10, 30, 10, wheel_d)
+    # Scattered goods
+    c.fill_rect(1, 12, 3, 2, (150, 120, 80, 200))
+
+    return c.add_outline((20, 15, 10, 180))
+
+
+def generate_mushroom_cluster():
+    """Glowing mushroom cluster (16x16) for cemetery stage."""
+    c = Canvas(16, 16)
+    stem = (60, 50, 45, 255)
+    cap1 = (100, 40, 120, 255)
+    cap2 = (80, 50, 110, 255)
+    glow = (140, 80, 160, 180)
+
+    # Large mushroom
+    c.fill_rect(6, 8, 2, 5, stem)
+    c.fill_rect(4, 6, 6, 3, cap1)
+    c.fill_rect(5, 5, 4, 1, cap1)
+    c.set(5, 7, glow)
+    c.set(8, 7, glow)
+
+    # Small mushroom
+    c.fill_rect(10, 10, 2, 4, stem)
+    c.fill_rect(9, 8, 4, 3, cap2)
+    c.set(10, 9, glow)
+
+    # Tiny mushroom
+    c.set(3, 12, stem)
+    c.fill_rect(2, 11, 3, 1, cap2)
+
+    # Glow spots on ground
+    c.set(5, 13, (100, 60, 120, 60))
+    c.set(7, 14, (100, 60, 120, 40))
+    c.set(11, 14, (80, 50, 100, 50))
+
+    return c.add_outline((20, 15, 30, 160))
+
+
+def generate_broken_coffin():
+    """Broken coffin emerging from ground (16x16) for cemetery."""
+    c = Canvas(16, 16)
+    wood = (70, 45, 30, 255)
+    wood_d = (45, 30, 20, 255)
+    dirt = DIRT_BASE
+    bone = (180, 170, 155, 220)
+
+    # Ground line
+    c.fill_rect(0, 12, 16, 4, dirt)
+    # Coffin (angled, partially buried)
+    c.fill_rect(4, 4, 8, 9, wood)
+    c.fill_rect(3, 5, 1, 7, wood_d)
+    c.fill_rect(12, 5, 1, 7, wood_d)
+    # Lid (broken, tilted)
+    c.fill_rect(5, 3, 6, 2, wood)
+    c.set(11, 3, (0, 0, 0, 0))
+    c.set(10, 2, wood)
+    # Cross on lid
+    c.set(7, 4, wood_d)
+    c.set(8, 4, wood_d)
+    c.set(7, 3, wood_d)
+    # Arm bone sticking out
+    c.set(6, 6, bone)
+    c.set(5, 7, bone)
+    c.set(4, 7, bone)
+    # Dirt mound around base
+    c.set(2, 12, (35, 32, 26, 255))
+    c.set(13, 12, (35, 32, 26, 255))
+
+    return c.add_outline((15, 10, 20, 180))
 
 
 # ============================================================
@@ -987,6 +1233,47 @@ def generate_passive_icon_cloak():
 # SFX Generation
 # ============================================================
 
+def generate_vignette():
+    """Vignette overlay (320x180) - dark edges, transparent center."""
+    w, h = 320, 180
+    c = Canvas(w, h)
+    cx, cy = w / 2.0, h / 2.0
+    max_dist = math.sqrt(cx * cx + cy * cy)
+
+    for y in range(h):
+        for x in range(w):
+            dx = (x - cx) / cx
+            dy = (y - cy) / cy
+            dist = math.sqrt(dx * dx + dy * dy)
+            # Smooth vignette curve: ramp from 0.3 to 1.0
+            t = max(0.0, min(1.0, (dist - 0.3) / 0.7))
+            t = t * t  # quadratic falloff
+            alpha = int(t * 255)
+            c.set(x, y, (0, 0, 0, alpha))
+    return c
+
+
+def generate_player_glow():
+    """Soft radial glow (64x64) for player ambient light."""
+    size = 64
+    c = Canvas(size, size)
+    center = size / 2.0
+    radius = size / 2.0
+
+    for y in range(size):
+        for x in range(size):
+            dx = x - center
+            dy = y - center
+            dist = math.sqrt(dx * dx + dy * dy)
+            if dist >= radius:
+                continue
+            t = 1.0 - (dist / radius)
+            t = t * t  # quadratic falloff
+            alpha = int(t * 255)
+            c.set(x, y, (255, 255, 255, alpha))
+    return c
+
+
 def generate_sfx():
     """Generate all game sound effects."""
     sfx_dir = os.path.join(BASE_DIR, "assets", "audio", "sfx")
@@ -1236,7 +1523,9 @@ def main():
     print("Generating ground tiles...")
     tile_dir = os.path.join(BASE_DIR, "assets", "tilesets")
     write_png(os.path.join(tile_dir, "town_ground.png"), generate_town_tile())
+    write_png(os.path.join(tile_dir, "town_ground_b.png"), generate_town_tile_b())
     write_png(os.path.join(tile_dir, "cemetery_ground.png"), generate_cemetery_tile())
+    write_png(os.path.join(tile_dir, "cemetery_ground_b.png"), generate_cemetery_tile_b())
 
     # Decorations - Stage 1
     print("Generating decorations...")
@@ -1245,6 +1534,8 @@ def main():
     write_png(os.path.join(deco_dir, "broken_barrel.png"), generate_broken_barrel())
     write_png(os.path.join(deco_dir, "lamp_post.png"), generate_lamp_post())
     write_png(os.path.join(deco_dir, "blood_spot.png"), generate_blood_spot())
+    write_png(os.path.join(deco_dir, "well.png"), generate_well())
+    write_png(os.path.join(deco_dir, "cart.png"), generate_cart())
 
     # Decorations - Stage 2
     write_png(os.path.join(deco_dir, "gravestone_a.png"), generate_gravestone_a())
@@ -1252,6 +1543,8 @@ def main():
     write_png(os.path.join(deco_dir, "dead_tree.png"), generate_dead_tree())
     write_png(os.path.join(deco_dir, "iron_fence.png"), generate_iron_fence())
     write_png(os.path.join(deco_dir, "skull.png"), generate_skull())
+    write_png(os.path.join(deco_dir, "mushroom_cluster.png"), generate_mushroom_cluster())
+    write_png(os.path.join(deco_dir, "broken_coffin.png"), generate_broken_coffin())
 
     # Weapon icons
     print("Generating weapon icons...")
@@ -1278,6 +1571,12 @@ def main():
     write_png(os.path.join(icon_dir, "passive_herb.png"), generate_passive_icon_herb())
     write_png(os.path.join(icon_dir, "passive_cloak.png"), generate_passive_icon_cloak())
 
+    # Effect textures
+    print("Generating effect textures...")
+    fx_dir = os.path.join(BASE_DIR, "assets", "fx")
+    write_png(os.path.join(fx_dir, "vignette.png"), generate_vignette())
+    write_png(os.path.join(fx_dir, "player_glow.png"), generate_player_glow())
+
     # SFX
     print("Generating SFX...")
     generate_sfx()
@@ -1287,8 +1586,8 @@ def main():
     generate_bgm()
 
     print("Done! Generated:")
-    print("  - 2 ground tiles (32x32)")
-    print("  - 9 decoration sprites")
+    print("  - 4 ground tiles (32x32, 2 per stage)")
+    print("  - 13 decoration sprites")
     print("  - 8 weapon icons (16x16)")
     print("  - 10 passive icons (16x16)")
     print("  - 19 SFX files")

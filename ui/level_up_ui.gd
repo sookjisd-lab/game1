@@ -13,6 +13,7 @@ var _card_nodes: Array[PanelContainer] = []
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
+	_apply_theme()
 
 
 func show_choices(choices: Array[UpgradeData]) -> void:
@@ -21,6 +22,16 @@ func show_choices(choices: Array[UpgradeData]) -> void:
 	for i in range(choices.size()):
 		_create_card(choices[i], i)
 	visible = true
+
+
+func _apply_theme() -> void:
+	# 오버레이 배경 어둡게
+	var overlay: ColorRect = $Overlay
+	overlay.color = UITheme.BG_OVERLAY
+
+	# 타이틀 스타일
+	_title_label.add_theme_font_size_override("font_size", UITheme.HEADING_FONT_SIZE)
+	_title_label.add_theme_color_override("font_color", UITheme.GOLD)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -44,32 +55,39 @@ func _select(index: int) -> void:
 
 
 func _create_card(data: UpgradeData, index: int) -> void:
+	var is_new: bool = data.stat_key == "new_weapon" or data.stat_key == "new_passive"
 	var card := PanelContainer.new()
-	card.custom_minimum_size = Vector2(86, 90)
+	card.custom_minimum_size = Vector2(88, 95)
+	card.add_theme_stylebox_override("panel", UITheme.make_card_style(is_new))
 
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 2)
 
-	# 색상 헤더 (신규 무기/패시브는 금색 테두리)
-	var is_new: bool = data.stat_key == "new_weapon" or data.stat_key == "new_passive"
+	# 색상 헤더 바
 	var header := ColorRect.new()
-	header.color = Color(1, 0.84, 0, 1) if is_new else data.card_color
-	header.custom_minimum_size = Vector2(0, 14)
+	header.color = UITheme.GOLD if is_new else data.card_color
+	header.custom_minimum_size = Vector2(0, 2)
 	vbox.add_child(header)
 
-	# 번호 + 이름
+	# 번호 뱃지 + 이름
 	var name_label := Label.new()
 	name_label.text = "[%d] %s" % [index + 1, data.upgrade_name]
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	name_label.add_theme_color_override("font_color", UITheme.GOLD if is_new else UITheme.TEXT_BRIGHT)
 	vbox.add_child(name_label)
+
+	# 구분선
+	var sep := UITheme.make_separator()
+	vbox.add_child(sep)
 
 	# 설명
 	var desc_label := Label.new()
 	desc_label.text = data.description
 	desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD
-	desc_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7, 1))
+	desc_label.add_theme_color_override("font_color", UITheme.TEXT_NORMAL)
+	desc_label.add_theme_font_size_override("font_size", UITheme.SMALL_FONT_SIZE)
 	vbox.add_child(desc_label)
 
 	card.add_child(vbox)

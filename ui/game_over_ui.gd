@@ -16,6 +16,7 @@ var _dynamic_nodes: Array[Control] = []
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
+	_apply_theme()
 
 
 func show_results(
@@ -30,7 +31,8 @@ func show_results(
 	_clear_dynamic()
 
 	_title_label.text = LocaleManager.tr_text("victory") if is_victory else LocaleManager.tr_text("defeat")
-	_title_label.modulate = Color(1, 0.84, 0, 1) if is_victory else Color(0.9, 0.3, 0.3, 1)
+	_title_label.add_theme_color_override("font_color", UITheme.GOLD if is_victory else UITheme.BLOOD_LIGHT)
+	_title_label.modulate = Color.WHITE
 
 	_time_value.text = GameManager.format_time(elapsed_time)
 	_kills_value.text = str(kills)
@@ -52,16 +54,44 @@ func show_results(
 	visible = true
 
 
+func _apply_theme() -> void:
+	var overlay: ColorRect = $Overlay
+	overlay.color = Color(0.03, 0.01, 0.05, 0.85)
+
+	_title_label.add_theme_font_size_override("font_size", UITheme.HEADING_FONT_SIZE)
+
+	# 스탯 라벨 색상
+	var stats: GridContainer = $Overlay/CenterContainer/VBox/StatsContainer
+	for i in range(stats.get_child_count()):
+		var child: Label = stats.get_child(i) as Label
+		if child == null:
+			continue
+		if child.name.ends_with("Value"):
+			child.add_theme_color_override("font_color", UITheme.TEXT_BRIGHT)
+		else:
+			child.add_theme_color_override("font_color", UITheme.TEXT_NORMAL)
+
+	# 기억 조각은 금색 유지
+	var shards_label: Label = $Overlay/CenterContainer/VBox/StatsContainer/ShardsLabel
+	shards_label.add_theme_color_override("font_color", UITheme.GOLD_DIM)
+	shards_label.modulate = Color.WHITE
+	_shards_value.add_theme_color_override("font_color", UITheme.GOLD)
+	_shards_value.modulate = Color.WHITE
+
+	var hint_label: Label = $Overlay/CenterContainer/VBox/HintLabel
+	UITheme.apply_hint_style(hint_label)
+	hint_label.modulate = Color.WHITE
+
+
 func _add_section(title: String, items: Array[String]) -> void:
-	var spacer := Control.new()
-	spacer.custom_minimum_size = Vector2(0, 2)
-	_vbox.add_child(spacer)
-	_dynamic_nodes.append(spacer)
+	var sep := UITheme.make_separator()
+	sep.custom_minimum_size = Vector2(120, 1)
+	_vbox.add_child(sep)
+	_dynamic_nodes.append(sep)
 
 	var title_label := Label.new()
 	title_label.text = title
-	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.5, 1))
+	UITheme.apply_body_style(title_label, UITheme.GOLD_DIM)
 	_vbox.add_child(title_label)
 	_dynamic_nodes.append(title_label)
 
@@ -70,6 +100,8 @@ func _add_section(title: String, items: Array[String]) -> void:
 	items_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	items_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	items_label.custom_minimum_size = Vector2(200, 0)
+	items_label.add_theme_color_override("font_color", UITheme.TEXT_NORMAL)
+	items_label.add_theme_font_size_override("font_size", UITheme.SMALL_FONT_SIZE)
 	_vbox.add_child(items_label)
 	_dynamic_nodes.append(items_label)
 

@@ -14,11 +14,32 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
 	GameManager.state_changed.connect(_on_state_changed)
+	_apply_theme()
 	_build_summary()
 
 
 func register_player(player: CharacterBody2D) -> void:
 	_player = player
+
+
+func _apply_theme() -> void:
+	var overlay: ColorRect = $Overlay
+	overlay.color = UITheme.BG_OVERLAY
+
+	var paused_label: Label = $Overlay/CenterContainer/VBox/PausedLabel
+	UITheme.apply_heading_style(paused_label, UITheme.GOLD)
+
+	var resume_label: Label = $Overlay/CenterContainer/VBox/ResumeLabel
+	resume_label.add_theme_color_override("font_color", UITheme.HP_GREEN)
+	resume_label.modulate = Color.WHITE
+
+	var settings_label: Label = $Overlay/CenterContainer/VBox/SettingsLabel
+	settings_label.add_theme_color_override("font_color", UITheme.PURPLE)
+	settings_label.modulate = Color.WHITE
+
+	var quit_label: Label = $Overlay/CenterContainer/VBox/QuitLabel
+	quit_label.add_theme_color_override("font_color", UITheme.BLOOD_LIGHT)
+	quit_label.modulate = Color.WHITE
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -58,7 +79,8 @@ func _build_summary() -> void:
 	_summary_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_summary_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	_summary_label.custom_minimum_size = Vector2(200, 0)
-	_summary_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7, 1))
+	_summary_label.add_theme_color_override("font_color", UITheme.TEXT_NORMAL)
+	_summary_label.add_theme_font_size_override("font_size", UITheme.SMALL_FONT_SIZE)
 	_vbox.add_child(_summary_label)
 
 

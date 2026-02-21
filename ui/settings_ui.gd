@@ -193,9 +193,9 @@ func _refresh() -> void:
 	_value_labels[9].text = LocaleManager.tr_text(lang_key)
 
 	for i in range(ITEM_KEYS.size()):
-		var color := Color(0.9, 0.75, 0.5, 1) if i == _selected else Color(0.6, 0.6, 0.6, 1)
-		_value_labels[i].modulate = color
-		_name_labels[i].modulate = color
+		var is_sel: bool = i == _selected
+		_name_labels[i].add_theme_color_override("font_color", UITheme.SELECT_ACTIVE if is_sel else UITheme.TEXT_NORMAL)
+		_value_labels[i].add_theme_color_override("font_color", UITheme.SELECT_ACTIVE if is_sel else UITheme.TEXT_BRIGHT)
 
 
 func _refresh_keybinds() -> void:
@@ -207,14 +207,14 @@ func _refresh_keybinds() -> void:
 	_keybind_value_labels[4].text = "ENTER"
 
 	for i in range(KEYBIND_KEYS.size()):
-		var color := Color(0.9, 0.75, 0.5, 1) if i == _keybind_selected else Color(0.6, 0.6, 0.6, 1)
-		_keybind_value_labels[i].modulate = color
-		_keybind_name_labels[i].modulate = color
+		var is_sel: bool = i == _keybind_selected
+		_keybind_name_labels[i].add_theme_color_override("font_color", UITheme.SELECT_ACTIVE if is_sel else UITheme.TEXT_NORMAL)
+		_keybind_value_labels[i].add_theme_color_override("font_color", UITheme.SELECT_ACTIVE if is_sel else UITheme.TEXT_BRIGHT)
 
 
 func _build_ui() -> void:
 	var bg := ColorRect.new()
-	bg.color = Color(0.05, 0.03, 0.1, 0.95)
+	bg.color = UITheme.BG_DARK
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 
 	_settings_panel = Control.new()
@@ -229,10 +229,13 @@ func _build_ui() -> void:
 
 	_title_label = Label.new()
 	_title_label.text = LocaleManager.tr_text("settings_title")
-	_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_title_label.add_theme_font_size_override("font_size", 12)
-	_title_label.add_theme_color_override("font_color", Color(0.9, 0.75, 0.5, 1))
+	UITheme.apply_heading_style(_title_label, UITheme.GOLD)
 	vbox.add_child(_title_label)
+
+	var sep := UITheme.make_separator()
+	sep.custom_minimum_size = Vector2(160, 1)
+	sep.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	vbox.add_child(sep)
 
 	var spacer := Control.new()
 	spacer.custom_minimum_size = Vector2(0, 2)
@@ -246,7 +249,7 @@ func _build_ui() -> void:
 		var name_label := Label.new()
 		name_label.text = LocaleManager.tr_text(ITEM_KEYS[i])
 		name_label.custom_minimum_size = Vector2(100, 0)
-		name_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6, 1))
+		name_label.add_theme_color_override("font_color", UITheme.TEXT_NORMAL)
 		row.add_child(name_label)
 		_name_labels.append(name_label)
 
@@ -254,7 +257,7 @@ func _build_ui() -> void:
 		val_label.text = ""
 		val_label.custom_minimum_size = Vector2(50, 0)
 		val_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		val_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6, 1))
+		val_label.add_theme_color_override("font_color", UITheme.TEXT_BRIGHT)
 		row.add_child(val_label)
 		_value_labels.append(val_label)
 
@@ -266,8 +269,7 @@ func _build_ui() -> void:
 
 	_hint_label = Label.new()
 	_hint_label.text = LocaleManager.tr_text("settings_hint")
-	_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_hint_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5, 1))
+	UITheme.apply_hint_style(_hint_label)
 	vbox.add_child(_hint_label)
 
 	center.add_child(vbox)
@@ -282,7 +284,7 @@ func _build_keybind_ui() -> void:
 	_keybind_panel.visible = false
 
 	var bg := ColorRect.new()
-	bg.color = Color(0.05, 0.03, 0.1, 0.95)
+	bg.color = UITheme.BG_DARK
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 
 	var center := CenterContainer.new()
@@ -294,13 +296,16 @@ func _build_keybind_ui() -> void:
 
 	_keybind_title = Label.new()
 	_keybind_title.text = LocaleManager.tr_text("keybind_title")
-	_keybind_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_keybind_title.add_theme_font_size_override("font_size", 14)
-	_keybind_title.add_theme_color_override("font_color", Color(0.9, 0.75, 0.5, 1))
+	UITheme.apply_heading_style(_keybind_title, UITheme.GOLD)
 	vbox.add_child(_keybind_title)
 
+	var sep := UITheme.make_separator()
+	sep.custom_minimum_size = Vector2(120, 1)
+	sep.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	vbox.add_child(sep)
+
 	var spacer := Control.new()
-	spacer.custom_minimum_size = Vector2(0, 6)
+	spacer.custom_minimum_size = Vector2(0, 4)
 	vbox.add_child(spacer)
 
 	for i in range(KEYBIND_KEYS.size()):
@@ -311,7 +316,7 @@ func _build_keybind_ui() -> void:
 		var name_label := Label.new()
 		name_label.text = LocaleManager.tr_text(KEYBIND_KEYS[i])
 		name_label.custom_minimum_size = Vector2(80, 0)
-		name_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6, 1))
+		name_label.add_theme_color_override("font_color", UITheme.TEXT_NORMAL)
 		row.add_child(name_label)
 		_keybind_name_labels.append(name_label)
 
@@ -319,20 +324,19 @@ func _build_keybind_ui() -> void:
 		val_label.text = ""
 		val_label.custom_minimum_size = Vector2(50, 0)
 		val_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		val_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6, 1))
+		val_label.add_theme_color_override("font_color", UITheme.TEXT_BRIGHT)
 		row.add_child(val_label)
 		_keybind_value_labels.append(val_label)
 
 		vbox.add_child(row)
 
 	var spacer2 := Control.new()
-	spacer2.custom_minimum_size = Vector2(0, 6)
+	spacer2.custom_minimum_size = Vector2(0, 4)
 	vbox.add_child(spacer2)
 
 	_keybind_hint = Label.new()
 	_keybind_hint.text = LocaleManager.tr_text("keybind_hint")
-	_keybind_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_keybind_hint.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5, 1))
+	UITheme.apply_hint_style(_keybind_hint)
 	vbox.add_child(_keybind_hint)
 
 	center.add_child(vbox)
